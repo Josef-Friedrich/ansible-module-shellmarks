@@ -13,7 +13,7 @@ from ansible.module_utils.basic import AnsibleModule
 import shellmarks
 
 
-class TestShellMarks(unittest.TestCase):
+class TestUnitTest(unittest.TestCase):
 
 
     def test_shellmarks(self):
@@ -25,3 +25,35 @@ class TestShellMarks(unittest.TestCase):
         m = shellmarks.mark_entry
         entry = m('l-l', '/lol')
         self.assertEqual('export DIR_ll="/lol"\n', entry)
+
+
+
+class TestUnitTest(unittest.TestCase):
+
+    def test_functional(self):
+        mod_cls = create_autospec(AnsibleModule)
+        mod = mod_cls.return_value
+        mod.params = dict(
+            path="/home/jf",
+            mark="home"
+        )
+
+
+        #self.assertEqual(1, call(mod.params))
+
+
+        # Exercise
+# #        firstmod.save_data(mod)
+#
+#         # Verify
+# #
+#         expected = call(mod.params["url"])
+#         self.assertEqual(expected, fetch.call_args)
+#
+#         self.assertEqual(1, write.call_count)
+#         expected = call(fetch.return_value, mod.params["dest"])
+#         self.assertEqual(expected, write.call_args)
+#
+#         self.assertEqual(1, mod.exit_json.call_count)
+#         expected = call(msg="Data saved", changed=True)
+#         self.assertEqual(expected, mod.exit_json.call_args)
