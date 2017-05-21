@@ -21,5 +21,7 @@ class TestShellMarks(unittest.TestCase):
         entry = m('lol', '/lol')
         self.assertEqual('export DIR_lol="/lol"\n', entry)
 
+    def test_forbidden_char_dash(self):
+        m = shellmarks.mark_entry
         entry = m('l-l', '/lol')
         self.assertEqual('export DIR_ll="/lol"\n', entry)
