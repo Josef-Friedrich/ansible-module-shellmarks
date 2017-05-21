@@ -1,6 +1,4 @@
-
 # First install requirements
-
 # pip install -r test/utils/tox/requirements.txt
 # Make coding more python3-ish
 from __future__ import (absolute_import, division)
@@ -51,16 +49,6 @@ class TestFunction(unittest.TestCase):
         assert(mock.call(argument_spec=expected_arguments_spec, supports_check_mode=True) ==
                ansible_mod_cls.call_args)
 
-
-
-        #self.assertEqual(1, call(mod.params))
-
-
-        # Exercise
-# #        firstmod.save_data(mod)
-#
-#         # Verify
-# #
 #         expected = call(mod.params["url"])
 #         self.assertEqual(expected, fetch.call_args)
 #
