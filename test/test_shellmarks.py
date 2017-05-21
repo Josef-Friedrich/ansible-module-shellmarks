@@ -7,10 +7,14 @@ from __future__ import (absolute_import, division)
 __metaclass__ = type
 
 from ansible.compat.tests import unittest
-from ansible.compat.tests.mock import call, create_autospec, patch
-from ansible.module_utils.basic import AnsibleModule
+# from ansible.compat.tests.mock import call, create_autospec, patch
+# from ansible.module_utils.basic import AnsibleModule
 
+import mock
 import shellmarks
+
+
+
 
 
 class TestUnitTest(unittest.TestCase):
@@ -28,15 +32,32 @@ class TestUnitTest(unittest.TestCase):
 
 
 
-class TestUnitTest(unittest.TestCase):
+class TestFunction(unittest.TestCase):
 
-    def test_functional(self):
-        mod_cls = create_autospec(AnsibleModule)
-        mod = mod_cls.return_value
-        mod.params = dict(
-            path="/home/jf",
-            mark="home"
+    @mock.patch("shellmarks.AnsibleModule", autospec=True)
+    def test__main__success(self, ansible_mod_cls):
+        mod_obj = ansible_mod_cls.return_value
+        args = {
+            "state": "present",
+            "path": "/home/jf",
+            "mark": "home"
+        }
+        mod_obj.params = args
+        print(mod_obj)
+
+        lol = shellmarks.main()
+
+        print(lol)
+
+        expected_arguments_spec = dict(
+            path=dict(required=True, aliases=['src']),
+            state=dict(default='present', choices=['present', 'absent']),
+            mark=dict(required=True, aliases=['bookmark']),
         )
+
+        assert(mock.call(argument_spec=expected_arguments_spec, supports_check_mode=True) ==
+               ansible_mod_cls.call_args)
+
 
 
         #self.assertEqual(1, call(mod.params))
