@@ -110,12 +110,17 @@ def main():
             mark=dict(required=True, aliases=['bookmark']),
             path=dict(required=True, aliases=['src']),
             state=dict(default='present', choices=['present', 'absent']),
+            sdirs=dict(default='~/.sdirs'),
         ),
         supports_check_mode=True
     )
     p = module.params
+
     home_dir = pwd.getpwuid(os.getuid()).pw_dir
-    mark_file = os.path.join(home_dir, '.sdirs')
+    if p['sdirs'] == '~/.sdirs':
+        sdirs = os.path.join(home_dir, '.sdirs')
+    else:
+        sdirs = p['sdirs']
 
     p['path'] = p['path'].replace('$HOME', home_dir)
 
@@ -124,8 +129,8 @@ def main():
                          msg=u"Specifed path (%s) doesn't exist!"
                          % p['path'])
 
-    if os.path.isfile(mark_file):
-        f = open(mark_file, 'r')
+    if os.path.isfile(sdirs):
+        f = open(sdirs, 'r')
         lines = f.readlines()
         f.close()
     else:
@@ -148,7 +153,7 @@ def main():
         lines.sort()
         lines = [line.replace(home_dir, '$HOME') for line in lines]
 
-        f = open(mark_file, 'w')
+        f = open(sdirs, 'w')
         for line in lines:
             f.write(line)
         f.close()
