@@ -1,18 +1,11 @@
-# First install requirements
-# pip install -r test/utils/tox/requirements.txt
-# Make coding more python3-ish
 from __future__ import (absolute_import, division)
-__metaclass__ = type
-
 from ansible.compat.tests import unittest
-# from ansible.compat.tests.mock import call, create_autospec, patch
-# from ansible.module_utils.basic import AnsibleModule
-
 import mock
 import shellmarks
+__metaclass__ = type
+
 
 class TestUnitTest(unittest.TestCase):
-
 
     def test_shellmarks(self):
         m = shellmarks.mark_entry
@@ -25,37 +18,24 @@ class TestUnitTest(unittest.TestCase):
         self.assertEqual('export DIR_ll="/lol"\n', entry)
 
 
-
 class TestFunction(unittest.TestCase):
 
     @mock.patch("shellmarks.AnsibleModule")
-    def test__main__success(self, ansible_mod_cls):
-        mod_obj = ansible_mod_cls.return_value
-        args = {
+    def test__main__success(self, AnsibleModule):
+        module = AnsibleModule.return_value
+        module.params = {
             "state": "present",
             "path": "/tmp",
             "mark": "tmp"
         }
-        mod_obj.params = args
-        mod_obj.check_mode = False
+        module.check_mode = False
         shellmarks.main()
 
-        expected_arguments_spec = dict(
+        expected = dict(
             path=dict(required=True, aliases=['src']),
             state=dict(default='present', choices=['present', 'absent']),
             mark=dict(required=True, aliases=['bookmark']),
         )
 
-        assert(mock.call(argument_spec=expected_arguments_spec, supports_check_mode=True) ==
-               ansible_mod_cls.call_args)
-
-#         expected = call(mod.params["url"])
-#         self.assertEqual(expected, fetch.call_args)
-#
-#         self.assertEqual(1, write.call_count)
-#         expected = call(fetch.return_value, mod.params["dest"])
-#         self.assertEqual(expected, write.call_args)
-#
-#         self.assertEqual(1, mod.exit_json.call_count)
-#         expected = call(msg="Data saved", changed=True)
-#         self.assertEqual(expected, mod.exit_json.call_args)
+        assert(mock.call(argument_spec=expected,
+               supports_check_mode=True) == AnsibleModule.call_args)
