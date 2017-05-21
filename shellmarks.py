@@ -145,6 +145,7 @@ def main():
             changed = True
 
     if changed and not module.check_mode:
+        print('write')
         lines.sort()
         lines = [line.replace(home_dir, '$HOME') for line in lines]
 

@@ -34,20 +34,17 @@ class TestUnitTest(unittest.TestCase):
 
 class TestFunction(unittest.TestCase):
 
-    @mock.patch("shellmarks.AnsibleModule", autospec=True)
+    @mock.patch("shellmarks.AnsibleModule")
     def test__main__success(self, ansible_mod_cls):
         mod_obj = ansible_mod_cls.return_value
         args = {
             "state": "present",
-            "path": "/home/jf",
-            "mark": "home"
+            "path": "/tmp",
+            "mark": "tmp"
         }
         mod_obj.params = args
-        print(mod_obj)
-
-        lol = shellmarks.main()
-
-        print(lol)
+        mod_obj.check_mode = False
+        shellmarks.main()
 
         expected_arguments_spec = dict(
             path=dict(required=True, aliases=['src']),
