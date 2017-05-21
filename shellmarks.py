@@ -127,9 +127,9 @@ def main():
     if os.path.isfile(mark_file):
         f = open(mark_file, 'r')
         lines = f.readlines()
+        f.close()
     else:
         lines = []
-    f.close()
 
     entry = mark_entry(p['mark'], p['path'])
     entry = entry.replace(home_dir, '$HOME')

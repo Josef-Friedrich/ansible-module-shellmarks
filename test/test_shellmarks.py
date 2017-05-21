@@ -13,10 +13,6 @@ from ansible.compat.tests import unittest
 import mock
 import shellmarks
 
-
-
-
-
 class TestUnitTest(unittest.TestCase):
 
 
