@@ -99,6 +99,7 @@ class ShellMarks:
 
     def __init__(self, params, check_mode=False):
         self.changed = False
+        self.skipped = False
         self.check_mode = check_mode
         self.home_dir = pwd.getpwuid(os.getuid()).pw_dir
 
@@ -162,25 +163,31 @@ class ShellMarks:
         f.close()
 
     def process(self):
-        entry = self.generateEntry()
-        if self.state == 'present':
-            if entry not in self.lines:
-                self.lines.append(entry)
-                self.changed = True
 
-        if self.state == 'absent':
-            if entry in self.lines:
-                self.lines.remove(entry)
-                self.changed = True
+        if not os.path.exists(self.path) and self.state == 'present':
+            self.skipped = True
+            self.msg = u"Specifed path (%s) doesn't exist!" % p['path']
+        else:
+            entry = self.generateEntry()
+            self.msg = self.mark +  ' : ' + self.path
+            if self.state == 'present':
+                if entry not in self.lines:
+                    self.lines.append(entry)
+                    self.changed = True
 
-        if self.replace_home:
-            self.replaceHome()
+            if self.state == 'absent':
+                if entry in self.lines:
+                    self.lines.remove(entry)
+                    self.changed = True
 
-        if self.sorted:
-            self.sort()
+            if self.replace_home:
+                self.replaceHome()
 
-        if self.changed and not self.check_mode or (self.replace_home or self.sorted):
-            self.writeSdirs()
+            if self.sorted:
+                self.sort()
+
+            if self.changed and not self.check_mode or (self.replace_home or self.sorted):
+                self.writeSdirs()
 
 
 def mark_entry(bookmark, path):
@@ -203,52 +210,14 @@ def main():
         ),
         supports_check_mode=True
     )
-    p = module.params
 
-    home_dir = pwd.getpwuid(os.getuid()).pw_dir
-    if p['sdirs'] == '~/.sdirs':
-        sdirs = os.path.join(home_dir, '.sdirs')
-    else:
-        sdirs = p['sdirs']
+    sm = ShellMarks(module.params, module.check_mode)
+    sm.process()
 
-    p['path'] = p['path'].replace('$HOME', home_dir)
+    if sm.skipped:
+        module.exit_json(skipped=True, msg=sm.msg)
 
-    if not os.path.exists(p['path']) and p['state'] == 'present':
-        module.exit_json(skipped=True,
-                         msg=u"Specifed path (%s) doesn't exist!"
-                         % p['path'])
-
-    if os.path.isfile(sdirs):
-        f = open(sdirs, 'r')
-        lines = f.readlines()
-        f.close()
-    else:
-        lines = []
-
-    entry = mark_entry(p['mark'], p['path'])
-    entry = entry.replace(home_dir, '$HOME')
-    changed = False
-    if p['state'] == 'present':
-        if entry not in lines:
-            lines.append(entry)
-            changed = True
-
-    if p['state'] == 'absent':
-        if entry in lines:
-            lines.remove(entry)
-            changed = True
-
-    if changed and not module.check_mode:
-        lines.sort()
-        lines = [line.replace(home_dir, '$HOME') for line in lines]
-
-        f = open(sdirs, 'w')
-        for line in lines:
-            f.write(line)
-        f.close()
-
-    module.exit_json(changed=changed,
-                     msg=p['state'] + ' : ' + p['path'])
+    module.exit_json(changed=sm.changed, msg=sm.msg)
 
 
 if __name__ == '__main__':
