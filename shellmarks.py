@@ -97,26 +97,39 @@ EXAMPLES = '''
 
 class ShellMarks:
 
-    def __init__(self, params):
+    def __init__(self, params, check_mode=False):
         self.changed = False
+        self.check_mode = check_mode
+        self.home_dir = pwd.getpwuid(os.getuid()).pw_dir
 
+        # params
+        ## mark
         self.mark = params['mark']
+        ## path
         self.path = params['path']
-
+        ## replace_home
+        if 'replace_home' in params:
+            self.replace_home = params['replace_home']
+        else:
+            self.replace_home = True
+        ## sdirs
+        if 'sdirs' in params:
+            self.sdirs = params['sdirs']
+        else:
+            self.sdirs = '~/.sdirs'
+        if self.sdirs == '~/.sdirs':
+            self.sdirs = os.path.join(self.home_dir, '.sdirs')
+        ## sorted
+        if 'sorted' in params:
+            self.sorted = params['sorted']
+        else:
+            self.sorted = True
+        ## state
         if 'state' in params:
             self.state = params['state']
         else:
             self.state = 'present'
 
-        if 'sdirs' in params:
-            self.sdirs = params['sdirs']
-        else:
-            self.sdirs = '~/.sdirs'
-
-        self.home_dir = pwd.getpwuid(os.getuid()).pw_dir
-
-        if self.sdirs == '~/.sdirs':
-            self.sdirs = os.path.join(self.home_dir, '.sdirs')
 
         self.readSdirs()
 
@@ -140,7 +153,7 @@ class ShellMarks:
         self.lines.sort()
 
     def replaceHome(self):
-        self.lines = [line.replace(home_dir, '$HOME') for line in self.lines]
+        self.lines = [line.replace(self.home_dir, '$HOME') for line in self.lines]
 
     def writeSdirs(self):
         f = open(self.sdirs, 'w')
@@ -160,7 +173,14 @@ class ShellMarks:
                 self.lines.remove(entry)
                 self.changed = True
 
-        self.writeSdirs()
+        if self.replace_home:
+            self.replaceHome()
+
+        if self.sorted:
+            self.sort()
+
+        if self.changed and not self.check_mode or (self.replace_home or self.sorted):
+            self.writeSdirs()
 
 
 def mark_entry(bookmark, path):
@@ -176,8 +196,10 @@ def main():
         argument_spec=dict(
             mark=dict(required=True, aliases=['bookmark']),
             path=dict(required=True, aliases=['src']),
-            state=dict(default='present', choices=['present', 'absent']),
+            replace_home=dict(default=True, type='bool'),
             sdirs=dict(default='~/.sdirs'),
+            sorted=dict(default=True, type='bool'),
+            state=dict(default='present', choices=['present', 'absent']),
         ),
         supports_check_mode=True
     )

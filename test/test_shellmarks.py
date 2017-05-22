@@ -45,10 +45,12 @@ class TestFunction(unittest.TestCase):
         shellmarks.main()
 
         expected = dict(
-            path=dict(required=True, aliases=['src']),
-            state=dict(default='present', choices=['present', 'absent']),
-            sdirs=dict(default='~/.sdirs'),
             mark=dict(required=True, aliases=['bookmark']),
+            path=dict(required=True, aliases=['src']),
+            replace_home=dict(default=True, type='bool'),
+            sdirs=dict(default='~/.sdirs'),
+            sorted=dict(default=True, type='bool'),
+            state=dict(default='present', choices=['present', 'absent']),
         )
 
         assert(mock.call(argument_spec=expected,
