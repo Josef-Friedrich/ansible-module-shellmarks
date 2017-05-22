@@ -7,6 +7,12 @@ import tempfile
 __metaclass__ = type
 
 
+def tmp():
+    return tempfile.mkstemp()[1]
+
+def read(sdirs):
+    return open(sdirs, 'r').readlines()
+
 class TestUnitTest(unittest.TestCase):
 
     def test_shellmarks(self):
@@ -27,7 +33,7 @@ class TestFunction(unittest.TestCase):
 
     @mock.patch("shellmarks.AnsibleModule")
     def test_mock(self, AnsibleModule):
-        sdirs = tempfile.mkstemp()[1]
+        sdirs = tmp()
         module = AnsibleModule.return_value
         module.params = {
             'state': 'present',
@@ -48,7 +54,15 @@ class TestFunction(unittest.TestCase):
         assert(mock.call(argument_spec=expected,
                supports_check_mode=True) == AnsibleModule.call_args)
 
-        f = open(sdirs, 'r')
-        lines = f.readlines()
-
+        lines = read(sdirs)
         self.assertEqual(lines[0], 'export DIR_tmp="/tmp"\n')
+
+
+class TestObject(unittest.TestCase):
+
+    def test_present(self):
+        sdirs = tmp()
+        sm = shellmarks.ShellMarks({'sdirs': sdirs, 'path': '/tmp', 'mark': 'tmp'})
+        sm.process()
+
+        self.assertEqual(read(sdirs)[0], 'export DIR_tmp="/tmp"\n')

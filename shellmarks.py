@@ -98,6 +98,8 @@ EXAMPLES = '''
 class ShellMarks:
 
     def __init__(self, params):
+        self.changed = False
+
         self.mark = params['mark']
         self.path = params['path']
 
@@ -131,6 +133,7 @@ class ShellMarks:
             if ch in self.mark:
                 self.mark = self.mark.replace(ch, '')
         self.path = re.sub('/$', '', self.path)
+        self.path = self.path.replace(self.home_dir, '$HOME')
         return 'export DIR_' + self.mark + '=\"' + self.path + '\"\n'
 
     def sort(self):
@@ -139,12 +142,25 @@ class ShellMarks:
     def replaceHome(self):
         self.lines = [line.replace(home_dir, '$HOME') for line in self.lines]
 
-
     def writeSdirs(self):
         f = open(self.sdirs, 'w')
         for line in self.lines:
             f.write(line)
         f.close()
+
+    def process(self):
+        entry = self.generateEntry()
+        if self.state == 'present':
+            if entry not in self.lines:
+                self.lines.append(entry)
+                self.changed = True
+
+        if self.state == 'absent':
+            if entry in self.lines:
+                self.lines.remove(entry)
+                self.changed = True
+
+        self.writeSdirs()
 
 
 def mark_entry(bookmark, path):
