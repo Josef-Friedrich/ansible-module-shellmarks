@@ -95,6 +95,57 @@ EXAMPLES = '''
     state: absent
 '''
 
+class ShellMarks:
+
+    def __init__(self, params):
+        self.mark = params['mark']
+        self.path = params['path']
+
+        if 'state' in params:
+            self.state = params['state']
+        else:
+            self.state = 'present'
+
+        if 'sdirs' in params:
+            self.sdirs = params['sdirs']
+        else:
+            self.sdirs = '~/.sdirs'
+
+        self.home_dir = pwd.getpwuid(os.getuid()).pw_dir
+
+        if self.sdirs == '~/.sdirs':
+            self.sdirs = os.path.join(self.home_dir, '.sdirs')
+
+        self.readSdirs()
+
+    def readSdirs(self):
+        if os.path.isfile(self.sdirs):
+            f = open(self.sdirs, 'r')
+            self.lines = f.readlines()
+            f.close()
+        else:
+            self.lines = []
+
+    def generateEntry(self):
+        for ch in ['-', ' ', '/']:
+            if ch in self.mark:
+                self.mark = self.mark.replace(ch, '')
+        self.path = re.sub('/$', '', self.path)
+        return 'export DIR_' + self.mark + '=\"' + self.path + '\"\n'
+
+    def sort(self):
+        self.lines.sort()
+
+    def replaceHome(self):
+        self.lines = [line.replace(home_dir, '$HOME') for line in self.lines]
+
+
+    def writeSdirs(self):
+        f = open(self.sdirs, 'w')
+        for line in self.lines:
+            f.write(line)
+        f.close()
+
 
 def mark_entry(bookmark, path):
     for ch in ['-', ' ', '/']:
