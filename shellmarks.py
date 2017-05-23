@@ -138,15 +138,15 @@ class ShellMarks:
             self.state = 'present'
 
         self.readSdirs()
-        self.linesOrigin = list(self.lines)
+        self.entrysOrigin = list(self.entrys)
 
     def readSdirs(self):
         if os.path.isfile(self.sdirs):
             f = open(self.sdirs, 'r')
-            self.lines = f.readlines()
+            self.entrys = f.readlines()
             f.close()
         else:
-            self.lines = []
+            self.entrys = []
 
     def generateEntry(self):
         if self.path and self.mark:
@@ -160,15 +160,15 @@ class ShellMarks:
             return False
 
     def sort(self):
-        self.lines.sort()
+        self.entrys.sort()
 
     def replaceHome(self):
-        self.lines = [line.replace(self.home_dir, '$HOME') for line in self.lines]
+        self.entrys = [entry.replace(self.home_dir, '$HOME') for entry in self.entrys]
 
     def writeSdirs(self):
         f = open(self.sdirs, 'w')
-        for line in self.lines:
-            f.write(line)
+        for entry in self.entrys:
+            f.write(entry)
         f.close()
 
     def generateMsg(self):
@@ -188,12 +188,12 @@ class ShellMarks:
 
         entry = self.generateEntry()
         if self.state == 'present' and self.mark and self.path:
-            if entry not in self.lines:
-                self.lines.append(entry)
+            if entry not in self.entrys:
+                self.entrys.append(entry)
 
         if self.state == 'absent' and (self.mark or self.path):
-            if entry in self.lines:
-                self.lines.remove(entry)
+            if entry in self.entrys:
+                self.entrys.remove(entry)
 
         if self.replace_home:
             self.replaceHome()
@@ -201,7 +201,7 @@ class ShellMarks:
         if self.sorted:
             self.sort()
 
-        if self.lines != self.linesOrigin:
+        if self.entrys != self.entrysOrigin:
             self.changed = True
 
         if not self.check_mode and self.changed:
