@@ -68,3 +68,17 @@ class TestObject(unittest.TestCase):
         sm.process()
 
         self.assertEqual(read(sdirs)[0], 'export DIR_tmp="/tmp"\n')
+
+    def test_sort(self):
+        sdirs = tmp()
+        content = 'export DIR_tmpb="/tmp/b"\n' + \
+            'export DIR_tmpc="/tmp/c"\n' + \
+            'export DIR_tmpa="/tmp/a"\n'
+
+        f = open(sdirs, 'w')
+        f.write(content)
+        f.close()
+
+        sm = shellmarks.ShellMarks({'sorted': True, 'sdirs': sdirs})
+        sm.process()
+        #self.assertEqual(sm.lines, 'lol')

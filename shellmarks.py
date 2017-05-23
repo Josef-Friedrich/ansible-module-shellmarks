@@ -105,9 +105,15 @@ class ShellMarks:
 
         # params
         ## mark
-        self.mark = params['mark']
+        if 'mark' in params:
+            self.mark = params['mark']
+        else:
+            self.mark = False
         ## path
-        self.path = params['path']
+        if 'path' in params:
+            self.path = params['path']
+        else:
+            self.path = False
         ## replace_home
         if 'replace_home' in params:
             self.replace_home = params['replace_home']
@@ -120,6 +126,7 @@ class ShellMarks:
             self.sdirs = '~/.sdirs'
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')
+        print(self.sdirs)
         ## sorted
         if 'sorted' in params:
             self.sorted = params['sorted']
@@ -130,7 +137,6 @@ class ShellMarks:
             self.state = params['state']
         else:
             self.state = 'present'
-
 
         self.readSdirs()
 
@@ -143,12 +149,15 @@ class ShellMarks:
             self.lines = []
 
     def generateEntry(self):
-        for ch in ['-', ' ', '/']:
-            if ch in self.mark:
-                self.mark = self.mark.replace(ch, '')
-        self.path = re.sub('/$', '', self.path)
-        self.path = self.path.replace(self.home_dir, '$HOME')
-        return 'export DIR_' + self.mark + '=\"' + self.path + '\"\n'
+        if self.path and self.mark:
+            for ch in ['-', ' ', '/']:
+                if ch in self.mark:
+                    self.mark = self.mark.replace(ch, '')
+            self.path = re.sub('/$', '', self.path)
+            self.path = self.path.replace(self.home_dir, '$HOME')
+            return 'export DIR_' + self.mark + '=\"' + self.path + '\"\n'
+        else:
+            return False
 
     def sort(self):
         self.lines.sort()
@@ -162,20 +171,28 @@ class ShellMarks:
             f.write(line)
         f.close()
 
+    def generateMsg(self):
+        if self.skipped and self.path:
+            self.msg = u"Specifed path (%s) doesn't exist!" % self.path
+        elif self.path and self.mark:
+            self.msg = self.mark +  ' : ' + self.path
+        elif self.path:
+            self.msg = self.path
+        elif self.mark:
+            self.msg = self.mark
+
     def process(self):
 
-        if not os.path.exists(self.path) and self.state == 'present':
+        if not os.path.exists(str(self.path)) and self.state == 'present':
             self.skipped = True
-            self.msg = u"Specifed path (%s) doesn't exist!" % p['path']
         else:
             entry = self.generateEntry()
-            self.msg = self.mark +  ' : ' + self.path
-            if self.state == 'present':
+            if self.state == 'present' and self.mark and self.path:
                 if entry not in self.lines:
                     self.lines.append(entry)
                     self.changed = True
 
-            if self.state == 'absent':
+            if self.state == 'absent' and (self.mark or self.path):
                 if entry in self.lines:
                     self.lines.remove(entry)
                     self.changed = True
@@ -186,8 +203,10 @@ class ShellMarks:
             if self.sorted:
                 self.sort()
 
-            if self.changed and not self.check_mode or (self.replace_home or self.sorted):
+            if not self.check_mode and (self.changed or self.replace_home or self.sorted):
                 self.writeSdirs()
+
+            self.generateMsg()
 
 
 def mark_entry(bookmark, path):
