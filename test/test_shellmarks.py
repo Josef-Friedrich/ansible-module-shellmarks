@@ -10,6 +10,7 @@ __metaclass__ = type
 def tmp():
     return tempfile.mkstemp()[1]
 
+
 def tmp_dir():
     return tempfile.mkdtemp()
 
@@ -104,24 +105,24 @@ class TestAdd(unittest.TestCase):
 
     def test_add(self):
         sm = self.addShellMarks('tmp1', self.dir1)
-        self.assertEqual(len(sm.entrys), 1)
+        self.assertEqual(len(sm.entries), 1)
 
         # same entry
         sm = self.addShellMarks('tmp1', self.dir1)
-        self.assertEqual(len(sm.entrys), 1)
+        self.assertEqual(len(sm.entries), 1)
 
         # same mark
         sm = self.addShellMarks('tmp1', self.dir2)
-        self.assertEqual(len(sm.entrys), 1)
+        self.assertEqual(len(sm.entries), 1)
 
         # second entry
         sm = self.addShellMarks('tmp2', self.dir2)
-        self.assertEqual(len(sm.entrys), 2)
+        self.assertEqual(len(sm.entries), 2)
 
         # third entry
         sm = self.addShellMarks('tmp3', self.dir3)
-        self.assertEqual(len(sm.entrys), 3)
+        self.assertEqual(len(sm.entries), 3)
 
         # nonexistent
-        sm = self.addShellMarks('tmp4', '/jhkskdflsuizqwewqkfsfdlksjkuiwerjksKddfl3426h34kl')
-        self.assertEqual(len(sm.entrys), 3)
+        sm = self.addShellMarks('tmp4', '/jhkskdflsuizqwewqkfsfdlksjkui')
+        self.assertEqual(len(sm.entries), 3)

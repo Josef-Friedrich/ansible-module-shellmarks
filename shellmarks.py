@@ -139,15 +139,15 @@ class ShellMarks:
             self.state = 'present'
 
         self.readSdirs()
-        self.entrysOrigin = list(self.entrys)
+        self.entriesOrigin = list(self.entries)
 
     def readSdirs(self):
         if os.path.isfile(self.sdirs):
             f = open(self.sdirs, 'r')
-            self.entrys = f.readlines()
+            self.entries = f.readlines()
             f.close()
         else:
-            self.entrys = []
+            self.entries = []
 
     def generateEntry(self):
         if self.path and self.mark:
@@ -166,24 +166,24 @@ class ShellMarks:
         if self.mark and \
                 self.path and \
                 not self.skipped and \
-                self.entry not in self.entrys and \
-                not [s for s in self.entrys if
-                 'export DIR_' + self.mark + '=' in s]:
-            self.entrys.append(self.entry)
+                self.entry not in self.entries and \
+                not [s for s in self.entries if
+                     'export DIR_' + self.mark + '=' in s]:
+            self.entries.append(self.entry)
 
     def deleteEntry(self):
         pass
 
     def sort(self):
-        self.entrys.sort()
+        self.entries.sort()
 
     def replaceHome(self):
-        self.entrys = [entry.replace(self.home_dir, '$HOME')
-                       for entry in self.entrys]
+        self.entries = [entry.replace(self.home_dir, '$HOME')
+                       for entry in self.entries]
 
     def writeSdirs(self):
         f = open(self.sdirs, 'w')
-        for entry in self.entrys:
+        for entry in self.entries:
             f.write(entry)
         f.close()
 
@@ -215,7 +215,7 @@ class ShellMarks:
         if self.sorted:
             self.sort()
 
-        if self.entrys != self.entrysOrigin:
+        if self.entries != self.entriesOrigin:
             self.changed = True
 
         if not self.check_mode and self.changed:
