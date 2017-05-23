@@ -126,7 +126,6 @@ class ShellMarks:
             self.sdirs = '~/.sdirs'
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')
-        print(self.sdirs)
         ## sorted
         if 'sorted' in params:
             self.sorted = params['sorted']
@@ -139,6 +138,7 @@ class ShellMarks:
             self.state = 'present'
 
         self.readSdirs()
+        self.linesOrigin = list(self.lines)
 
     def readSdirs(self):
         if os.path.isfile(self.sdirs):
@@ -185,28 +185,29 @@ class ShellMarks:
 
         if not os.path.exists(str(self.path)) and self.state == 'present':
             self.skipped = True
-        else:
-            entry = self.generateEntry()
-            if self.state == 'present' and self.mark and self.path:
-                if entry not in self.lines:
-                    self.lines.append(entry)
-                    self.changed = True
 
-            if self.state == 'absent' and (self.mark or self.path):
-                if entry in self.lines:
-                    self.lines.remove(entry)
-                    self.changed = True
+        entry = self.generateEntry()
+        if self.state == 'present' and self.mark and self.path:
+            if entry not in self.lines:
+                self.lines.append(entry)
 
-            if self.replace_home:
-                self.replaceHome()
+        if self.state == 'absent' and (self.mark or self.path):
+            if entry in self.lines:
+                self.lines.remove(entry)
 
-            if self.sorted:
-                self.sort()
+        if self.replace_home:
+            self.replaceHome()
 
-            if not self.check_mode and (self.changed or self.replace_home or self.sorted):
-                self.writeSdirs()
+        if self.sorted:
+            self.sort()
 
-            self.generateMsg()
+        if self.lines != self.linesOrigin:
+            self.changed = True
+
+        if not self.check_mode and self.changed:
+            self.writeSdirs()
+
+        self.generateMsg()
 
 
 def mark_entry(bookmark, path):
