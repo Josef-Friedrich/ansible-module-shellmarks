@@ -168,11 +168,18 @@ class ShellMarks:
                 not self.skipped and \
                 self.entry not in self.entries and \
                 not [s for s in self.entries if
-                     'export DIR_' + self.mark + '=' in s]:
+                     'export DIR_' + self.mark + '=\"' in s]:
             self.entries.append(self.entry)
 
     def deleteEntry(self):
-        pass
+        if self.mark:
+            deletions = []
+            for index, entry in enumerate(self.entries):
+                if 'export DIR_' + self.mark + '=\"' in entry:
+                    deletions.append(index)
+
+            for index in deletions:
+                del self.entries[index]
 
     def sort(self):
         self.entries.sort()
