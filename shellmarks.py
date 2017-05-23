@@ -95,6 +95,7 @@ EXAMPLES = '''
     state: absent
 '''
 
+
 class ShellMarks:
 
     def __init__(self, params, check_mode=False):
@@ -104,34 +105,34 @@ class ShellMarks:
         self.home_dir = pwd.getpwuid(os.getuid()).pw_dir
 
         # params
-        ## mark
+        # mark
         if 'mark' in params:
             self.mark = params['mark']
         else:
             self.mark = False
-        ## path
+        # path
         if 'path' in params:
             self.path = params['path']
         else:
             self.path = False
-        ## replace_home
+        # replace_home
         if 'replace_home' in params:
             self.replace_home = params['replace_home']
         else:
             self.replace_home = True
-        ## sdirs
+        # sdirs
         if 'sdirs' in params:
             self.sdirs = params['sdirs']
         else:
             self.sdirs = '~/.sdirs'
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')
-        ## sorted
+        # sorted
         if 'sorted' in params:
             self.sorted = params['sorted']
         else:
             self.sorted = True
-        ## state
+        # state
         if 'state' in params:
             self.state = params['state']
         else:
@@ -155,15 +156,30 @@ class ShellMarks:
                     self.mark = self.mark.replace(ch, '')
             self.path = re.sub('/$', '', self.path)
             self.path = self.path.replace(self.home_dir, '$HOME')
-            return 'export DIR_' + self.mark + '=\"' + self.path + '\"\n'
+            self.entry = 'export DIR_' + self.mark + '=\"' + self.path + '\"\n'
         else:
-            return False
+            self.entry = False
+
+        return self.entry
+
+    def addEntry(self):
+        if self.mark and \
+                self.path and \
+                not self.skipped and \
+                self.entry not in self.entrys and \
+                not [s for s in self.entrys if
+                 'export DIR_' + self.mark + '=' in s]:
+            self.entrys.append(self.entry)
+
+    def deleteEntry(self):
+        pass
 
     def sort(self):
         self.entrys.sort()
 
     def replaceHome(self):
-        self.entrys = [entry.replace(self.home_dir, '$HOME') for entry in self.entrys]
+        self.entrys = [entry.replace(self.home_dir, '$HOME')
+                       for entry in self.entrys]
 
     def writeSdirs(self):
         f = open(self.sdirs, 'w')
@@ -175,7 +191,7 @@ class ShellMarks:
         if self.skipped and self.path:
             self.msg = u"Specifed path (%s) doesn't exist!" % self.path
         elif self.path and self.mark:
-            self.msg = self.mark +  ' : ' + self.path
+            self.msg = self.mark + ' : ' + self.path
         elif self.path:
             self.msg = self.path
         elif self.mark:
@@ -186,14 +202,12 @@ class ShellMarks:
         if not os.path.exists(str(self.path)) and self.state == 'present':
             self.skipped = True
 
-        entry = self.generateEntry()
-        if self.state == 'present' and self.mark and self.path:
-            if entry not in self.entrys:
-                self.entrys.append(entry)
+        self.generateEntry()
+        if self.state == 'present':
+            self.addEntry()
 
-        if self.state == 'absent' and (self.mark or self.path):
-            if entry in self.entrys:
-                self.entrys.remove(entry)
+        if self.state == 'absent':
+            self.deleteEntry()
 
         if self.replace_home:
             self.replaceHome()

@@ -1,6 +1,6 @@
 from __future__ import (absolute_import, division)
 from ansible.compat.tests import unittest
-#import unittest
+# import unittest
 import mock
 import shellmarks
 import tempfile
@@ -10,24 +10,24 @@ __metaclass__ = type
 def tmp():
     return tempfile.mkstemp()[1]
 
+def tmp_dir():
+    return tempfile.mkdtemp()
+
+
 def read(sdirs):
     return open(sdirs, 'r').readlines()
+
 
 class TestUnitTest(unittest.TestCase):
 
     def test_shellmarks(self):
-        m = shellmarks.mark_entry
-        entry = m('lol', '/lol')
-        self.assertEqual('export DIR_lol="/lol"\n', entry)
         sm = shellmarks.ShellMarks({'mark': 'lol', 'path': '/lol'})
         self.assertEqual('export DIR_lol="/lol"\n', sm.generateEntry())
 
     def test_forbidden_char_dash(self):
-        m = shellmarks.mark_entry
-        entry = m('l-l', '/lol')
-        self.assertEqual('export DIR_ll="/lol"\n', entry)
         sm = shellmarks.ShellMarks({'mark': 'l-l', 'path': '/lol'})
         self.assertEqual('export DIR_ll="/lol"\n', sm.generateEntry())
+
 
 class TestFunction(unittest.TestCase):
 
@@ -64,10 +64,14 @@ class TestObject(unittest.TestCase):
 
     def test_present(self):
         sdirs = tmp()
-        sm = shellmarks.ShellMarks({'sdirs': sdirs, 'path': '/tmp', 'mark': 'tmp'})
+        sm = shellmarks.ShellMarks({'sdirs': sdirs, 'path': '/tmp',
+                                    'mark': 'tmp'})
         sm.process()
 
         self.assertEqual(read(sdirs)[0], 'export DIR_tmp="/tmp"\n')
+
+    def test_add(self):
+        pass
 
     def test_sort(self):
         sdirs = tmp()
@@ -81,4 +85,43 @@ class TestObject(unittest.TestCase):
 
         sm = shellmarks.ShellMarks({'sorted': True, 'sdirs': sdirs})
         sm.process()
-        #self.assertEqual(sm.lines, 'lol')
+
+
+class TestAdd(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.sdirs = tmp()
+        self.dir1 = tmp_dir()
+        self.dir2 = tmp_dir()
+        self.dir3 = tmp_dir()
+
+    def addShellMarks(self, mark, path):
+        sm = shellmarks.ShellMarks({'sdirs': self.sdirs, 'path': path,
+                                    'mark': mark})
+        sm.process()
+        return sm
+
+    def test_add(self):
+        sm = self.addShellMarks('tmp1', self.dir1)
+        self.assertEqual(len(sm.entrys), 1)
+
+        # same entry
+        sm = self.addShellMarks('tmp1', self.dir1)
+        self.assertEqual(len(sm.entrys), 1)
+
+        # same mark
+        sm = self.addShellMarks('tmp1', self.dir2)
+        self.assertEqual(len(sm.entrys), 1)
+
+        # second entry
+        sm = self.addShellMarks('tmp2', self.dir2)
+        self.assertEqual(len(sm.entrys), 2)
+
+        # third entry
+        sm = self.addShellMarks('tmp3', self.dir3)
+        self.assertEqual(len(sm.entrys), 3)
+
+        # nonexistent
+        sm = self.addShellMarks('tmp4', '/jhkskdflsuizqwewqkfsfdlksjkuiwerjksKddfl3426h34kl')
+        self.assertEqual(len(sm.entrys), 3)
