@@ -103,26 +103,35 @@ class TestAdd(unittest.TestCase):
     def test_add(self):
         sm = self.addShellMarks('tmp1', self.dir1)
         self.assertEqual(len(sm.entries), 1)
+        self.assertEqual(sm.skipped, False)
+        self.assertEqual(sm.changed, True)
 
         # same entry
         sm = self.addShellMarks('tmp1', self.dir1)
         self.assertEqual(len(sm.entries), 1)
+        self.assertEqual(sm.changed, False)
 
         # same mark
         sm = self.addShellMarks('tmp1', self.dir2)
         self.assertEqual(len(sm.entries), 1)
+        self.assertEqual(sm.changed, False)
 
         # second entry
         sm = self.addShellMarks('tmp2', self.dir2)
         self.assertEqual(len(sm.entries), 2)
+        self.assertEqual(sm.skipped, False)
+        self.assertEqual(sm.changed, True)
 
         # third entry
         sm = self.addShellMarks('tmp3', self.dir3)
         self.assertEqual(len(sm.entries), 3)
+        self.assertEqual(sm.skipped, False)
+        self.assertEqual(sm.changed, True)
 
         # nonexistent
         sm = self.addShellMarks('tmp4', '/jhkskdflsuizqwewqkfsfdlksjkui')
-        self.assertEqual(len(sm.entries), 3)
+        self.assertEqual(sm.skipped, True)
+        self.assertEqual(sm.changed, False)
 
 
 class TestDel(unittest.TestCase):
@@ -142,9 +151,16 @@ class TestDel(unittest.TestCase):
         self.addShellMarks('tmp2', self.dir2)
         self.addShellMarks('tmp3', self.dir3)
 
-    def test_delete(self):
+    def test_delete_by_mark(self):
         sm = shellmarks.ShellMarks({
             'sdirs': self.sdirs,
             'mark': 'tmp1',
             'state': 'absent'})
         self.assertEqual(len(sm.entries), 2)
+
+    def test_delete_nonexistent(self):
+        sm = shellmarks.ShellMarks({
+            'sdirs': self.sdirs,
+            'mark': 'tmp999',
+            'state': 'absent'})
+        self.assertEqual(len(sm.entries), 3)
