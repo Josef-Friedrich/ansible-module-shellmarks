@@ -140,6 +140,7 @@ class ShellMarks:
 
         self.readSdirs()
         self.entriesOrigin = list(self.entries)
+        self.process()
 
     def readSdirs(self):
         if os.path.isfile(self.sdirs):

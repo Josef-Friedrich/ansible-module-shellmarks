@@ -7,7 +7,7 @@ import tempfile
 __metaclass__ = type
 
 
-def tmp():
+def tmp_file():
     return tempfile.mkstemp()[1]
 
 
@@ -34,7 +34,7 @@ class TestFunction(unittest.TestCase):
 
     @mock.patch("shellmarks.AnsibleModule")
     def test_mock(self, AnsibleModule):
-        sdirs = tmp()
+        sdirs = tmp_file()
         module = AnsibleModule.return_value
         module.params = {
             'state': 'present',
@@ -64,10 +64,9 @@ class TestFunction(unittest.TestCase):
 class TestObject(unittest.TestCase):
 
     def test_present(self):
-        sdirs = tmp()
+        sdirs = tmp_file()
         sm = shellmarks.ShellMarks({'sdirs': sdirs, 'path': '/tmp',
                                     'mark': 'tmp'})
-        sm.process()
 
         self.assertEqual(read(sdirs)[0], 'export DIR_tmp="/tmp"\n')
 
@@ -75,7 +74,7 @@ class TestObject(unittest.TestCase):
         pass
 
     def test_sort(self):
-        sdirs = tmp()
+        sdirs = tmp_file()
         content = 'export DIR_tmpb="/tmp/b"\n' + \
             'export DIR_tmpc="/tmp/c"\n' + \
             'export DIR_tmpa="/tmp/a"\n'
@@ -85,14 +84,13 @@ class TestObject(unittest.TestCase):
         f.close()
 
         sm = shellmarks.ShellMarks({'sorted': True, 'sdirs': sdirs})
-        sm.process()
 
 
 class TestAdd(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.sdirs = tmp()
+        self.sdirs = tmp_file()
         self.dir1 = tmp_dir()
         self.dir2 = tmp_dir()
         self.dir3 = tmp_dir()
@@ -100,7 +98,6 @@ class TestAdd(unittest.TestCase):
     def addShellMarks(self, mark, path):
         sm = shellmarks.ShellMarks({'sdirs': self.sdirs, 'path': path,
                                     'mark': mark})
-        sm.process()
         return sm
 
     def test_add(self):
@@ -133,11 +130,10 @@ class TestDel(unittest.TestCase):
     def addShellMarks(self, mark, path):
         sm = shellmarks.ShellMarks({'sdirs': self.sdirs, 'path': path,
                                     'mark': mark})
-        sm.process()
         return sm
 
     def setUp(self):
-        self.sdirs = tmp()
+        self.sdirs = tmp_file()
         self.dir1 = tmp_dir()
         self.dir2 = tmp_dir()
         self.dir3 = tmp_dir()
@@ -151,5 +147,4 @@ class TestDel(unittest.TestCase):
             'sdirs': self.sdirs,
             'mark': 'tmp1',
             'state': 'absent'})
-        sm.process()
         self.assertEqual(len(sm.entries), 2)
