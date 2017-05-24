@@ -163,20 +163,23 @@ class ShellMarks:
 
         return self.entry
 
+    def markSearchPattern(self, mark):
+        return 'export DIR_' + mark + '=\"'
+
     def addEntry(self):
         if self.mark and \
                 self.path and \
                 not self.skipped and \
                 self.entry not in self.entries and \
                 not [s for s in self.entries if
-                     'export DIR_' + self.mark + '=\"' in s]:
+                     self.markSearchPattern(self.mark) in s]:
             self.entries.append(self.entry)
 
     def deleteEntry(self):
         if self.mark:
             deletions = []
             for index, entry in enumerate(self.entries):
-                if 'export DIR_' + self.mark + '=\"' in entry:
+                if self.markSearchPattern(self.mark) in entry:
                     deletions.append(index)
 
             for index in deletions:
