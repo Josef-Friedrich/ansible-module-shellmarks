@@ -160,6 +160,10 @@ class TestDel(unittest.TestCase):
         self.assertEqual(sm.skipped, False)
         self.assertEqual(sm.changed, True)
 
+        for entry in sm.entries:
+            if 'DIR_tmp1=' in entry:
+                self.fail('Path was not deleted.')
+
     def test_delete_nonexistent(self):
         sm = shellmarks.ShellMarks({
             'sdirs': self.sdirs,
@@ -169,7 +173,7 @@ class TestDel(unittest.TestCase):
         self.assertEqual(sm.skipped, False)
         self.assertEqual(sm.changed, False)
 
-    def test_delete_py_path(self):
+    def test_delete_by_path(self):
         sm = shellmarks.ShellMarks({
             'sdirs': self.sdirs,
             'path': self.dir1,
@@ -178,7 +182,11 @@ class TestDel(unittest.TestCase):
         self.assertEqual(sm.skipped, False)
         self.assertEqual(sm.changed, True)
 
-    def test_delete_py_path(self):
+        for entry in sm.entries:
+            if self.dir1 in entry:
+                self.fail('Path was not deleted.')
+
+    def test_delete_by_path_and_mark(self):
         sm = shellmarks.ShellMarks({
             'sdirs': self.sdirs,
             'mark': 'tmp1',
@@ -187,3 +195,7 @@ class TestDel(unittest.TestCase):
         self.assertEqual(len(sm.entries), 2)
         self.assertEqual(sm.skipped, False)
         self.assertEqual(sm.changed, True)
+
+        for entry in sm.entries:
+            if self.dir1 in entry:
+                self.fail('Path was not deleted.')
