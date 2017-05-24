@@ -70,9 +70,6 @@ class TestObject(unittest.TestCase):
 
         self.assertEqual(read(sdirs)[0], 'export DIR_tmp="/tmp"\n')
 
-    def test_add(self):
-        pass
-
     def test_sort(self):
         sdirs = tmp_file()
         content = 'export DIR_tmpb="/tmp/b"\n' + \
@@ -83,8 +80,11 @@ class TestObject(unittest.TestCase):
         f.write(content)
         f.close()
 
-        sm = shellmarks.ShellMarks({'sorted': True, 'sdirs': sdirs})
+        sm = shellmarks.ShellMarks({'sorted': False, 'sdirs': sdirs}, True)
+        self.assertEqual(sm.entries[0], 'export DIR_tmpb="/tmp/b"\n')
 
+        sm = shellmarks.ShellMarks({'sorted': True, 'sdirs': sdirs}, True)
+        self.assertEqual(sm.entries[0], 'export DIR_tmpa="/tmp/a"\n')
 
 class TestAdd(unittest.TestCase):
 
