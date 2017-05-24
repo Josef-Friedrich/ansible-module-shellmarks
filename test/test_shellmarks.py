@@ -157,10 +157,33 @@ class TestDel(unittest.TestCase):
             'mark': 'tmp1',
             'state': 'absent'})
         self.assertEqual(len(sm.entries), 2)
+        self.assertEqual(sm.skipped, False)
+        self.assertEqual(sm.changed, True)
 
     def test_delete_nonexistent(self):
         sm = shellmarks.ShellMarks({
             'sdirs': self.sdirs,
-            'mark': 'tmp999',
+            'path': '/tmp/tmp34723423643646346etfjf34gegf623646',
             'state': 'absent'})
         self.assertEqual(len(sm.entries), 3)
+        self.assertEqual(sm.skipped, False)
+        self.assertEqual(sm.changed, False)
+
+    def test_delete_py_path(self):
+        sm = shellmarks.ShellMarks({
+            'sdirs': self.sdirs,
+            'path': self.dir1,
+            'state': 'absent'})
+        self.assertEqual(len(sm.entries), 2)
+        self.assertEqual(sm.skipped, False)
+        self.assertEqual(sm.changed, True)
+
+    def test_delete_py_path(self):
+        sm = shellmarks.ShellMarks({
+            'sdirs': self.sdirs,
+            'mark': 'tmp1',
+            'path': self.dir1,
+            'state': 'absent'})
+        self.assertEqual(len(sm.entries), 2)
+        self.assertEqual(sm.skipped, False)
+        self.assertEqual(sm.changed, True)

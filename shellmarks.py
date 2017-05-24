@@ -176,10 +176,28 @@ class ShellMarks:
             self.entries.append(self.entry)
 
     def deleteEntry(self):
-        if self.mark:
+        if self.mark and not self.path:
             deletions = []
             for index, entry in enumerate(self.entries):
                 if self.markSearchPattern(self.mark) in entry:
+                    deletions.append(index)
+
+            for index in deletions:
+                del self.entries[index]
+
+        elif self.path and not self.mark:
+            deletions = []
+            for index, entry in enumerate(self.entries):
+                if self.path in entry:
+                    deletions.append(index)
+
+            for index in deletions:
+                del self.entries[index]
+
+        elif self.path and self.mark:
+            deletions = []
+            for index, entry in enumerate(self.entries):
+                if self.entry in entry:
                     deletions.append(index)
 
             for index in deletions:
@@ -190,7 +208,7 @@ class ShellMarks:
 
     def replaceHome(self):
         self.entries = [entry.replace(self.home_dir, '$HOME')
-                       for entry in self.entries]
+                        for entry in self.entries]
 
     def writeSdirs(self):
         f = open(self.sdirs, 'w')
@@ -257,7 +275,6 @@ def main():
     )
 
     sm = ShellMarks(module.params, module.check_mode)
-    sm.process()
 
     if sm.skipped:
         module.exit_json(skipped=True, msg=sm.msg)
