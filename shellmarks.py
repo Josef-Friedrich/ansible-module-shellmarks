@@ -99,44 +99,26 @@ EXAMPLES = '''
 class ShellMarks:
 
     def __init__(self, params, check_mode=False):
-        self.changed = False
-        self.skipped = False
         self.check_mode = check_mode
         self.home_dir = pwd.getpwuid(os.getuid()).pw_dir
 
-        # params
-        # mark
-        if 'mark' in params:
-            self.mark = params['mark']
-        else:
-            self.mark = False
-        # path
-        if 'path' in params:
-            self.path = params['path']
-        else:
-            self.path = False
-        # replace_home
-        if 'replace_home' in params:
-            self.replace_home = params['replace_home']
-        else:
-            self.replace_home = True
-        # sdirs
-        if 'sdirs' in params:
-            self.sdirs = params['sdirs']
-        else:
-            self.sdirs = '~/.sdirs'
+        defaults = {
+            'changed': False,
+            'skipped': False,
+            'mark': False,
+            'path': False,
+            'replace_home': True,
+            'sdirs': '~/.sdirs',
+            'sorted': True,
+            'state': 'present',
+        }
+        processed_params = defaults.copy()
+        processed_params.update(params)
+        for key, value in processed_params.items():
+            setattr(self, key, value)
+
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')
-        # sorted
-        if 'sorted' in params:
-            self.sorted = params['sorted']
-        else:
-            self.sorted = True
-        # state
-        if 'state' in params:
-            self.state = params['state']
-        else:
-            self.state = 'present'
 
         self.readSdirs()
         self.entriesOrigin = list(self.entries)
