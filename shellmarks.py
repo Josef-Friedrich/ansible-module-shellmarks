@@ -42,7 +42,7 @@ module: shellmarks
 short_description: Mark directories like the tools shellmarks / bashmarks
 description:
     - shellmarks U(https://github.com/Bilalh/shellmarks) bashmarks
-      U(https://github.com/huyng/bashmarks) are shell script that allows
+      U(https://github.com/huyng/bashmarks) are shell scripts that allows
       you to save and jump to commonly used directories with tab
       completion.
 
