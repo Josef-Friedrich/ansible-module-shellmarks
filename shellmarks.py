@@ -49,10 +49,18 @@ description:
 version_added: "1.0"
 author: "Josef Friedrich (@Josef-Friedrich)"
 options:
+    cleanup:
+        description:
+            - Delete bookmarks of nonexistent directories.
+        required: false
+        default: false
+        choices: []
+        aliases: []
+        version_added: "1.0"
     mark:
         description:
             - Name of the bookmark.
-        required: true
+        required: false
         default: []
         choices: []
         aliases:
@@ -61,11 +69,35 @@ options:
     path:
         description:
             - Full path to the directory to be marked.
-        required: true
+        required: false
         default: []
         choices: []
         aliases:
             - src
+        version_added: "1.0"
+    replace_home:
+        description:
+            - Replace home directory with $HOME variable
+        required: false
+        default: true
+        choices: []
+        aliases: []
+        version_added: "1.0"
+    sdirs:
+        description:
+            - Path of the file where the bookmarks are stored
+        required: false
+        default: ~/.sdirs
+        choices: []
+        aliases: []
+        version_added: "1.0"
+    sorted:
+        description:
+            - Sort entries in the bookmark file
+        required: false
+        default: true
+        choices: []
+        aliases: []
         version_added: "1.0"
     state:
         description:
@@ -104,11 +136,12 @@ class ShellMarks:
 
         defaults = {
             'changed': False,
-            'skipped': False,
+            'cleanup': False,
             'mark': False,
             'path': False,
             'replace_home': True,
             'sdirs': '~/.sdirs',
+            'skipped': False,
             'sorted': True,
             'state': 'present',
         }
@@ -246,8 +279,9 @@ def mark_entry(bookmark, path):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            mark=dict(required=True, aliases=['bookmark']),
-            path=dict(required=True, aliases=['src']),
+            cleanup=dict(default=False, type='bool'),
+            mark=dict(aliases=['bookmark']),
+            path=dict(aliases=['src']),
             replace_home=dict(default=True, type='bool'),
             sdirs=dict(default='~/.sdirs'),
             sorted=dict(default=True, type='bool'),

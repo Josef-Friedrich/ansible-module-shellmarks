@@ -46,8 +46,9 @@ class TestFunction(unittest.TestCase):
         shellmarks.main()
 
         expected = dict(
-            mark=dict(required=True, aliases=['bookmark']),
-            path=dict(required=True, aliases=['src']),
+            cleanup=dict(default=False, type='bool'),
+            mark=dict(aliases=['bookmark']),
+            path=dict(aliases=['src']),
             replace_home=dict(default=True, type='bool'),
             sdirs=dict(default='~/.sdirs'),
             sorted=dict(default=True, type='bool'),
