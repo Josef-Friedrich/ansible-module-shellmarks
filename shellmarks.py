@@ -1,36 +1,19 @@
-#! /usr/bin/python
+#!/usr/bin/python
 
-# -*- coding: utf-8 -*-
-
-# https://gist.github.com/Josef-Friedrich/7166f86b7d32c65c40532244cb69ccff
-
-# MIT License
+# (c) 2017, Josef Friedrich <josef@friedrich.rocks>
 #
-# Copyright (c) 2017 Josef Friedrich <josef@friedrich.rocks>
+# This module is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-from ansible.module_utils.basic import AnsibleModule
-import os
-import pwd
-import re
+# You should have received a copy of the GNU General Public License
+# along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
 ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'status': ['preview'],
@@ -68,7 +51,7 @@ options:
         version_added: "1.0"
     path:
         description:
-            - Full path to the directory to be marked.
+            - Full path to the directory.
         required: false
         default: []
         choices: []
@@ -115,17 +98,31 @@ requirements: []
 '''
 
 EXAMPLES = '''
-# Marks the ansible configuration directory
+# Bookmark the ansible configuration directory
 - shellmarks:
     mark: ansible
     path: /etc/ansible
     state: present
-# Unmarks the ansible configuration directory
+# Delete bookmark of the ansible configuration directory
 - shellmarks:
     mark: ansible
     path: /etc/ansible
     state: absent
+# Replace home directory with $HOME variable
+- shellmarks:
+    replace_home: true
+# Sort entries in the bookmark file
+- shellmarks:
+    sorted: true
+# Delete bookmarks of no longer existing directories
+- shellmarks:
+    cleanup: true
 '''
+
+from ansible.module_utils.basic import AnsibleModule
+import os
+import pwd
+import re
 
 
 def get_path(entry):
@@ -142,6 +139,7 @@ def del_entries(entries, indexes):
     indexes = sorted(indexes, reverse=True)
     for index in indexes:
         del entries[index]
+
 
 class ShellMarks:
 
@@ -260,6 +258,8 @@ class ShellMarks:
             self.msg = self.path
         elif self.mark:
             self.msg = self.mark
+        else:
+            self.msg = ''
 
     def process(self):
         path = str(self.path)
