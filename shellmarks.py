@@ -256,6 +256,8 @@ class ShellMarks:
             self.msg = self.path
         elif self.mark:
             self.msg = self.mark
+        else:
+            self.msg = ''
 
     def process(self):
 
