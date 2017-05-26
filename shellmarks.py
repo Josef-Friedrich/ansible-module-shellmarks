@@ -115,16 +115,19 @@ requirements: []
 '''
 
 EXAMPLES = '''
-# Marks the ansible configuration directory
+# Bookmark the ansible configuration directory
 - shellmarks:
     mark: ansible
     path: /etc/ansible
     state: present
-# Unmarks the ansible configuration directory
+# Delete bookmark of the ansible configuration directory
 - shellmarks:
     mark: ansible
     path: /etc/ansible
     state: absent
+# Delete bookmarks of no longer existing directories
+- shellmarks:
+    cleanup: true
 '''
 
 
