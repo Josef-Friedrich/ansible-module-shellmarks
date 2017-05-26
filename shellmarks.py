@@ -186,7 +186,8 @@ class ShellMarks:
                 if ch in self.mark:
                     self.mark = self.mark.replace(ch, '')
             self.path = re.sub('/$', '', self.path)
-            self.path = self.path.replace(self.home_dir, '$HOME')
+            if self.replace_home:
+                self.path = self.path.replace(self.home_dir, '$HOME')
             self.entry = 'export DIR_' + self.mark + '=\"' + self.path + '\"\n'
         else:
             self.entry = False
@@ -231,6 +232,7 @@ class ShellMarks:
         deletions = []
         for index, entry in enumerate(self.entries):
             path = get_path(entry)
+            path = path.replace('$HOME', self.home_dir)
             if not os.path.exists(path):
                 deletions.append(index)
 
@@ -260,8 +262,9 @@ class ShellMarks:
             self.msg = self.mark
 
     def process(self):
-
-        if not os.path.exists(str(self.path)) and self.state == 'present':
+        path = str(self.path)
+        path = path.replace('$HOME', self.home_dir)
+        if not os.path.exists(path) and self.state == 'present':
             self.skipped = True
 
         self.generateEntry()
