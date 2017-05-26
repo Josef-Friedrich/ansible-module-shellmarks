@@ -68,7 +68,7 @@ options:
         version_added: "1.0"
     path:
         description:
-            - Full path to the directory to be marked.
+            - Full path to the directory.
         required: false
         default: []
         choices: []
@@ -125,6 +125,12 @@ EXAMPLES = '''
     mark: ansible
     path: /etc/ansible
     state: absent
+# Replace home directory with $HOME variable
+- shellmarks:
+    replace_home: true
+# Sort entries in the bookmark file
+- shellmarks:
+    sorted: true
 # Delete bookmarks of no longer existing directories
 - shellmarks:
     cleanup: true

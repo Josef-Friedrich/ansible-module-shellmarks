@@ -6,7 +6,6 @@ setup(
     version='1.0.0',
     author='Josef Friedrich',
     author_email='josef@friedrich.rocks',
-    description=('Rename audio files from metadata tags.'),
     license='GPL3',
     url='https://github.com/Josef-Friedrich/ansible-module-shellmarks',
     install_requires=[
