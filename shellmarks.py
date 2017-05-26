@@ -143,6 +143,7 @@ def del_entries(entries, indexes):
     for index in indexes:
         del entries[index]
 
+
 class ShellMarks:
 
     def __init__(self, params, check_mode=False):

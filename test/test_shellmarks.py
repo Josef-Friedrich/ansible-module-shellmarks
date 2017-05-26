@@ -144,7 +144,7 @@ class TestDel(unittest.TestCase):
 
     def addShellMarks(self, mark, path):
         return shellmarks.ShellMarks({'sdirs': self.sdirs, 'path': path,
-                                    'mark': mark})
+                                      'mark': mark})
 
     def setUp(self):
         self.sdirs = tmp_file()
@@ -219,8 +219,9 @@ class TestCleanUp(unittest.TestCase):
             'cleanup': True,
             'sdirs': sdirs})
 
+        self.assertEqual(sm.changed, True)
         self.assertEqual(len(sm.entries), 1)
-        self.assertEqual(shellmarks.get_path(sm.entries[0]), path) 
+        self.assertEqual(shellmarks.get_path(sm.entries[0]), path)
 
 
 class TestFunctions(unittest.TestCase):
