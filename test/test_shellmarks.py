@@ -7,6 +7,14 @@ import tempfile
 __metaclass__ = type
 
 
+def sdirs_by_content(content):
+    sdirs = tmp_file()
+    f = open(sdirs, 'w')
+    f.write(content)
+    f.close()
+    return sdirs
+
+
 def tmp_file():
     return tempfile.mkstemp()[1]
 
@@ -72,14 +80,10 @@ class TestObject(unittest.TestCase):
         self.assertEqual(read(sdirs)[0], 'export DIR_tmp="/tmp"\n')
 
     def test_sort(self):
-        sdirs = tmp_file()
         content = 'export DIR_tmpb="/tmp/b"\n' + \
             'export DIR_tmpc="/tmp/c"\n' + \
             'export DIR_tmpa="/tmp/a"\n'
-
-        f = open(sdirs, 'w')
-        f.write(content)
-        f.close()
+        sdirs = sdirs_by_content(content)
 
         sm = shellmarks.ShellMarks({'sorted': False, 'sdirs': sdirs}, True)
         self.assertEqual(sm.entries[0], 'export DIR_tmpb="/tmp/b"\n')
@@ -139,9 +143,8 @@ class TestAdd(unittest.TestCase):
 class TestDel(unittest.TestCase):
 
     def addShellMarks(self, mark, path):
-        sm = shellmarks.ShellMarks({'sdirs': self.sdirs, 'path': path,
+        return shellmarks.ShellMarks({'sdirs': self.sdirs, 'path': path,
                                     'mark': mark})
-        return sm
 
     def setUp(self):
         self.sdirs = tmp_file()
@@ -201,3 +204,39 @@ class TestDel(unittest.TestCase):
         for entry in sm.entries:
             if self.dir1 in entry:
                 self.fail('Path was not deleted.')
+
+
+class TestCleanUp(unittest.TestCase):
+
+    def test_cleanup(self):
+        path = tmp_dir()
+        no = 'export DIR_tmpb="/tmpXDR34723df4WER/d4REd4RE64er64erb"\n'
+        content = no + no + no + \
+            'export DIR_exists="' + path + '"\n' + no + no + no
+        sdirs = sdirs_by_content(content)
+
+        sm = shellmarks.ShellMarks({
+            'cleanup': True,
+            'sdirs': sdirs})
+
+        self.assertEqual(len(sm.entries), 1)
+        self.assertEqual(shellmarks.get_path(sm.entries[0]), path) 
+
+
+class TestFunctions(unittest.TestCase):
+
+    entry = 'export DIR_tmp="/tmp"'
+
+    def test_get_path(self):
+        self.assertEqual(shellmarks.get_path(self.entry), '/tmp')
+
+    def test_get_mark(self):
+        self.assertEqual(shellmarks.get_mark(self.entry), 'tmp')
+
+    def test_del_entries(self):
+        entries = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l']
+        shellmarks.del_entries(entries, [1, 5, 11])
+
+        self.assertEqual(entries[1], 'c')
+        self.assertEqual(entries[5], 'h')
+        self.assertEqual(entries[8], 'k')

@@ -128,6 +128,21 @@ EXAMPLES = '''
 '''
 
 
+def get_path(entry):
+    match = re.findall(r'export DIR_.*="(.*)"', entry)
+    return match[0]
+
+
+def get_mark(entry):
+    match = re.findall(r'export DIR_(.*)=".*"', entry)
+    return match[0]
+
+
+def del_entries(entries, indexes):
+    indexes = sorted(indexes, reverse=True)
+    for index in indexes:
+        del entries[index]
+
 class ShellMarks:
 
     def __init__(self, params, check_mode=False):
@@ -196,27 +211,30 @@ class ShellMarks:
             for index, entry in enumerate(self.entries):
                 if self.markSearchPattern(self.mark) in entry:
                     deletions.append(index)
-
-            for index in deletions:
-                del self.entries[index]
+            del_entries(self.entries, deletions)
 
         elif self.path and not self.mark:
             deletions = []
             for index, entry in enumerate(self.entries):
                 if self.path in entry:
                     deletions.append(index)
-
-            for index in deletions:
-                del self.entries[index]
+            del_entries(self.entries, deletions)
 
         elif self.path and self.mark:
             deletions = []
             for index, entry in enumerate(self.entries):
                 if self.entry in entry:
                     deletions.append(index)
+            del_entries(self.entries, deletions)
 
-            for index in deletions:
-                del self.entries[index]
+    def cleanUpEntries(self):
+        deletions = []
+        for index, entry in enumerate(self.entries):
+            path = get_path(entry)
+            if not os.path.exists(path):
+                deletions.append(index)
+
+        del_entries(self.entries, deletions)
 
     def sort(self):
         self.entries.sort()
@@ -258,6 +276,9 @@ class ShellMarks:
 
         if self.sorted:
             self.sort()
+
+        if self.cleanup:
+            self.cleanUpEntries()
 
         if self.entries != self.entriesOrigin:
             self.changed = True
