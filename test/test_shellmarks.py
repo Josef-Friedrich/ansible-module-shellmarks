@@ -66,8 +66,8 @@ class TestObject(unittest.TestCase):
 
     def test_present(self):
         sdirs = tmp_file()
-        sm = shellmarks.ShellMarks({'sdirs': sdirs, 'path': '/tmp',
-                                    'mark': 'tmp'})
+        shellmarks.ShellMarks({'sdirs': sdirs, 'path': '/tmp',
+                               'mark': 'tmp'})
 
         self.assertEqual(read(sdirs)[0], 'export DIR_tmp="/tmp"\n')
 
@@ -86,6 +86,7 @@ class TestObject(unittest.TestCase):
 
         sm = shellmarks.ShellMarks({'sorted': True, 'sdirs': sdirs}, True)
         self.assertEqual(sm.entries[0], 'export DIR_tmpa="/tmp/a"\n')
+
 
 class TestAdd(unittest.TestCase):
 
