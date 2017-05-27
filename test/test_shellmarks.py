@@ -228,6 +228,9 @@ class TestFunctions(unittest.TestCase):
 
     entry = 'export DIR_tmp="/tmp"'
 
+    def assertNormalizePath(self, path, home_dir, result):
+        self.assertEqual(shellmarks.normalize_path(path, home_dir), result)
+
     def test_get_path(self):
         self.assertEqual(shellmarks.get_path(self.entry), '/tmp')
 
@@ -241,3 +244,9 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(entries[1], 'c')
         self.assertEqual(entries[5], 'h')
         self.assertEqual(entries[8], 'k')
+
+    def test_normalize_path(self):
+        self.assertNormalizePath('/tmp/lol', '/home/jf', '/tmp/lol')
+        self.assertNormalizePath('~/.lol', '/home/jf', '/home/jf/.lol')
+        self.assertNormalizePath(False, '/home/jf', 'False')
+        self.assertNormalizePath('/tmp/', '/home/jf', '/tmp')

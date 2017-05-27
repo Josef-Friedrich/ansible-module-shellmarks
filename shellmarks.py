@@ -141,6 +141,14 @@ def del_entries(entries, indexes):
         del entries[index]
 
 
+def normalize_path(path, home_dir):
+    path = str(path)
+    path = re.sub('/$', '', path)
+    path = re.sub(r'^~', home_dir, path)
+    path = path.replace('$HOME', home_dir)
+    return path
+
+
 class ShellMarks:
 
     def __init__(self, params, check_mode=False):
@@ -163,6 +171,8 @@ class ShellMarks:
         for key, value in processed_params.items():
             setattr(self, key, value)
 
+        self.path = normalize_path(self.path, self.home_dir)
+
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')
 
@@ -183,7 +193,6 @@ class ShellMarks:
             for ch in ['-', ' ', '/']:
                 if ch in self.mark:
                     self.mark = self.mark.replace(ch, '')
-            self.path = re.sub('/$', '', self.path)
             if self.replace_home:
                 self.path = self.path.replace(self.home_dir, '$HOME')
             self.entry = 'export DIR_' + self.mark + '=\"' + self.path + '\"\n'
@@ -205,7 +214,7 @@ class ShellMarks:
             self.entries.append(self.entry)
 
     def deleteEntry(self):
-        if self.mark and not self.path:
+        if self.mark and (not self.path or self.path == 'False'):
             deletions = []
             for index, entry in enumerate(self.entries):
                 if self.markSearchPattern(self.mark) in entry:
@@ -262,9 +271,7 @@ class ShellMarks:
             self.msg = ''
 
     def process(self):
-        path = str(self.path)
-        path = path.replace('$HOME', self.home_dir)
-        if not os.path.exists(path) and self.state == 'present':
+        if not os.path.exists(self.path) and self.state == 'present':
             self.skipped = True
 
         self.generateEntry()
