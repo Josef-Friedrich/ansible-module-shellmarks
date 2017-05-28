@@ -151,6 +151,13 @@ def normalize_path(path, home_dir):
     return path
 
 
+def normalize_mark(mark):
+    for char in ['-', ' ', '/']:
+        if char in mark:
+            mark = mark.replace(char, '')
+    return mark
+
+
 class ShellMarks:
 
     def __init__(self, params, check_mode=False):
@@ -174,6 +181,7 @@ class ShellMarks:
             setattr(self, key, value)
 
         self.path = normalize_path(self.path, self.home_dir)
+        self.mark = normalize_mark(self.mark)
 
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')
@@ -193,9 +201,6 @@ class ShellMarks:
     def generateEntry(self):
         path = self.path
         if path and self.mark:
-            for ch in ['-', ' ', '/']:
-                if ch in self.mark:
-                    self.mark = self.mark.replace(ch, '')
             if self.replace_home:
                 path = path.replace(self.home_dir, '$HOME')
             self.entry = 'export DIR_' + self.mark + '=\"' + path + '\"\n'
