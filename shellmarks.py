@@ -191,13 +191,14 @@ class ShellMarks:
             self.entries = []
 
     def generateEntry(self):
-        if self.path and self.mark:
+        path = self.path
+        if path and self.mark:
             for ch in ['-', ' ', '/']:
                 if ch in self.mark:
                     self.mark = self.mark.replace(ch, '')
             if self.replace_home:
-                self.path = self.path.replace(self.home_dir, '$HOME')
-            self.entry = 'export DIR_' + self.mark + '=\"' + self.path + '\"\n'
+                path = path.replace(self.home_dir, '$HOME')
+            self.entry = 'export DIR_' + self.mark + '=\"' + path + '\"\n'
         else:
             self.entry = False
 
