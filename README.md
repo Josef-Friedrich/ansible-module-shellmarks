@@ -11,3 +11,66 @@ module to set bookmarks to commonly used directories like the tools
 [bashmarks](https://github.com/huyng/bashmarks) are shell scripts that
 allows you to save and jump to commonly used directories with tab
 completion.
+
+```
+> SHELLMARKS    (shellmarks.py)
+
+  shellmarks https://github.com/Bilalh/shellmarks bashmarks https://github.com/huyng/bashmarks
+  are shell scripts that allows you to save and jump to commonly used directories with tab
+  completion.
+
+Options (= is mandatory):
+
+- cleanup
+        Delete bookmarks of nonexistent directories.
+        [Default: False]
+- mark
+        Name of the bookmark.
+        [Default: (null)]
+- path
+        Full path to the directory.
+        [Default: (null)]
+- replace_home
+        Replace home directory with $HOME variable.
+        [Default: True]
+- sdirs
+        The path to the file where the bookmarks are stored.
+        [Default: ~/.sdirs]
+- sorted
+        Sort entries in the bookmark file.
+        [Default: True]
+- state
+        State of the mark.
+        (Choices: present, absent)[Default: present]
+EXAMPLES:
+# Bookmark the ansible configuration directory
+- shellmarks:
+    mark: ansible
+    path: /etc/ansible
+    state: present
+
+# Delete bookmark of the ansible configuration directory
+- shellmarks:
+    mark: ansible
+    path: /etc/ansible
+    state: absent
+
+# Replace home directory with $HOME variable
+- shellmarks:
+    replace_home: true
+
+# Sort entries in the bookmark file
+- shellmarks:
+    sorted: true
+
+# Delete bookmarks of no longer existing directories
+- shellmarks:
+    cleanup: true
+
+
+MAINTAINERS: Josef Friedrich (@Josef-Friedrich)
+
+METADATA:
+	Status: ['preview']
+	Supported_by: community
+```
