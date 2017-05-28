@@ -273,7 +273,7 @@ class ShellMarks:
             self.msg = ''
 
     def processSkipped(self):
-        if not self.changed and self.mark and self.path and self.state == 'present':
+        if self.path and not os.path.exists(self.path) and self.mark and self.state == 'present':
             self.skipped = True
 
     def process(self):
