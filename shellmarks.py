@@ -145,7 +145,7 @@ def normalize_path(path, home_dir):
     if path:
         path = re.sub(r'/$', '', path)
         path = re.sub(r'^~', home_dir, path)
-        path = path.replace('$HOME', home_dir)
+        path = re.sub(r'^\$HOME', home_dir, path)
     else:
         path = ''
     return path
