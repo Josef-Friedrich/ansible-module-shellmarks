@@ -220,6 +220,7 @@ class TestCleanUp(unittest.TestCase):
             'sdirs': sdirs})
 
         self.assertEqual(sm.changed, True)
+        self.assertEqual(sm.skipped, False)
         self.assertEqual(len(sm.entries), 1)
         self.assertEqual(shellmarks.get_path(sm.entries[0]), path)
 

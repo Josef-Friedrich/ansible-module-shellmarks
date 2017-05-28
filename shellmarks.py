@@ -209,7 +209,7 @@ class ShellMarks:
     def addEntry(self):
         if self.mark and \
                 self.path and \
-                not self.skipped and \
+                (os.path.exists(self.path) and self.state == 'present') and \
                 self.entry not in self.entries and \
                 not [s for s in self.entries if
                      self.markSearchPattern(self.mark) in s]:
@@ -272,10 +272,11 @@ class ShellMarks:
         else:
             self.msg = ''
 
-    def process(self):
-        if not os.path.exists(self.path) and self.state == 'present':
+    def processSkipped(self):
+        if not self.changed and self.mark and self.path and self.state == 'present':
             self.skipped = True
 
+    def process(self):
         self.generateEntry()
         if self.state == 'present':
             self.addEntry()
@@ -294,6 +295,8 @@ class ShellMarks:
 
         if self.entries != self.entriesOrigin:
             self.changed = True
+
+        self.processSkipped()
 
         if not self.check_mode and self.changed:
             self.writeSdirs()
