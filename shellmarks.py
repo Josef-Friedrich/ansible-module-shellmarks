@@ -22,14 +22,13 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: shellmarks
-short_description: Mark directories like the tools shellmarks / bashmarks
+short_description: A module to set bookmarks to commonly used directories like the tools shellmarks / bashmarks do.
 description:
     - shellmarks U(https://github.com/Bilalh/shellmarks) bashmarks
       U(https://github.com/huyng/bashmarks) are shell scripts that allows
       you to save and jump to commonly used directories with tab
       completion.
 
-version_added: "1.0"
 author: "Josef Friedrich (@Josef-Friedrich)"
 options:
     cleanup:
@@ -37,51 +36,33 @@ options:
             - Delete bookmarks of nonexistent directories.
         required: false
         default: false
-        choices: []
-        aliases: []
-        version_added: "1.0"
     mark:
         description:
             - Name of the bookmark.
         required: false
-        default: []
-        choices: []
         aliases:
             - bookmark
-        version_added: "1.0"
     path:
         description:
             - Full path to the directory.
         required: false
-        default: []
-        choices: []
         aliases:
             - src
-        version_added: "1.0"
     replace_home:
         description:
-            - Replace home directory with $HOME variable
+            - Replace home directory with $HOME variable.
         required: false
         default: true
-        choices: []
-        aliases: []
-        version_added: "1.0"
     sdirs:
         description:
-            - Path of the file where the bookmarks are stored
+            - The path to the file where the bookmarks are stored.
         required: false
         default: ~/.sdirs
-        choices: []
-        aliases: []
-        version_added: "1.0"
     sorted:
         description:
-            - Sort entries in the bookmark file
+            - Sort entries in the bookmark file.
         required: false
         default: true
-        choices: []
-        aliases: []
-        version_added: "1.0"
     state:
         description:
             - State of the mark.
@@ -91,10 +72,7 @@ options:
             - present
             - absent
         aliases:
-          - src
-        version_added: "1.0"
-notes: []
-requirements: []
+            - src
 '''
 
 EXAMPLES = '''
@@ -103,17 +81,21 @@ EXAMPLES = '''
     mark: ansible
     path: /etc/ansible
     state: present
+
 # Delete bookmark of the ansible configuration directory
 - shellmarks:
     mark: ansible
     path: /etc/ansible
     state: absent
+
 # Replace home directory with $HOME variable
 - shellmarks:
     replace_home: true
+
 # Sort entries in the bookmark file
 - shellmarks:
     sorted: true
+
 # Delete bookmarks of no longer existing directories
 - shellmarks:
     cleanup: true
