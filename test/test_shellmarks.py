@@ -248,5 +248,5 @@ class TestFunctions(unittest.TestCase):
     def test_normalize_path(self):
         self.assertNormalizePath('/tmp/lol', '/home/jf', '/tmp/lol')
         self.assertNormalizePath('~/.lol', '/home/jf', '/home/jf/.lol')
-        self.assertNormalizePath(False, '/home/jf', 'False')
+        self.assertNormalizePath(False, '/home/jf', '')
         self.assertNormalizePath('/tmp/', '/home/jf', '/tmp')

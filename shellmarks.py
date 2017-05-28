@@ -142,10 +142,12 @@ def del_entries(entries, indexes):
 
 
 def normalize_path(path, home_dir):
-    path = str(path)
-    path = re.sub('/$', '', path)
-    path = re.sub(r'^~', home_dir, path)
-    path = path.replace('$HOME', home_dir)
+    if path:
+        path = re.sub('/$', '', path)
+        path = re.sub(r'^~', home_dir, path)
+        path = path.replace('$HOME', home_dir)
+    else:
+        path = ''
     return path
 
 
@@ -158,8 +160,8 @@ class ShellMarks:
         defaults = {
             'changed': False,
             'cleanup': False,
-            'mark': False,
-            'path': False,
+            'mark': '',
+            'path': '',
             'replace_home': True,
             'sdirs': '~/.sdirs',
             'skipped': False,
@@ -214,7 +216,7 @@ class ShellMarks:
             self.entries.append(self.entry)
 
     def deleteEntry(self):
-        if self.mark and (not self.path or self.path == 'False'):
+        if self.mark and not self.path:
             deletions = []
             for index, entry in enumerate(self.entries):
                 if self.markSearchPattern(self.mark) in entry:
