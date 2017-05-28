@@ -251,3 +251,4 @@ class TestFunctions(unittest.TestCase):
         self.assertNormalizePath('~/.lol', '/home/jf', '/home/jf/.lol')
         self.assertNormalizePath(False, '/home/jf', '')
         self.assertNormalizePath('/tmp/', '/home/jf', '/tmp')
+        self.assertNormalizePath('$HOME/tmp', '/home/jf', '/home/jf/tmp')

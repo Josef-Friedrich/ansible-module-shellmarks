@@ -143,7 +143,7 @@ def del_entries(entries, indexes):
 
 def normalize_path(path, home_dir):
     if path:
-        path = re.sub('/$', '', path)
+        path = re.sub(r'/$', '', path)
         path = re.sub(r'^~', home_dir, path)
         path = path.replace('$HOME', home_dir)
     else:
@@ -308,7 +308,6 @@ def mark_entry(bookmark, path):
     for ch in ['-', ' ', '/']:
         if ch in bookmark:
             bookmark = bookmark.replace(ch, '')
-    path = re.sub('/$', '', path)
     return 'export DIR_' + bookmark + '=\"' + path + '\"\n'
 
 
