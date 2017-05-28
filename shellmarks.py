@@ -152,9 +152,12 @@ def normalize_path(path, home_dir):
 
 
 def normalize_mark(mark):
-    for char in ['-', ' ', '/']:
-        if char in mark:
-            mark = mark.replace(char, '')
+    if mark:
+        for char in ['-', ' ', '/']:
+            if char in mark:
+                mark = mark.replace(char, '')
+    else:
+        mark = ''
     return mark
 
 

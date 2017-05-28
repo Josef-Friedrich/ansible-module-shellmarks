@@ -249,6 +249,8 @@ class TestFunctions(unittest.TestCase):
     def test_normalize_path(self):
         self.assertNormalizePath('/tmp/lol', '/home/jf', '/tmp/lol')
         self.assertNormalizePath('~/.lol', '/home/jf', '/home/jf/.lol')
+        self.assertNormalizePath('', '/home/jf', '')
+        #self.assertNormalizePath('/', '/home/jf', '/')
         self.assertNormalizePath(False, '/home/jf', '')
         self.assertNormalizePath('/tmp/', '/home/jf', '/tmp')
         self.assertNormalizePath('$HOME/tmp', '/home/jf', '/home/jf/tmp')
@@ -257,3 +259,5 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(shellmarks.normalize_mark('l o l'), 'lol')
         self.assertEqual(shellmarks.normalize_mark('l-o-l'), 'lol')
         self.assertEqual(shellmarks.normalize_mark('l/o/l'), 'lol')
+        self.assertEqual(shellmarks.normalize_mark(''), '')
+        self.assertEqual(shellmarks.normalize_mark(False), '')
