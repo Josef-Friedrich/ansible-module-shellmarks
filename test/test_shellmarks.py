@@ -117,6 +117,7 @@ class TestAdd(unittest.TestCase):
         self.assertEqual(len(sm.entries), 1)
         self.assertEqual(sm.changed, False)
 
+
         # same mark
         sm = self.addShellMarks('tmp1', self.dir2)
         self.assertEqual(len(sm.entries), 1)
@@ -138,6 +139,11 @@ class TestAdd(unittest.TestCase):
         sm = self.addShellMarks('tmp4', '/jhkskdflsuizqwewqkfsfdlksjkui')
         self.assertEqual(sm.skipped, True)
         self.assertEqual(sm.changed, False)
+
+        # Check casesensitivity
+        sm = self.addShellMarks('TMP1', self.dir1)
+        self.assertEqual(len(sm.entries), 4)
+        self.assertEqual(sm.changed, True)
 
 
 class TestDel(unittest.TestCase):
@@ -204,6 +210,15 @@ class TestDel(unittest.TestCase):
         for entry in sm.entries:
             if self.dir1 in entry:
                 self.fail('Path was not deleted.')
+
+    def test_delete_casesensitivity(self):
+        sm = shellmarks.ShellMarks({
+            'sdirs': self.sdirs,
+            'mark': 'TMP1',
+            'state': 'absent'})
+        self.assertEqual(len(sm.entries), 3)
+        self.assertEqual(sm.skipped, False)
+        self.assertEqual(sm.changed, False)
 
 
 class TestCleanUp(unittest.TestCase):
