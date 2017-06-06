@@ -25,4 +25,4 @@ setup(
         'boto3',
         'pytest',
     ],
-    )
+)

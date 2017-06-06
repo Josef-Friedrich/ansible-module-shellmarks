@@ -117,7 +117,6 @@ class TestAdd(unittest.TestCase):
         self.assertEqual(len(sm.entries), 1)
         self.assertEqual(sm.changed, False)
 
-
         # same mark
         sm = self.addShellMarks('tmp1', self.dir2)
         self.assertEqual(len(sm.entries), 1)
@@ -265,7 +264,7 @@ class TestFunctions(unittest.TestCase):
         self.assertNormalizePath('/tmp/lol', '/home/jf', '/tmp/lol')
         self.assertNormalizePath('~/.lol', '/home/jf', '/home/jf/.lol')
         self.assertNormalizePath('', '/home/jf', '')
-        #self.assertNormalizePath('/', '/home/jf', '/')
+        # self.assertNormalizePath('/', '/home/jf', '/')
         self.assertNormalizePath(False, '/home/jf', '')
         self.assertNormalizePath('/tmp/', '/home/jf', '/tmp')
         self.assertNormalizePath('$HOME/tmp', '/home/jf', '/home/jf/tmp')

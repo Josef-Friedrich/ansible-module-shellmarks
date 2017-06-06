@@ -22,7 +22,9 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
 DOCUMENTATION = '''
 ---
 module: shellmarks
-short_description: A module to set bookmarks to commonly used directories like the tools shellmarks / bashmarks do.
+short_description: |
+    A module to set bookmarks to commonly used directories like the tools
+    shellmarks / bashmarks do.
 description:
     - shellmarks U(https://github.com/Bilalh/shellmarks) bashmarks
       U(https://github.com/huyng/bashmarks) are shell scripts that allows
@@ -264,7 +266,9 @@ class ShellMarks:
             self.msg = ''
 
     def processSkipped(self):
-        if self.path and not os.path.exists(self.path) and self.mark and self.state == 'present':
+        if self.path and \
+                not os.path.exists(self.path) and \
+                self.mark and self.state == 'present':
             self.skipped = True
 
     def process(self):
