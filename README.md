@@ -83,7 +83,7 @@ METADATA:
 /usr/local/src/ansible/hacking/test-module -m shellmarks.py -a
 ```
 
-## Test DOCUMENTATION
+## Test documentation
 
 ```
 source hacking/env-setup
