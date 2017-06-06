@@ -74,3 +74,24 @@ METADATA:
 	Status: ['preview']
 	Supported_by: community
 ```
+
+# Development
+
+## Test functionality
+
+```
+/usr/local/src/ansible/hacking/test-module -m shellmarks.py -a
+```
+
+## Test DOCUMENTATION
+
+```
+source hacking/env-setup
+/usr/local/src/ansible/test/sanity/validate-modules/validate-modules --arg-spec --warnings shellmarks.py
+```
+
+## Generate documentation
+
+```
+ansible-doc -M . shellmarks
+```
