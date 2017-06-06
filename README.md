@@ -86,7 +86,7 @@ METADATA:
 ## Test documentation
 
 ```
-source hacking/env-setup
+source /usr/local/src/ansible/hacking/env-setup
 /usr/local/src/ansible/test/sanity/validate-modules/validate-modules --arg-spec --warnings shellmarks.py
 ```
 
