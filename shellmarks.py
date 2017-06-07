@@ -168,6 +168,7 @@ class ShellMarks:
             'replace_home': True,
             'sdirs': '~/.sdirs',
             'skipped': False,
+            'error': False,
             'sorted': True,
             'state': 'present',
         }
@@ -177,6 +178,7 @@ class ShellMarks:
             setattr(self, key, value)
 
         self.path = normalize_path(self.path, self.home_dir)
+        self.error = not check_mark(self.mark)
         self.mark = normalize_mark(self.mark)
 
         if self.sdirs == '~/.sdirs':
@@ -210,6 +212,7 @@ class ShellMarks:
 
     def addEntry(self):
         if self.mark and \
+                not self.error and \
                 self.path and \
                 (os.path.exists(self.path) and self.state == 'present') and \
                 self.entry not in self.entries and \
@@ -330,6 +333,9 @@ def main():
     )
 
     sm = ShellMarks(module.params, module.check_mode)
+
+    if sm.error:
+        module.fail_json(msg="Possible characters for mark are: a-z A-Z 0-9 _")
 
     if sm.skipped:
         module.exit_json(skipped=True, msg=sm.msg)

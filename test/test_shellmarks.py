@@ -33,10 +33,12 @@ class TestUnitTest(unittest.TestCase):
     def test_shellmarks(self):
         sm = shellmarks.ShellMarks({'mark': 'lol', 'path': '/lol'})
         self.assertEqual('export DIR_lol="/lol"\n', sm.generateEntry())
+        self.assertFalse(sm.error)
 
     def test_forbidden_char_dash(self):
         sm = shellmarks.ShellMarks({'mark': 'l-l', 'path': '/lol'})
         self.assertEqual('export DIR_ll="/lol"\n', sm.generateEntry())
+        self.assertTrue(sm.error)
 
 
 class TestFunction(unittest.TestCase):
