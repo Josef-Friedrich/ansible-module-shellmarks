@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division)
 from ansible.compat.tests import unittest
 # import unittest
@@ -275,3 +276,14 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(shellmarks.normalize_mark('l/o/l'), 'lol')
         self.assertEqual(shellmarks.normalize_mark(''), '')
         self.assertEqual(shellmarks.normalize_mark(False), '')
+
+    def test_check_mark(self):
+        self.assertEqual(shellmarks.check_mark('lol'), True)
+        self.assertEqual(shellmarks.check_mark('LOL_lol_123'), True)
+        self.assertEqual(shellmarks.check_mark('l'), True)
+        self.assertEqual(shellmarks.check_mark('1'), True)
+        self.assertEqual(shellmarks.check_mark('_'), True)
+        self.assertEqual(shellmarks.check_mark('l o l'), False)
+        self.assertEqual(shellmarks.check_mark('löl'), False)
+        self.assertEqual(shellmarks.check_mark('l-l'), False)
+        self.assertEqual(shellmarks.check_mark('l,l'), False)

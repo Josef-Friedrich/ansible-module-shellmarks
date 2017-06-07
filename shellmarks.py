@@ -119,6 +119,15 @@ def get_mark(entry):
     return match[0]
 
 
+def check_mark(mark):
+    regex = re.compile(r'^[0-9a-zA-Z_]+$')
+    match = regex.match(mark)
+    if match:
+        return match.group(0) == mark
+    else:
+        return False
+
+
 def del_entries(entries, indexes):
     indexes = sorted(indexes, reverse=True)
     for index in indexes:
