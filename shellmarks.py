@@ -121,7 +121,7 @@ def get_mark(entry):
 
 def check_mark(mark):
     regex = re.compile(r'^[0-9a-zA-Z_]+$')
-    match = regex.match(mark)
+    match = regex.match(str(mark))
     if match:
         return match.group(0) == mark
     else:
@@ -168,7 +168,8 @@ class ShellMarks:
             setattr(self, key, value)
 
         self.path = normalize_path(self.path, self.home_dir)
-        self.error = not check_mark(self.mark)
+        if self.mark:
+            self.error = not check_mark(self.mark)
 
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')
