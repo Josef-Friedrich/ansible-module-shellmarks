@@ -77,6 +77,22 @@ class TestFunction(unittest.TestCase):
         lines = read(sdirs)
         self.assertEqual(lines[0], 'export DIR_tmp="/tmp"\n')
 
+    @mock.patch("shellmarks.AnsibleModule")
+    def test_delete(self, AnsibleModule):
+        sdirs = tmp_file()
+        module = AnsibleModule.return_value
+        module.params = {
+            'state': 'absent',
+            'path': '/tmp',
+            'mark': 'tmp',
+            'sdirs': sdirs
+        }
+        module.check_mode = False
+        shellmarks.main()
+
+        args = module.exit_json.call_args
+        self.assertEqual(mock.call(changed=False, msg='tmp : /tmp'), args)
+
 
 class TestObject(unittest.TestCase):
 
