@@ -144,16 +144,6 @@ def normalize_path(path, home_dir):
     return path
 
 
-def normalize_mark(mark):
-    if mark:
-        for char in ['-', ' ', '/']:
-            if char in mark:
-                mark = mark.replace(char, '')
-    else:
-        mark = ''
-    return mark
-
-
 class ShellMarks:
 
     def __init__(self, params, check_mode=False):
@@ -179,7 +169,6 @@ class ShellMarks:
 
         self.path = normalize_path(self.path, self.home_dir)
         self.error = not check_mark(self.mark)
-        self.mark = normalize_mark(self.mark)
 
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')

@@ -37,7 +37,6 @@ class TestUnitTest(unittest.TestCase):
 
     def test_forbidden_char_dash(self):
         sm = shellmarks.ShellMarks({'mark': 'l-l', 'path': '/lol'})
-        self.assertEqual('export DIR_ll="/lol"\n', sm.generateEntry())
         self.assertTrue(sm.error)
 
 
@@ -271,13 +270,6 @@ class TestFunctions(unittest.TestCase):
         self.assertNormalizePath(False, '/home/jf', '')
         self.assertNormalizePath('/tmp/', '/home/jf', '/tmp')
         self.assertNormalizePath('$HOME/tmp', '/home/jf', '/home/jf/tmp')
-
-    def test_normalize_mark(self):
-        self.assertEqual(shellmarks.normalize_mark('l o l'), 'lol')
-        self.assertEqual(shellmarks.normalize_mark('l-o-l'), 'lol')
-        self.assertEqual(shellmarks.normalize_mark('l/o/l'), 'lol')
-        self.assertEqual(shellmarks.normalize_mark(''), '')
-        self.assertEqual(shellmarks.normalize_mark(False), '')
 
     def test_check_mark(self):
         self.assertEqual(shellmarks.check_mark('lol'), True)
