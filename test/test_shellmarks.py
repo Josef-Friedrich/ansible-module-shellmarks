@@ -35,8 +35,14 @@ class TestUnitTest(unittest.TestCase):
         self.assertEqual('export DIR_lol="/lol"\n', sm.generateEntry())
         self.assertFalse(sm.error)
 
-    def test_forbidden_char_dash(self):
+    def test_forbidden(self):
         sm = shellmarks.ShellMarks({'mark': 'l-l', 'path': '/lol'})
+        self.assertTrue(sm.error)
+        sm = shellmarks.ShellMarks({'mark': 'l l', 'path': '/lol'})
+        self.assertTrue(sm.error)
+        sm = shellmarks.ShellMarks({'mark': 'löl', 'path': '/lol'})
+        self.assertTrue(sm.error)
+        sm = shellmarks.ShellMarks({'mark': 'l,l', 'path': '/lol'})
         self.assertTrue(sm.error)
 
 
