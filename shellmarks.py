@@ -164,7 +164,7 @@ class ShellMarks:
         }
         processed_params = defaults.copy()
         processed_params.update(params)
-        for key, value in processed_params.items():
+        for key, value in list(processed_params.items()):
             setattr(self, key, value)
 
         self.path = normalize_path(self.path, self.home_dir)
@@ -257,7 +257,7 @@ class ShellMarks:
 
     def generateMsg(self):
         if self.skipped and self.path:
-            self.msg = u"Specifed path (%s) doesn't exist!" % self.path
+            self.msg = "Specifed path (%s) doesn't exist!" % self.path
         elif self.path and self.mark:
             self.msg = self.mark + ' : ' + self.path
         elif self.path:
