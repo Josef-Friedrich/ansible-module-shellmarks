@@ -24,5 +24,6 @@ setup(
         'botocore',
         'boto3',
         'pytest',
+        'flake8'
     ],
 )
