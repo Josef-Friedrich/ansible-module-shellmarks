@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ansible-jf/ansible-module-shellmarks.svg?branch=master)](https://travis-ci.org/ansible-jf/ansible-module-shellmarks)
+[![Build Status](https://travis-ci.org/Josef-Friedrich/ansible-module-shellmarks.svg?branch=master)](https://travis-ci.org/Josef-Friedrich/ansible-module-shellmarks)
 
 # ansible-module-shellmarks
 
