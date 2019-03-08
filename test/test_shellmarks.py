@@ -4,6 +4,7 @@ from ansible.compat.tests import unittest
 # import unittest
 import mock
 import shellmarks
+from shellmarks import Entry
 import tempfile
 __metaclass__ = type
 
@@ -303,3 +304,52 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(shellmarks.check_mark('löl'), False)
         self.assertEqual(shellmarks.check_mark('l-l'), False)
         self.assertEqual(shellmarks.check_mark('l,l'), False)
+
+
+class TestClassEntry(unittest.TestCase):
+
+    def test_init_by_mark_and_path(self):
+        entry = Entry(mark='test', path='/tmp')
+        self.assertEqual(entry.mark, 'test')
+        self.assertEqual(entry.path, '/tmp')
+
+    def test_init_by_entry(self):
+        entry = Entry(entry='export DIR_test=\"/tmp\"')
+        self.assertEqual(entry.mark, 'test')
+        self.assertEqual(entry.path, '/tmp')
+
+    def test_init_path_normalization(self):
+        entry = Entry(mark='test', path='/tmp/')
+        self.assertEqual(entry.path, '/tmp')
+
+    def test_init_exception_all_parameters(self):
+        with self.assertRaises(ValueError) as cm:
+            Entry(path='p', mark='m', entry='e')
+        self.assertEqual(
+            str(cm.exception),
+            'Specify entry OR both path and mark.'
+        )
+
+    def test_init_exception_path_and_entry(self):
+        with self.assertRaises(ValueError) as cm:
+            Entry(path='p', entry='e')
+        self.assertEqual(
+            str(cm.exception),
+            'Specify entry OR both path and mark.'
+        )
+
+    def test_init_exception_mark_and_entry(self):
+        with self.assertRaises(ValueError) as cm:
+            Entry(mark='m', entry='e')
+        self.assertEqual(
+            str(cm.exception),
+            'Specify entry OR both path and mark.'
+        )
+
+    def test_init_exception_disallowed_character(self):
+        with self.assertRaises(ValueError) as cm:
+            Entry(path='p', mark='ö')
+        self.assertEqual(
+            str(cm.exception),
+            'Allowed characters for mark: 0-9a-zA-Z_'
+        )

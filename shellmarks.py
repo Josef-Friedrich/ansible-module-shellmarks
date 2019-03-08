@@ -144,6 +144,55 @@ def normalize_path(path, home_dir):
     return path
 
 
+class Entry:
+    """A object representation of one line in the ~/.sdirs file"""
+
+    def __init__(self, path='', mark='', entry=''):
+        self.mark = ''
+        """The name of the bookmark."""
+
+        self.path = ''
+        """The path which should be bookmark."""
+
+        if entry and (path or mark):
+            raise ValueError('Specify entry OR both path and mark.')
+
+        if (path and not mark) or (mark and not path):
+            raise ValueError('Specify both variables: path and mark')
+
+        if entry:
+            match = self.parse_entry(entry)
+            print(match[1])
+            self.mark = match[0]
+            self.path = match[1]
+        else:
+            self.mark = mark
+            self.path = path
+
+        if not check_mark(self.mark):
+            raise ValueError('Allowed characters for mark: 0-9a-zA-Z_')
+
+        self.path = self.normalize_path(self.path)
+
+    def parse_entry(self, entry):
+        return re.findall(r'export DIR_(.*)="(.*)"', entry)[0]
+
+    def check_mark(self, mark):
+        regex = re.compile(r'^[0-9a-zA-Z_]+$')
+        match = regex.match(str(mark))
+        if match:
+            return match.group(0) == mark
+        else:
+            return False
+
+    def normalize_path(self, path, home_dir=False):
+        path = re.sub(r'/$', '', path)
+        if home_dir:
+            path = re.sub(r'^~', home_dir, path)
+            path = re.sub(r'^\$HOME', home_dir, path)
+        return path
+
+
 class ShellMarks:
 
     def __init__(self, params, check_mode=False):
