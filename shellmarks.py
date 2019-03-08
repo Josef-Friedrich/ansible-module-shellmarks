@@ -174,8 +174,18 @@ class ShellMarks:
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')
 
+        self.entries = []
+        """A list of lines from the file ~/.sdirs.
+
+        One entry (one line) looks like this example.
+
+        export DIR_shellmarks="$HOME/ansible-module-shellmarks"
+
+        """
         self.readSdirs()
         self.entriesOrigin = list(self.entries)
+        """A unmodified copy of the attribute self.entries."""
+
         self.process()
 
     def readSdirs(self):
