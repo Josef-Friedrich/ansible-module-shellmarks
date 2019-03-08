@@ -6,6 +6,8 @@ import mock
 import shellmarks
 from shellmarks import Entry
 import tempfile
+import pwd
+import os
 __metaclass__ = type
 
 
@@ -318,9 +320,15 @@ class TestClassEntry(unittest.TestCase):
         self.assertEqual(entry.mark, 'test')
         self.assertEqual(entry.path, '/tmp')
 
-    def test_init_path_normalization(self):
+    def test_init_path_normalization_trailing_slash(self):
         entry = Entry(mark='test', path='/tmp/')
         self.assertEqual(entry.path, '/tmp')
+
+    def test_init_path_normalization_home_dir(self):
+        home_dir = pwd.getpwuid(os.getuid()).pw_dir
+        entry = Entry(mark='test', path='$HOME/tmp')
+        self.assertEqual(entry.mark, 'test')
+        self.assertEqual(entry.path, '{}/tmp'.format(home_dir))
 
     def test_init_exception_all_parameters(self):
         with self.assertRaises(ValueError) as cm:
@@ -352,4 +360,19 @@ class TestClassEntry(unittest.TestCase):
         self.assertEqual(
             str(cm.exception),
             'Allowed characters for mark: 0-9a-zA-Z_'
+        )
+
+    def test_init_exception_path_non_existent(self):
+        with self.assertRaises(ValueError) as cm:
+            Entry(path='xxx', mark='xxx')
+        self.assertIn(
+            'xxx” doesn’t exist.',
+            str(cm.exception)
+        )
+
+    def test_method_to_entry_string(self):
+        entry = Entry(mark='test', path='/tmp')
+        self.assertEqual(
+            entry.to_export_string(),
+            'export DIR_test="/tmp"'
         )

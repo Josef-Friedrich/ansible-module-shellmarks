@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # (c) 2017, Josef Friedrich <josef@friedrich.rocks>
 #
@@ -162,7 +163,6 @@ class Entry:
 
         if entry:
             match = self.parse_entry(entry)
-            print(match[1])
             self.mark = match[0]
             self.path = match[1]
         else:
@@ -173,6 +173,9 @@ class Entry:
             raise ValueError('Allowed characters for mark: 0-9a-zA-Z_')
 
         self.path = self.normalize_path(self.path)
+
+        if not os.path.exists(self.path):
+            raise ValueError('Path “{}” doesn’t exist.'.format(self.path))
 
     def parse_entry(self, entry):
         return re.findall(r'export DIR_(.*)="(.*)"', entry)[0]
@@ -185,12 +188,18 @@ class Entry:
         else:
             return False
 
-    def normalize_path(self, path, home_dir=False):
+    def normalize_path(self, path):
+        """Replace ~ and $HOME with a the actual path string. Replace trailing
+        slashes. Convert to a absolute path.
+        """
         path = re.sub(r'/$', '', path)
-        if home_dir:
-            path = re.sub(r'^~', home_dir, path)
-            path = re.sub(r'^\$HOME', home_dir, path)
-        return path
+        home_dir = pwd.getpwuid(os.getuid()).pw_dir
+        path = re.sub(r'^~', home_dir, path)
+        path = re.sub(r'^\$HOME', home_dir, path)
+        return os.path.abspath(path)
+
+    def to_export_string(self):
+        return 'export DIR_{}=\"{}\"'.format(self.mark, self.path)
 
 
 class ShellMarks:
