@@ -174,6 +174,9 @@ class ShellMarks:
         if self.sdirs == '~/.sdirs':
             self.sdirs = os.path.join(self.home_dir, '.sdirs')
 
+        self.entry = ''
+        """ The possible new line in the file  ~/.sdirs."""
+
         self.entries = []
         """A list of lines from the file ~/.sdirs.
 
@@ -211,6 +214,9 @@ class ShellMarks:
         return 'export DIR_' + mark + '=\"'
 
     def addEntry(self):
+        """Add a entry to the file ~/.sdirs or update if the same mark has a
+        new path.
+        """
         if self.mark and \
                 not self.error and \
                 self.path and \
@@ -219,6 +225,22 @@ class ShellMarks:
                 not [s for s in self.entries if
                      self.markSearchPattern(self.mark) in s]:
             self.entries.append(self.entry)
+
+        if self.mark and not self.error and self.path:
+            self.updateEntry()
+
+    def updateEntry(self):
+        """The same mark under a different path."""
+        for index, entry in enumerate(self.entries):
+            if self.markSearchPattern(self.mark) in entry:
+                print('old: {} new: {}'.format(entry, self.entry))
+                if self.entry != entry:
+                    # print(entry)
+                    print(self.entries)
+                    self.entries[index] = self.entry
+                    print(self.entries)
+                    return True
+        return False
 
     def deleteEntry(self):
         if self.mark and not self.path:

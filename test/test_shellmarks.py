@@ -168,6 +168,11 @@ class TestAdd(unittest.TestCase):
         self.assertEqual(len(sm.entries), 4)
         self.assertEqual(sm.changed, True)
 
+        # The same mark under a different path
+        sm = self.addShellMarks('tmp1', self.dir2)
+        self.assertEqual(len(sm.entries), 4)
+        self.assertEqual(sm.changed, True)
+
 
 class TestDel(unittest.TestCase):
 
