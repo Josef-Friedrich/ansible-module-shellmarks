@@ -1,0 +1,3 @@
+export DIR_dir1="test/files/dir1"
+export DIR_dir2="test/files/dir2"
+export DIR_dir3="test/files/dir3"

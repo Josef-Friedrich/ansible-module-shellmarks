@@ -202,6 +202,56 @@ class Entry:
         return 'export DIR_{}=\"{}\"'.format(self.mark, self.path)
 
 
+class ShellmarkEntries:
+
+    def __init__(self, path):
+
+        self.path = path
+        """The path of the .sdirs file."""
+
+        self.entries = []
+        """A list of shellmark entries. """
+
+        self._marks = {}
+        """A dictonary: The key is the bookmark name, the value is the
+        the corresponding index number of the self.entries list containing
+        entries.
+        """
+
+        self._paths = {}
+        """A dictonary: The key is the path, the value is the
+        the corresponding index number of the self.entries list containing
+        entries.
+        """
+
+        if os.path.isfile(path):
+            sdirs = open(self.path, 'r')
+            lines = sdirs.readlines()
+            sdirs.close()
+        else:
+            lines = []
+
+        for line in lines:
+            self.add(entry=line)
+
+    def add(self, mark='', path='', entry=''):
+        entry = Entry(mark=mark, path=path, entry=entry)
+        if entry.mark not in self._marks and entry.path not in self._paths:
+            index = len(self.entries)
+            self.entries.append(entry)
+            self._marks[entry.mark] = index
+            self._paths[entry.path] = index
+
+    def update(self, old_mark='', old_path='', new_mark='', new_path=''):
+        pass
+
+    def delete(self, mark='', path=''):
+        pass
+
+    def write(self, new_path=''):
+        pass
+
+
 class ShellMarks:
 
     def __init__(self, params, check_mode=False):
