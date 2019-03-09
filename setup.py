@@ -2,8 +2,10 @@
 from setuptools import setup
 
 setup(
-    name='ansible-module-shellmarks',
-    version='1.0.0',
+    name='shellmarks',
+    description='shellmarks is a ansible module to set bookmarks to commonly '
+    'used directories like the tools shellmarks and bashmarks do.',
+    version='2.0.0',
     author='Josef Friedrich',
     author_email='josef@friedrich.rocks',
     license='GPL3',
