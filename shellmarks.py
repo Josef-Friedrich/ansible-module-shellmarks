@@ -366,7 +366,7 @@ class ShellMarks:
 
         """
         self.read_sdirs()
-        self.entriesOrigin = list(self.entries)
+        self.entries_origin = list(self.entries)
         """A unmodified copy of the attribute self.entries."""
 
         self.process()
@@ -481,7 +481,7 @@ class ShellMarks:
         if self.cleanup:
             self.clean_up_entries()
 
-        if self.entries != self.entriesOrigin:
+        if self.entries != self.entries_origin:
             self.changed = True
 
         self.process_skipped()
