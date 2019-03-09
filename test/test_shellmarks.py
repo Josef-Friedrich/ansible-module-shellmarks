@@ -428,3 +428,11 @@ class TestClassShellmarkEntries(unittest.TestCase):
             'mark (dir2) and path',
             str(cm.exception)
         )
+
+    def test_method_write(self):
+        old_path = os.path.join('test', 'files', 'sdirs')
+        entries = ShellmarkEntries(path=old_path)
+        new_path = tempfile.mkstemp()[1]
+        entries.write(new_path=new_path)
+        new_path_content = open(new_path, 'r').read()
+        self.assertTrue(new_path_content)

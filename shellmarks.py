@@ -277,7 +277,18 @@ class ShellmarkEntries:
         pass
 
     def write(self, new_path=''):
-        pass
+        """Write the bookmark / shellmarks to the disk.
+
+        :param string new_path: Path of a different output file then self.path.
+        """
+        if new_path:
+            path = new_path
+        else:
+            path = self.path
+        output_file = open(path, 'w')
+        for entry in self.entries:
+            output_file.write(entry.to_export_string() + '\n')
+        output_file.close()
 
 
 class ShellMarks:
