@@ -214,14 +214,22 @@ class ShellmarkEntries:
         self.entries = []
         """A list of shellmark entries. """
 
-        self._marks = {}
-        """A dictonary: The key is the bookmark name, the value is the
+        self._index = {
+            'marks': {},
+            'paths': {},
+        }
+        """A collection of dictionaries to hold the indexes (position of
+        the single entries in the list of entries).
+
+        key: marks
+
+        A dictonary: The key is the bookmark name, the value is the
         the corresponding index number of the self.entries list containing
         entries.
-        """
 
-        self._paths = {}
-        """A dictonary: The key is the path, the value is the
+        key: paths
+
+        A dictonary: The key is the path, the value is the
         the corresponding index number of the self.entries list containing
         entries.
         """
@@ -246,15 +254,15 @@ class ShellmarkEntries:
         :return: A shellmark entry.
         """
         if mark and path:
-            if self._marks[mark] != self._paths[path]:
+            if self._index['marks'][mark] != self._index['paths'][path]:
                 raise ValueError(
                     'mark ({}) and path ({}) didn’t match.'.format(mark, path)
                 )
-            return self.entries[self._marks[mark]]
+            return self.entries[self._index['marks'][mark]]
         elif mark:
-            return self.entries[self._marks[mark]]
+            return self.entries[self._index['marks'][mark]]
         elif path:
-            return self.entries[self._paths[path]]
+            return self.entries[self._index['paths'][path]]
 
     def add(self, mark='', path='', entry=''):
         """Add one bookmark / shellmark entry.
@@ -266,11 +274,12 @@ class ShellmarkEntries:
 
         """
         entry = Entry(mark=mark, path=path, entry=entry)
-        if entry.mark not in self._marks and entry.path not in self._paths:
+        if entry.mark not in self._index['marks'] and \
+           entry.path not in self._index['paths']:
             index = len(self.entries)
             self.entries.append(entry)
-            self._marks[entry.mark] = index
-            self._paths[entry.path] = index
+            self._index['marks'][entry.mark] = index
+            self._index['paths'][entry.path] = index
 
     def sort(self, attribute_name='mark', reverse=False):
         """Sort the bookmark entries by mark or path.
