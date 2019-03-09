@@ -12,6 +12,15 @@ module to set bookmarks to commonly used directories like the tools
 allows you to save and jump to commonly used directories with tab
 completion.
 
+Both tools store their bookmarks in a text file called `~/.sdirs`. This
+module is able to write bookmarks to this file.
+
+```
+export DIR_shell_scripts_SHELL_GITHUB="$HOME/shell-scripts"
+export DIR_shellmarks_module_ansible="$HOME/ansible-module-shellmarks"
+export DIR_skeleton_SHELL_GITHUB="$HOME/skeleton.sh"
+```
+
 ```
 > SHELLMARKS    (shellmarks.py)
 
