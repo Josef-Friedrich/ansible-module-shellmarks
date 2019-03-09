@@ -31,6 +31,12 @@ def read(sdirs):
     return open(sdirs, 'r').readlines()
 
 
+test_files = os.path.abspath(os.path.join('test', 'files'))
+dir1 = os.path.join(test_files, 'dir1')
+dir2 = os.path.join(test_files, 'dir2')
+dir3 = os.path.join(test_files, 'dir3')
+
+
 class TestUnitTest(unittest.TestCase):
 
     def test_shellmarks(self):
@@ -436,3 +442,36 @@ class TestClassShellmarkEntries(unittest.TestCase):
         entries.write(new_path=new_path)
         new_path_content = open(new_path, 'r').read()
         self.assertTrue(new_path_content)
+
+    def test_method_sort(self):
+        sdirs = tmp_file()
+        entries = ShellmarkEntries(path=sdirs)
+        entries.add(mark='dir3', path=dir1)
+        entries.add(mark='dir2', path=dir2)
+        entries.add(mark='dir1', path=dir3)
+        self.assertEqual(entries.entries[0].mark, 'dir3')
+        self.assertEqual(entries.entries[1].mark, 'dir2')
+        self.assertEqual(entries.entries[2].mark, 'dir1')
+        self.assertEqual(entries.entries[0].path, dir1)
+        self.assertEqual(entries.entries[1].path, dir2)
+        self.assertEqual(entries.entries[2].path, dir3)
+
+        entries.sort()
+        self.assertEqual(entries.entries[0].mark, 'dir1')
+        self.assertEqual(entries.entries[1].mark, 'dir2')
+        self.assertEqual(entries.entries[2].mark, 'dir3')
+
+        entries.sort(reverse=True)
+        self.assertEqual(entries.entries[0].mark, 'dir3')
+        self.assertEqual(entries.entries[1].mark, 'dir2')
+        self.assertEqual(entries.entries[2].mark, 'dir1')
+
+        entries.sort(attribute_name='path')
+        self.assertEqual(entries.entries[0].path, dir1)
+        self.assertEqual(entries.entries[1].path, dir2)
+        self.assertEqual(entries.entries[2].path, dir3)
+
+        entries.sort(attribute_name='path', reverse=True)
+        self.assertEqual(entries.entries[0].path, dir3)
+        self.assertEqual(entries.entries[1].path, dir2)
+        self.assertEqual(entries.entries[2].path, dir1)

@@ -272,6 +272,15 @@ class ShellmarkEntries:
             self._marks[entry.mark] = index
             self._paths[entry.path] = index
 
+    def sort(self, attribute_name='mark', reverse=False):
+        """Sort the bookmark entries by mark or path.
+
+        :param string attribute_name: 'mark' or 'path'
+        :param boolean reverse: Reverse the sort.
+        """
+        self.entries.sort(key=lambda entry: getattr(entry, attribute_name),
+                          reverse=reverse)
+
     def update(self, old_mark='', old_path='', new_mark='', new_path=''):
         pass
 
