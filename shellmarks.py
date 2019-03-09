@@ -244,25 +244,38 @@ class ShellmarkEntries:
         for line in lines:
             self.add(entry=line)
 
-    def get(self, mark='', path=''):
-        """Get one shellmark entry. Select by bookmark name or by path or
-        by both.
+    def _get_index(self, mark='', path=''):
+        """Get the index of an entry in the list of entries. Select this entry
+        by the bookmark name or by path or by both.
 
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
 
-        :return: A shellmark entry.
+        :return: integer The index number (starting from 0).
         """
         if mark and path:
             if self._index['marks'][mark] != self._index['paths'][path]:
                 raise ValueError(
                     'mark ({}) and path ({}) didn’t match.'.format(mark, path)
                 )
-            return self.entries[self._index['marks'][mark]]
+            return self._index['marks'][mark]
         elif mark:
-            return self.entries[self._index['marks'][mark]]
+            return self._index['marks'][mark]
         elif path:
-            return self.entries[self._index['paths'][path]]
+            return self._index['paths'][path]
+
+    def get(self, mark='', path=''):
+        """Get one shellmark entry. Select this entry
+        by the bookmark name (mark) or by path or by both.
+
+        :param string mark: The name of the bookmark / shellmark.
+        :param string path: The path of the bookmark / shellmark.
+
+        :return: A shellmark entry.
+        """
+
+        index = self._get_index(mark=mark, path=path)
+        return self.entries[index]
 
     def add(self, mark='', path='', entry=''):
         """Add one bookmark / shellmark entry.
@@ -271,7 +284,6 @@ class ShellmarkEntries:
         :param string path: The path of the bookmark / shellmark.
         :param string entry: One line in the file ~/.sdirs
           (export DIR_dir1="/dir1").
-
         """
         entry = Entry(mark=mark, path=path, entry=entry)
         if entry.mark not in self._index['marks'] and \

@@ -415,6 +415,19 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(entries.entries[1].mark, 'dir2')
         self.assertEqual(entries._index['marks']['dir2'], 1)
 
+    def test_method__get_index(self):
+        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
+        self.assertEqual(entries._get_index(mark='dir1'), 0)
+        self.assertEqual(entries._get_index(path=dir2), 1)
+        self.assertEqual(entries._get_index(mark='dir3', path=dir3), 2)
+
+        with self.assertRaises(ValueError) as cm:
+            entries._get_index(mark='dir1', path=dir3)
+        self.assertIn(
+            'mark (dir1) and path',
+            str(cm.exception)
+        )
+
     def test_method_get(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
         path = os.path.abspath(os.path.join('test', 'files', 'dir1'))
