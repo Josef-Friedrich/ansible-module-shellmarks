@@ -234,7 +234,35 @@ class ShellmarkEntries:
         for line in lines:
             self.add(entry=line)
 
+    def get(self, mark='', path=''):
+        """Get one shellmark entry. Select by bookmark name or by path or
+        by both.
+
+        :param string mark: The name of the bookmark / shellmark.
+        :param string path: The path of the bookmark / shellmark.
+
+        :return: A shellmark entry.
+        """
+        if mark and path:
+            if self._marks[mark] != self._paths[path]:
+                raise ValueError(
+                    'mark ({}) and path ({}) didn’t match.'.format(mark, path)
+                )
+            return self.entries[self._marks[mark]]
+        elif mark:
+            return self.entries[self._marks[mark]]
+        elif path:
+            return self.entries[self._paths[path]]
+
     def add(self, mark='', path='', entry=''):
+        """Add one bookmark / shellmark entry.
+
+        :param string mark: The name of the bookmark / shellmark.
+        :param string path: The path of the bookmark / shellmark.
+        :param string entry: One line in the file ~/.sdirs
+          (export DIR_dir1="/dir1").
+
+        """
         entry = Entry(mark=mark, path=path, entry=entry)
         if entry.mark not in self._marks and entry.path not in self._paths:
             index = len(self.entries)
