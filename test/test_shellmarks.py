@@ -35,7 +35,7 @@ class TestUnitTest(unittest.TestCase):
 
     def test_shellmarks(self):
         sm = shellmarks.ShellMarks({'mark': 'lol', 'path': '/lol'})
-        self.assertEqual('export DIR_lol="/lol"\n', sm.generateEntry())
+        self.assertEqual('export DIR_lol="/lol"\n', sm.generate_entry())
         self.assertFalse(sm.error)
 
     def test_forbidden(self):

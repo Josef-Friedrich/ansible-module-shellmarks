@@ -348,13 +348,13 @@ class ShellMarks:
         export DIR_shellmarks="$HOME/ansible-module-shellmarks"
 
         """
-        self.readSdirs()
+        self.read_sdirs()
         self.entriesOrigin = list(self.entries)
         """A unmodified copy of the attribute self.entries."""
 
         self.process()
 
-    def readSdirs(self):
+    def read_sdirs(self):
         if os.path.isfile(self.sdirs):
             f = open(self.sdirs, 'r')
             self.entries = f.readlines()
@@ -362,7 +362,7 @@ class ShellMarks:
         else:
             self.entries = []
 
-    def generateEntry(self):
+    def generate_entry(self):
         path = self.path
         if path and self.mark:
             if self.replace_home:
@@ -373,24 +373,24 @@ class ShellMarks:
 
         return self.entry
 
-    def markSearchPattern(self, mark):
+    def mark_search_pattern(self, mark):
         return 'export DIR_' + mark + '=\"'
 
-    def addEntry(self):
+    def add_entry(self):
         if self.mark and \
                 not self.error and \
                 self.path and \
                 (os.path.exists(self.path) and self.state == 'present') and \
                 self.entry not in self.entries and \
                 not [s for s in self.entries if
-                     self.markSearchPattern(self.mark) in s]:
+                     self.mark_search_pattern(self.mark) in s]:
             self.entries.append(self.entry)
 
-    def deleteEntry(self):
+    def delete_entry(self):
         if self.mark and not self.path:
             deletions = []
             for index, entry in enumerate(self.entries):
-                if self.markSearchPattern(self.mark) in entry:
+                if self.mark_search_pattern(self.mark) in entry:
                     deletions.append(index)
             del_entries(self.entries, deletions)
 
@@ -408,7 +408,7 @@ class ShellMarks:
                     deletions.append(index)
             del_entries(self.entries, deletions)
 
-    def cleanUpEntries(self):
+    def clean_up_entries(self):
         deletions = []
         for index, entry in enumerate(self.entries):
             path = get_path(entry)
@@ -421,17 +421,13 @@ class ShellMarks:
     def sort(self):
         self.entries.sort()
 
-    def replaceHome(self):
-        self.entries = [entry.replace(self.home_dir, '$HOME')
-                        for entry in self.entries]
-
-    def writeSdirs(self):
+    def write_sdirs(self):
         f = open(self.sdirs, 'w')
         for entry in self.entries:
             f.write(entry)
         f.close()
 
-    def generateMsg(self):
+    def generate_msg(self):
         if self.skipped and self.path:
             self.msg = "Specifed path (%s) doesn't exist!" % self.path
         elif self.path and self.mark:
@@ -443,38 +439,39 @@ class ShellMarks:
         else:
             self.msg = ''
 
-    def processSkipped(self):
+    def process_skipped(self):
         if self.path and \
                 not os.path.exists(self.path) and \
                 self.mark and self.state == 'present':
             self.skipped = True
 
     def process(self):
-        self.generateEntry()
+        self.generate_entry()
         if self.state == 'present':
-            self.addEntry()
+            self.add_entry()
 
         if self.state == 'absent':
-            self.deleteEntry()
+            self.delete_entry()
 
         if self.replace_home:
-            self.replaceHome()
+            self.entries = [entry.replace(self.home_dir, '$HOME')
+                            for entry in self.entries]
 
         if self.sorted:
             self.sort()
 
         if self.cleanup:
-            self.cleanUpEntries()
+            self.clean_up_entries()
 
         if self.entries != self.entriesOrigin:
             self.changed = True
 
-        self.processSkipped()
+        self.process_skipped()
 
         if not self.check_mode and self.changed:
-            self.writeSdirs()
+            self.write_sdirs()
 
-        self.generateMsg()
+        self.generate_msg()
 
 
 def mark_entry(bookmark, path):
