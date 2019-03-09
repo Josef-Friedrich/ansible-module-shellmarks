@@ -16,6 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import pwd
+import re
+
+from ansible.module_utils.basic import AnsibleModule
+
 ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -104,11 +110,6 @@ EXAMPLES = '''
     cleanup: true
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-import os
-import pwd
-import re
-
 
 def get_path(entry):
     match = re.findall(r'export DIR_.*="(.*)"', entry)
@@ -125,8 +126,7 @@ def check_mark(mark):
     match = regex.match(str(mark))
     if match:
         return match.group(0) == mark
-    else:
-        return False
+    return False
 
 
 def del_entries(entries, indexes):
@@ -177,18 +177,20 @@ class Entry:
         if not os.path.exists(self.path):
             raise ValueError('Path “{}” doesn’t exist.'.format(self.path))
 
-    def parse_entry(self, entry):
+    @staticmethod
+    def parse_entry(entry):
         return re.findall(r'export DIR_(.*)="(.*)"', entry)[0]
 
-    def check_mark(self, mark):
+    @staticmethod
+    def check_mark(mark):
         regex = re.compile(r'^[0-9a-zA-Z_]+$')
         match = regex.match(str(mark))
         if match:
             return match.group(0) == mark
-        else:
-            return False
+        return False
 
-    def normalize_path(self, path):
+    @staticmethod
+    def normalize_path(path):
         """Replace ~ and $HOME with a the actual path string. Replace trailing
         slashes. Convert to a absolute path.
         """
@@ -330,6 +332,12 @@ class ShellMarks:
         self.state = 'present'
         """string"""
 
+        self.msg = ''
+        """string"""
+
+        self.entry = ''
+        """string"""
+
         for key, value in list(params.items()):
             setattr(self, key, value)
 
@@ -356,9 +364,9 @@ class ShellMarks:
 
     def read_sdirs(self):
         if os.path.isfile(self.sdirs):
-            f = open(self.sdirs, 'r')
-            self.entries = f.readlines()
-            f.close()
+            file_sdirs = open(self.sdirs, 'r')
+            self.entries = file_sdirs.readlines()
+            file_sdirs.close()
         else:
             self.entries = []
 
@@ -373,7 +381,8 @@ class ShellMarks:
 
         return self.entry
 
-    def mark_search_pattern(self, mark):
+    @staticmethod
+    def mark_search_pattern(mark):
         return 'export DIR_' + mark + '=\"'
 
     def add_entry(self):
@@ -422,10 +431,10 @@ class ShellMarks:
         self.entries.sort()
 
     def write_sdirs(self):
-        f = open(self.sdirs, 'w')
+        file_sdirs = open(self.sdirs, 'w')
         for entry in self.entries:
-            f.write(entry)
-        f.close()
+            file_sdirs.write(entry)
+        file_sdirs.close()
 
     def generate_msg(self):
         if self.skipped and self.path:
@@ -475,9 +484,9 @@ class ShellMarks:
 
 
 def mark_entry(bookmark, path):
-    for ch in ['-', ' ', '/']:
-        if ch in bookmark:
-            bookmark = bookmark.replace(ch, '')
+    for character in ['-', ' ', '/']:
+        if character in bookmark:
+            bookmark = bookmark.replace(character, '')
     return 'export DIR_' + bookmark + '=\"' + path + '\"\n'
 
 
@@ -495,15 +504,15 @@ def main():
         supports_check_mode=True
     )
 
-    sm = ShellMarks(module.params, module.check_mode)
+    shell_marks = ShellMarks(module.params, module.check_mode)
 
-    if sm.error:
+    if shell_marks.error:
         module.fail_json(msg="Possible characters for mark are: a-z A-Z 0-9 _")
 
-    if sm.skipped:
-        module.exit_json(skipped=True, msg=sm.msg)
+    if shell_marks.skipped:
+        module.exit_json(skipped=True, msg=shell_marks.msg)
 
-    module.exit_json(changed=sm.changed, msg=sm.msg)
+    module.exit_json(changed=shell_marks.changed, msg=shell_marks.msg)
 
 
 if __name__ == '__main__':
