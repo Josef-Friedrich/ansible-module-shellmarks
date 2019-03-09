@@ -295,23 +295,42 @@ class ShellMarks:
 
     def __init__(self, params, check_mode=False):
         self.check_mode = check_mode
-        self.home_dir = pwd.getpwuid(os.getuid()).pw_dir
+        """boolean"""
 
-        defaults = {
-            'changed': False,
-            'cleanup': False,
-            'mark': '',
-            'path': '',
-            'replace_home': True,
-            'sdirs': '~/.sdirs',
-            'skipped': False,
-            'error': False,
-            'sorted': True,
-            'state': 'present',
-        }
-        processed_params = defaults.copy()
-        processed_params.update(params)
-        for key, value in list(processed_params.items()):
+        self.home_dir = pwd.getpwuid(os.getuid()).pw_dir
+        """string the path of the home folder"""
+
+        self.changed = False
+        """boolean"""
+
+        self.cleanup = False
+        """boolean"""
+
+        self.mark = ''
+        """string"""
+
+        self.path = ''
+        """string"""
+
+        self.replace_home = True
+        """boolean"""
+
+        self.sdirs = '~/.sdirs'
+        """string"""
+
+        self.skipped = False
+        """boolean"""
+
+        self.error = False
+        """boolean"""
+
+        self.sorted = True
+        """boolean"""
+
+        self.state = 'present'
+        """string"""
+
+        for key, value in list(params.items()):
             setattr(self, key, value)
 
         self.path = normalize_path(self.path, self.home_dir)
