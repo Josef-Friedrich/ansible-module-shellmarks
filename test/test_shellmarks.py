@@ -402,19 +402,6 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(len(entries._index['marks']), 0)
         self.assertEqual(len(entries._index['paths']), 0)
 
-    def test_method_add_entry(self):
-        entries = ShellmarkEntries(path=os.path.join('test', 'xxx'))
-
-        entries.add_entry(mark='dir1', path=dir1)
-        self.assertEqual(len(entries.entries), 1)
-        self.assertEqual(entries.entries[0].mark, 'dir1')
-        self.assertEqual(entries._index['marks']['dir1'], [0])
-
-        entries.add_entry(mark='dir2', path=dir2)
-        self.assertEqual(len(entries.entries), 2)
-        self.assertEqual(entries.entries[1].mark, 'dir2')
-        self.assertEqual(entries._index['marks']['dir2'], [1])
-
     def test_method__get_indexes(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
         self.assertEqual(entries._get_indexes(mark='dir1'), [0])
@@ -448,13 +435,67 @@ class TestClassShellmarkEntries(unittest.TestCase):
             str(cm.exception)
         )
 
-    def test_method_write(self):
-        old_path = os.path.join('test', 'files', 'sdirs')
-        entries = ShellmarkEntries(path=old_path)
-        new_path = tempfile.mkstemp()[1]
-        entries.write(new_path=new_path)
-        new_path_content = open(new_path, 'r').read()
-        self.assertTrue(new_path_content)
+    def test_method__store_index_number(self):
+        sdirs = tmp_file()
+        entries = ShellmarkEntries(path=sdirs)
+        entries._store_index_number('mark', 'downloads', 7)
+        self.assertEqual(entries._index['marks']['downloads'], [7])
+
+        # The same again
+        entries._store_index_number('mark', 'downloads', 7)
+        self.assertEqual(entries._index['marks']['downloads'], [7])
+
+        # Add another index number.
+        entries._store_index_number('mark', 'downloads', 9)
+        self.assertEqual(entries._index['marks']['downloads'], [7, 9])
+
+        # Add a lower index number.
+        entries._store_index_number('mark', 'downloads', 5)
+        self.assertEqual(entries._index['marks']['downloads'], [5, 7, 9])
+
+        with self.assertRaises(ValueError) as cm:
+            entries._store_index_number('lol', 'downloads', 1)
+        self.assertEqual(
+            str(cm.exception),
+            'attribute_name “lol” unkown.'
+        )
+
+    def test_method_add_entry(self):
+        entries = ShellmarkEntries(path=os.path.join('test', 'xxx'))
+
+        entries.add_entry(mark='dir1', path=dir1)
+        self.assertEqual(len(entries.entries), 1)
+        self.assertEqual(entries.entries[0].mark, 'dir1')
+        self.assertEqual(entries._index['marks']['dir1'], [0])
+
+        entries.add_entry(mark='dir2', path=dir2)
+        self.assertEqual(len(entries.entries), 2)
+        self.assertEqual(entries.entries[1].mark, 'dir2')
+        self.assertEqual(entries._index['marks']['dir2'], [1])
+
+    def test_method_get_by_index(self):
+        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
+        entry = entries.get_by_index(0)
+        self.assertEqual(entry.mark, 'dir1')
+        entry = entries.get_by_index(1)
+        self.assertEqual(entry.mark, 'dir2')
+        entry = entries.get_by_index(2)
+        self.assertEqual(entry.mark, 'dir3')
+
+    def test_method_update_entries(self):
+        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
+        entries.update_entries(old_mark='dir1', new_mark='new1')
+        result = entries.get(mark='new1')
+        self.assertEqual(result[0].path, dir1)
+
+    def test_method_delete_entries(self):
+        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
+        entries.delete_entries(mark='dir1')
+        self.assertEqual(len(entries.entries), 2)
+        entries.delete_entries(path=dir2)
+        self.assertEqual(len(entries.entries), 1)
+        entries.delete_entries(mark='dir3', path=dir3)
+        self.assertEqual(len(entries.entries), 0)
 
     def test_method_sort(self):
         sdirs = tmp_file()
@@ -489,26 +530,10 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(entries.entries[1].path, dir2)
         self.assertEqual(entries.entries[2].path, dir1)
 
-    def test_method_delete(self):
-        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
-        entries.delete_entries(mark='dir1')
-        self.assertEqual(len(entries.entries), 2)
-        entries.delete_entries(path=dir2)
-        self.assertEqual(len(entries.entries), 1)
-        entries.delete_entries(mark='dir3', path=dir3)
-        self.assertEqual(len(entries.entries), 0)
-
-    def test_method_get_by_index(self):
-        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
-        entry = entries.get_by_index(0)
-        self.assertEqual(entry.mark, 'dir1')
-        entry = entries.get_by_index(1)
-        self.assertEqual(entry.mark, 'dir2')
-        entry = entries.get_by_index(2)
-        self.assertEqual(entry.mark, 'dir3')
-
-    def test_method_update_entries(self):
-        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
-        entries.update_entries(old_mark='dir1', new_mark='new1')
-        result = entries.get(mark='new1')
-        self.assertEqual(result[0].path, dir1)
+    def test_method_write(self):
+        old_path = os.path.join('test', 'files', 'sdirs')
+        entries = ShellmarkEntries(path=old_path)
+        new_path = tempfile.mkstemp()[1]
+        entries.write(new_path=new_path)
+        new_path_content = open(new_path, 'r').read()
+        self.assertTrue(new_path_content)

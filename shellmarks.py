@@ -280,8 +280,8 @@ class ShellmarkEntries:
         }
         index = 0
         for entry in self.entries:
-            self._add_entry_to_index('mark', entry.mark, index)
-            self._add_entry_to_index('path', entry.path, index)
+            self._store_index_number('mark', entry.mark, index)
+            self._store_index_number('path', entry.path, index)
             index += 1
 
     def get_by_index(self, index):
@@ -304,7 +304,7 @@ class ShellmarkEntries:
         indexes = self._get_indexes(mark=mark, path=path)
         return [self.entries[index] for index in indexes]
 
-    def _add_entry_to_index(self, attribute_name, value, index):
+    def _store_index_number(self, attribute_name, value, index):
         """Add the index number of an entry to the index store.
 
         :param string attribute_name: `mark` or `path`
@@ -313,11 +313,16 @@ class ShellmarkEntries:
         :param integer index: The index number of the entry in the list of
         entries.
         """
+        if attribute_name not in ('mark', 'path'):
+            raise ValueError(
+                'attribute_name “{}” unkown.'.format(attribute_name)
+            )
         attribute_index_name = attribute_name + 's'
         if value not in self._index[attribute_index_name]:
             self._index[attribute_index_name][value] = [index]
         elif index not in self._index[attribute_index_name][value]:
             self._index[attribute_index_name][value].append(index)
+            self._index[attribute_index_name][value].sort()
 
     def add_entry(self, mark='', path='', entry='', skip_duplicate_mark=False,
                   skip_duplicate_path=False):
@@ -342,18 +347,8 @@ class ShellmarkEntries:
 
         index = len(self.entries)
         self.entries.append(entry)
-        self._add_entry_to_index('mark', entry.mark, index)
-        self._add_entry_to_index('path', entry.path, index)
-
-    def sort(self, attribute_name='mark', reverse=False):
-        """Sort the bookmark entries by mark or path.
-
-        :param string attribute_name: 'mark' or 'path'
-        :param boolean reverse: Reverse the sort.
-        """
-        self.entries.sort(key=lambda entry: getattr(entry, attribute_name),
-                          reverse=reverse)
-        self._update_index()
+        self._store_index_number('mark', entry.mark, index)
+        self._store_index_number('path', entry.path, index)
 
     def update_entries(self, old_mark='', old_path='', new_mark='',
                        new_path=''):
@@ -382,6 +377,16 @@ class ShellmarkEntries:
         indexes = self._get_indexes(mark=mark, path=path)
         for index in indexes:
             del self.entries[index]
+        self._update_index()
+
+    def sort(self, attribute_name='mark', reverse=False):
+        """Sort the bookmark entries by mark or path.
+
+        :param string attribute_name: 'mark' or 'path'
+        :param boolean reverse: Reverse the sort.
+        """
+        self.entries.sort(key=lambda entry: getattr(entry, attribute_name),
+                          reverse=reverse)
         self._update_index()
 
     def write(self, new_path=''):
