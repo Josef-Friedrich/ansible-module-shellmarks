@@ -276,9 +276,6 @@ class TestFunctions(unittest.TestCase):
 
     entry = 'export DIR_tmp="/tmp"'
 
-    def assertNormalizePath(self, path, home_dir, result):
-        self.assertEqual(shellmarks.normalize_path(path, home_dir), result)
-
     def test_get_path(self):
         self.assertEqual(shellmarks.get_path(self.entry), '/tmp')
 
@@ -293,28 +290,13 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(entries[5], 'h')
         self.assertEqual(entries[8], 'k')
 
-    def test_normalize_path(self):
-        self.assertNormalizePath('/tmp/lol', '/home/jf', '/tmp/lol')
-        self.assertNormalizePath('~/.lol', '/home/jf', '/home/jf/.lol')
-        self.assertNormalizePath('', '/home/jf', '')
-        # self.assertNormalizePath('/', '/home/jf', '/')
-        self.assertNormalizePath(False, '/home/jf', '')
-        self.assertNormalizePath('/tmp/', '/home/jf', '/tmp')
-        self.assertNormalizePath('$HOME/tmp', '/home/jf', '/home/jf/tmp')
-
-    def test_check_mark(self):
-        self.assertEqual(shellmarks.check_mark('lol'), True)
-        self.assertEqual(shellmarks.check_mark('LOL_lol_123'), True)
-        self.assertEqual(shellmarks.check_mark('l'), True)
-        self.assertEqual(shellmarks.check_mark('1'), True)
-        self.assertEqual(shellmarks.check_mark('_'), True)
-        self.assertEqual(shellmarks.check_mark('l o l'), False)
-        self.assertEqual(shellmarks.check_mark('löl'), False)
-        self.assertEqual(shellmarks.check_mark('l-l'), False)
-        self.assertEqual(shellmarks.check_mark('l,l'), False)
-
 
 class TestClassEntry(unittest.TestCase):
+
+    def assertNormalizePath(self, path, result):
+        entry = Entry(mark='test', path=dir1)
+        entry._home_dir = '/home/jf'
+        self.assertEqual(entry.normalize_path(path), result)
 
     def test_init_by_mark_and_path(self):
         entry = Entry(mark='test', path='/tmp')
@@ -383,6 +365,26 @@ class TestClassEntry(unittest.TestCase):
             entry.to_export_string(),
             'export DIR_test="/tmp"'
         )
+
+    def test_method_normalize_path(self):
+        self.assertNormalizePath('/tmp/lol', '/tmp/lol')
+        self.assertNormalizePath('~/.lol', '/home/jf/.lol')
+        self.assertNormalizePath('', '')
+        self.assertNormalizePath('/', '/')
+        self.assertNormalizePath(False, '')
+        self.assertNormalizePath('/tmp/', '/tmp')
+        self.assertNormalizePath('$HOME/tmp', '/home/jf/tmp')
+
+    def test_method_check_mark(self):
+        self.assertEqual(Entry.check_mark('lol'), True)
+        self.assertEqual(Entry.check_mark('LOL_lol_123'), True)
+        self.assertEqual(Entry.check_mark('l'), True)
+        self.assertEqual(Entry.check_mark('1'), True)
+        self.assertEqual(Entry.check_mark('_'), True)
+        self.assertEqual(Entry.check_mark('l o l'), False)
+        self.assertEqual(Entry.check_mark('löl'), False)
+        self.assertEqual(Entry.check_mark('l-l'), False)
+        self.assertEqual(Entry.check_mark('l,l'), False)
 
 
 class TestClassShellmarkEntries(unittest.TestCase):

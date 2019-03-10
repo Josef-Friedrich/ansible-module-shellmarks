@@ -178,6 +178,9 @@ class Entry:
         if not check_mark(self.mark):
             raise ValueError('Allowed characters for mark: 0-9a-zA-Z_')
 
+        self._home_dir = pwd.getpwuid(os.getuid()).pw_dir
+        """The path of the home directory"""
+
         self.path = self.normalize_path(self.path)
 
         if not os.path.exists(self.path):
@@ -195,16 +198,16 @@ class Entry:
             return match.group(0) == mark
         return False
 
-    @staticmethod
-    def normalize_path(path):
+    def normalize_path(self, path):
         """Replace ~ and $HOME with a the actual path string. Replace trailing
         slashes. Convert to a absolute path.
         """
-        path = re.sub(r'/$', '', path)
-        home_dir = pwd.getpwuid(os.getuid()).pw_dir
-        path = re.sub(r'^~', home_dir, path)
-        path = re.sub(r'^\$HOME', home_dir, path)
-        return os.path.abspath(path)
+        if path:
+            path = re.sub(r'(.+)/?$', r'\1', path)
+            path = re.sub(r'^~', self._home_dir, path)
+            path = re.sub(r'^\$HOME', self._home_dir, path)
+            return os.path.abspath(path)
+        return ''
 
     def to_export_string(self):
         return 'export DIR_{}=\"{}\"'.format(self.mark, self.path)
