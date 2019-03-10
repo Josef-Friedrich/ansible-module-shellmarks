@@ -292,8 +292,8 @@ class ShellmarkEntries:
         return self.entries[index]
 
     def get(self, mark='', path=''):
-        """Get one shellmark entry. Select this entry
-        by the bookmark name (mark) or by path or by both.
+        """Retrieve shellmark entries for the list of entries. The entries are
+        selected by the bookmark name (mark) or by the path or by both.
 
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
@@ -327,6 +327,10 @@ class ShellmarkEntries:
         :param string path: The path of the bookmark / shellmark.
         :param string entry: One line in the file ~/.sdirs
           (export DIR_dir1="/dir1").
+        :param boolean skip_duplicate_mark: Don’t add the entry to the list if
+          the same mark already exists.
+        :param boolean skip_duplicate_path: Don’t add the entry to the list if
+          the same path already exists.
         """
         entry = Entry(mark=mark, path=path, entry=entry)
 
@@ -349,10 +353,10 @@ class ShellmarkEntries:
         """
         self.entries.sort(key=lambda entry: getattr(entry, attribute_name),
                           reverse=reverse)
+        self._update_index()
 
     def update(self, old_mark='', old_path='', new_mark='', new_path=''):
-        """
-        Update one bookmark entry.
+        """Update the entries which match the conditions.
 
         :param string old_mark: The name of the old bookmark / shellmark.
         :param string old_path: The path of the old bookmark / shellmark.
@@ -369,7 +373,8 @@ class ShellmarkEntries:
         self._update_index()
 
     def delete(self, mark='', path=''):
-        """
+        """Delete entries which match the specified conditions.
+
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
         """
@@ -381,7 +386,8 @@ class ShellmarkEntries:
     def write(self, new_path=''):
         """Write the bookmark / shellmarks to the disk.
 
-        :param string new_path: Path of a different output file then self.path.
+        :param string new_path: Path of a different output file then specifed
+          by the initialisation of the object.
         """
         if new_path:
             path = new_path
