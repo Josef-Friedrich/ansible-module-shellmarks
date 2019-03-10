@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, division)
-from ansible.compat.tests import unittest
-# import unittest
-import mock
-import shellmarks
-from shellmarks import Entry, ShellmarkEntries
 import tempfile
 import pwd
 import os
+from ansible.compat.tests import unittest
+import mock
+import shellmarks
+from shellmarks import Entry, ShellmarkEntries
+
 __metaclass__ = type
 
-test_files = os.path.abspath(os.path.join('test', 'files'))
-dir1 = os.path.join(test_files, 'dir1')
-dir2 = os.path.join(test_files, 'dir2')
-dir3 = os.path.join(test_files, 'dir3')
+TEST_PATH = os.path.abspath(os.path.join('test', 'files'))
+DIR1 = os.path.join(TEST_PATH, 'dir1')
+DIR2 = os.path.join(TEST_PATH, 'dir2')
+DIR3 = os.path.join(TEST_PATH, 'dir3')
 
 
 def create_tmp_text_file_with_content(content):
@@ -86,16 +86,16 @@ class TestFunctionalWithMock(unittest.TestCase):
         content = 'export DIR_dirB="{}"\n' + \
             'export DIR_dirC="{}"\n' + \
             'export DIR_dirA="{}"\n'
-        content = content.format(dir2, dir3, dir1)
+        content = content.format(DIR2, DIR3, DIR1)
         return create_tmp_text_file_with_content(content)
 
     def test_present(self):
-        sdirs = mock_main({'path': dir1, 'mark': 'tmp'})
+        sdirs = mock_main({'path': DIR1, 'mark': 'tmp'})
         entries = ShellmarkEntries(path=sdirs)
         self.assertEqual(len(entries.entries), 1)
         entry = entries.get_entry_by_index(0)
         self.assertEqual(entry.mark, 'tmp')
-        self.assertEqual(entry.path, dir1)
+        self.assertEqual(entry.path, DIR1)
 
     def test_sort(self):
         # With check mode enabled
@@ -174,9 +174,9 @@ class TestAdd(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self.sdirs = tmp_file()
-        self.dir1 = tmp_dir()
-        self.dir2 = tmp_dir()
-        self.dir3 = tmp_dir()
+        self.DIR1 = tmp_dir()
+        self.DIR2 = tmp_dir()
+        self.DIR3 = tmp_dir()
 
     def addShellMarks(self, mark, path):
         sm = shellmarks.ShellMarks({'sdirs': self.sdirs, 'path': path,
@@ -184,29 +184,29 @@ class TestAdd(unittest.TestCase):
         return sm
 
     def test_add(self):
-        sm = self.addShellMarks('tmp1', self.dir1)
+        sm = self.addShellMarks('tmp1', self.DIR1)
         self.assertEqual(len(sm.entries), 1)
         self.assertEqual(sm.skipped, False)
         self.assertEqual(sm.changed, True)
 
         # same entry
-        sm = self.addShellMarks('tmp1', self.dir1)
+        sm = self.addShellMarks('tmp1', self.DIR1)
         self.assertEqual(len(sm.entries), 1)
         self.assertEqual(sm.changed, False)
 
         # same mark
-        sm = self.addShellMarks('tmp1', self.dir2)
+        sm = self.addShellMarks('tmp1', self.DIR2)
         self.assertEqual(len(sm.entries), 1)
         self.assertEqual(sm.changed, False)
 
         # second entry
-        sm = self.addShellMarks('tmp2', self.dir2)
+        sm = self.addShellMarks('tmp2', self.DIR2)
         self.assertEqual(len(sm.entries), 2)
         self.assertEqual(sm.skipped, False)
         self.assertEqual(sm.changed, True)
 
         # third entry
-        sm = self.addShellMarks('tmp3', self.dir3)
+        sm = self.addShellMarks('tmp3', self.DIR3)
         self.assertEqual(len(sm.entries), 3)
         self.assertEqual(sm.skipped, False)
         self.assertEqual(sm.changed, True)
@@ -217,7 +217,7 @@ class TestAdd(unittest.TestCase):
         self.assertEqual(sm.changed, False)
 
         # Check casesensitivity
-        sm = self.addShellMarks('TMP1', self.dir1)
+        sm = self.addShellMarks('TMP1', self.DIR1)
         self.assertEqual(len(sm.entries), 4)
         self.assertEqual(sm.changed, True)
 
@@ -230,13 +230,13 @@ class TestDel(unittest.TestCase):
 
     def setUp(self):
         self.sdirs = tmp_file()
-        self.dir1 = tmp_dir()
-        self.dir2 = tmp_dir()
-        self.dir3 = tmp_dir()
+        self.DIR1 = tmp_dir()
+        self.DIR2 = tmp_dir()
+        self.DIR3 = tmp_dir()
 
-        self.addShellMarks('tmp1', self.dir1)
-        self.addShellMarks('tmp2', self.dir2)
-        self.addShellMarks('tmp3', self.dir3)
+        self.addShellMarks('tmp1', self.DIR1)
+        self.addShellMarks('tmp2', self.DIR2)
+        self.addShellMarks('tmp3', self.DIR3)
 
     def test_delete_by_mark(self):
         sm = shellmarks.ShellMarks({
@@ -263,28 +263,28 @@ class TestDel(unittest.TestCase):
     def test_delete_by_path(self):
         sm = shellmarks.ShellMarks({
             'sdirs': self.sdirs,
-            'path': self.dir1,
+            'path': self.DIR1,
             'state': 'absent'})
         self.assertEqual(len(sm.entries), 2)
         self.assertEqual(sm.skipped, False)
         self.assertEqual(sm.changed, True)
 
         for entry in sm.entries:
-            if self.dir1 in entry:
+            if self.DIR1 in entry:
                 self.fail('Path was not deleted.')
 
     def test_delete_by_path_and_mark(self):
         sm = shellmarks.ShellMarks({
             'sdirs': self.sdirs,
             'mark': 'tmp1',
-            'path': self.dir1,
+            'path': self.DIR1,
             'state': 'absent'})
         self.assertEqual(len(sm.entries), 2)
         self.assertEqual(sm.skipped, False)
         self.assertEqual(sm.changed, True)
 
         for entry in sm.entries:
-            if self.dir1 in entry:
+            if self.DIR1 in entry:
                 self.fail('Path was not deleted.')
 
     def test_delete_casesensitivity(self):
@@ -338,7 +338,7 @@ class TestFunctions(unittest.TestCase):
 class TestClassEntry(unittest.TestCase):
 
     def assertNormalizePath(self, path, result):
-        entry = Entry(mark='test', path=dir1)
+        entry = Entry(mark='test', path=DIR1)
         entry._home_dir = '/home/jf'
         self.assertEqual(entry.normalize_path(path), result)
 
@@ -484,9 +484,9 @@ class TestClassShellmarkEntries(unittest.TestCase):
 
     def test_method__update_index(self):
         entries = ShellmarkEntries(path=tmp_file())
-        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=DIR1)
         self.assertEqual(entries._index['marks']['dir1'], [0])
-        self.assertEqual(entries._index['paths'][dir1], [0])
+        self.assertEqual(entries._index['paths'][DIR1], [0])
 
         # Delete the index store.
         delattr(entries, '_index')
@@ -496,16 +496,16 @@ class TestClassShellmarkEntries(unittest.TestCase):
         # Regenerate index.
         entries._update_index()
         self.assertEqual(entries._index['marks']['dir1'], [0])
-        self.assertEqual(entries._index['paths'][dir1], [0])
+        self.assertEqual(entries._index['paths'][DIR1], [0])
 
     def test_method__get_indexes(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
         self.assertEqual(entries._get_indexes(mark='dir1'), [0])
-        self.assertEqual(entries._get_indexes(path=dir2), [1])
-        self.assertEqual(entries._get_indexes(mark='dir3', path=dir3), [2])
+        self.assertEqual(entries._get_indexes(path=DIR2), [1])
+        self.assertEqual(entries._get_indexes(mark='dir3', path=DIR3), [2])
 
         with self.assertRaises(ValueError) as cm:
-            entries._get_indexes(mark='dir1', path=dir3)
+            entries._get_indexes(mark='dir1', path=DIR3)
         self.assertIn(
             'mark (dir1) and path',
             str(cm.exception)
@@ -549,12 +549,12 @@ class TestClassShellmarkEntries(unittest.TestCase):
     def test_method_add_entry(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'xxx'))
 
-        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=DIR1)
         self.assertEqual(len(entries.entries), 1)
         self.assertEqual(entries.entries[0].mark, 'dir1')
         self.assertEqual(entries._index['marks']['dir1'], [0])
 
-        entries.add_entry(mark='dir2', path=dir2)
+        entries.add_entry(mark='dir2', path=DIR2)
         self.assertEqual(len(entries.entries), 2)
         self.assertEqual(entries.entries[1].mark, 'dir2')
         self.assertEqual(entries._index['marks']['dir2'], [1])
@@ -562,32 +562,32 @@ class TestClassShellmarkEntries(unittest.TestCase):
     def test_method_add_entry_exception(self):
         entries = ShellmarkEntries(path=tmp_file())
         with self.assertRaises(ValueError):
-            entries.add_entry(mark='dör1', path=dir1)
+            entries.add_entry(mark='dör1', path=DIR1)
         with self.assertRaises(ValueError):
-            entries.add_entry(mark='d i r 1', path=dir1)
+            entries.add_entry(mark='d i r 1', path=DIR1)
         with self.assertRaises(ValueError):
-            entries.add_entry(mark='dir 1', path=dir1)
+            entries.add_entry(mark='dir 1', path=DIR1)
 
     def test_method_add_entry_duplicates(self):
         entries = ShellmarkEntries(path=tmp_file())
-        entries.add_entry(mark='dir1', path=dir1)
-        entries.add_entry(mark='dir1', path=dir1)
-        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=DIR1)
+        entries.add_entry(mark='dir1', path=DIR1)
+        entries.add_entry(mark='dir1', path=DIR1)
         self.assertEqual(len(entries.entries), 3)
         self.assertEqual(entries._index['marks']['dir1'], [0, 1, 2])
-        self.assertEqual(entries._index['paths'][dir1], [0, 1, 2])
+        self.assertEqual(entries._index['paths'][DIR1], [0, 1, 2])
 
     def test_method_add_entry_avoid_duplicate_marks(self):
         entries = ShellmarkEntries(path=tmp_file())
-        self.assertEqual(entries.add_entry(mark='dir1', path=dir1), 0)
+        self.assertEqual(entries.add_entry(mark='dir1', path=DIR1), 0)
         self.assertEqual(
-            entries.add_entry(mark='dir1', path=dir1,
+            entries.add_entry(mark='dir1', path=DIR1,
                               avoid_duplicate_marks=True),
             False
         )
         self.assertEqual(len(entries.entries), 1)
         self.assertEqual(
-            entries.add_entry(mark='dir1', path=dir1,
+            entries.add_entry(mark='dir1', path=DIR1,
                               avoid_duplicate_marks=True,
                               delete_old_entries=True),
             0
@@ -596,15 +596,15 @@ class TestClassShellmarkEntries(unittest.TestCase):
 
     def test_method_add_entry_avoid_duplicate_paths(self):
         entries = ShellmarkEntries(path=tmp_file())
-        self.assertEqual(entries.add_entry(mark='dir1', path=dir1), 0)
+        self.assertEqual(entries.add_entry(mark='dir1', path=DIR1), 0)
         self.assertEqual(
-            entries.add_entry(mark='dir1', path=dir1,
+            entries.add_entry(mark='dir1', path=DIR1,
                               avoid_duplicate_paths=True),
             False
         )
         self.assertEqual(len(entries.entries), 1)
         self.assertEqual(
-            entries.add_entry(mark='dir1', path=dir1,
+            entries.add_entry(mark='dir1', path=DIR1,
                               avoid_duplicate_paths=True,
                               delete_old_entries=True),
             0
@@ -613,16 +613,16 @@ class TestClassShellmarkEntries(unittest.TestCase):
 
     def test_method_add_entry_avoid_duplicates(self):
         entries = ShellmarkEntries(path=tmp_file())
-        self.assertEqual(entries.add_entry(mark='dir1', path=dir1), 0)
+        self.assertEqual(entries.add_entry(mark='dir1', path=DIR1), 0)
         self.assertEqual(
-            entries.add_entry(mark='dir1', path=dir1,
+            entries.add_entry(mark='dir1', path=DIR1,
                               avoid_duplicate_marks=True,
                               avoid_duplicate_paths=True),
             False
         )
         self.assertEqual(len(entries.entries), 1)
         self.assertEqual(
-            entries.add_entry(mark='dir1', path=dir1,
+            entries.add_entry(mark='dir1', path=DIR1,
                               avoid_duplicate_marks=True,
                               avoid_duplicate_paths=True,
                               delete_old_entries=True),
@@ -634,24 +634,24 @@ class TestClassShellmarkEntries(unittest.TestCase):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
         entries.update_entries(old_mark='dir1', new_mark='new1')
         result = entries.get_entries(mark='new1')
-        self.assertEqual(result[0].path, dir1)
+        self.assertEqual(result[0].path, DIR1)
 
     def test_method_update_entries_duplicates(self):
         entries = ShellmarkEntries(path=tmp_file())
-        entries.add_entry(mark='dir1', path=dir1)
-        entries.add_entry(mark='dir1', path=dir1)
-        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=DIR1)
+        entries.add_entry(mark='dir1', path=DIR1)
+        entries.add_entry(mark='dir1', path=DIR1)
         entries.update_entries(old_mark='dir1', new_mark='new1')
         self.assertEqual(entries._index['marks']['new1'], [0, 1, 2])
-        self.assertEqual(entries._index['paths'][dir1], [0, 1, 2])
+        self.assertEqual(entries._index['paths'][DIR1], [0, 1, 2])
 
     def test_method_delete_entries(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
         entries.delete_entries(mark='dir1')
         self.assertEqual(len(entries.entries), 2)
-        entries.delete_entries(path=dir2)
+        entries.delete_entries(path=DIR2)
         self.assertEqual(len(entries.entries), 1)
-        entries.delete_entries(mark='dir3', path=dir3)
+        entries.delete_entries(mark='dir3', path=DIR3)
         self.assertEqual(len(entries.entries), 0)
 
         # Delete entries which don’t exist by mark.
@@ -662,54 +662,54 @@ class TestClassShellmarkEntries(unittest.TestCase):
 
     def test_method_delete_entries_duplicates(self):
         entries = ShellmarkEntries(path=tmp_file())
-        entries.add_entry(mark='dir1', path=dir1)
-        entries.add_entry(mark='dir1', path=dir1)
-        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=DIR1)
+        entries.add_entry(mark='dir1', path=DIR1)
+        entries.add_entry(mark='dir1', path=DIR1)
         self.assertEqual(len(entries.entries), 3)
         entries.delete_entries(mark='dir1')
         self.assertEqual(len(entries.entries), 0)
 
     def test_method_delete_duplicates(self):
         entries = ShellmarkEntries(path=tmp_file())
-        entries.add_entry(mark='mark', path=dir1)
-        entries.add_entry(mark='mark', path=dir2)
-        entries.add_entry(mark='other', path=dir2)
+        entries.add_entry(mark='mark', path=DIR1)
+        entries.add_entry(mark='mark', path=DIR2)
+        entries.add_entry(mark='other', path=DIR2)
         entries.delete_duplicates(marks=True, paths=False)
-        self.assertEqual(entries.entries[0].path, dir2)
-        self.assertEqual(entries.entries[1].path, dir2)
+        self.assertEqual(entries.entries[0].path, DIR2)
+        self.assertEqual(entries.entries[1].path, DIR2)
 
         entries = ShellmarkEntries(path=tmp_file())
-        entries.add_entry(mark='mark1', path=dir1)
-        entries.add_entry(mark='mark2', path=dir1)
-        entries.add_entry(mark='mark2', path=dir2)
+        entries.add_entry(mark='mark1', path=DIR1)
+        entries.add_entry(mark='mark2', path=DIR1)
+        entries.add_entry(mark='mark2', path=DIR2)
         entries.delete_duplicates(marks=False, paths=True)
         self.assertEqual(entries.entries[0].mark, 'mark2')
         self.assertEqual(entries.entries[1].mark, 'mark2')
 
         entries = ShellmarkEntries(path=tmp_file())
-        entries.add_entry(mark='mark1', path=dir1)
-        entries.add_entry(mark='mark1', path=dir1)
-        entries.add_entry(mark='mark2', path=dir1)
-        entries.add_entry(mark='mark1', path=dir2)
+        entries.add_entry(mark='mark1', path=DIR1)
+        entries.add_entry(mark='mark1', path=DIR1)
+        entries.add_entry(mark='mark2', path=DIR1)
+        entries.add_entry(mark='mark1', path=DIR2)
         entries.delete_duplicates(marks=True, paths=True)
         self.assertEqual(len(entries.entries), 2)
         self.assertEqual(entries.entries[0].mark, 'mark2')
-        self.assertEqual(entries.entries[0].path, dir1)
+        self.assertEqual(entries.entries[0].path, DIR1)
         self.assertEqual(entries.entries[1].mark, 'mark1')
-        self.assertEqual(entries.entries[1].path, dir2)
+        self.assertEqual(entries.entries[1].path, DIR2)
 
     def test_method_sort(self):
         sdirs = tmp_file()
         entries = ShellmarkEntries(path=sdirs)
-        entries.add_entry(mark='dir3', path=dir1)
-        entries.add_entry(mark='dir2', path=dir2)
-        entries.add_entry(mark='dir1', path=dir3)
+        entries.add_entry(mark='dir3', path=DIR1)
+        entries.add_entry(mark='dir2', path=DIR2)
+        entries.add_entry(mark='dir1', path=DIR3)
         self.assertEqual(entries.entries[0].mark, 'dir3')
         self.assertEqual(entries.entries[1].mark, 'dir2')
         self.assertEqual(entries.entries[2].mark, 'dir1')
-        self.assertEqual(entries.entries[0].path, dir1)
-        self.assertEqual(entries.entries[1].path, dir2)
-        self.assertEqual(entries.entries[2].path, dir3)
+        self.assertEqual(entries.entries[0].path, DIR1)
+        self.assertEqual(entries.entries[1].path, DIR2)
+        self.assertEqual(entries.entries[2].path, DIR3)
 
         entries.sort()
         self.assertEqual(entries.entries[0].mark, 'dir1')
@@ -722,14 +722,14 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(entries.entries[2].mark, 'dir1')
 
         entries.sort(attribute_name='path')
-        self.assertEqual(entries.entries[0].path, dir1)
-        self.assertEqual(entries.entries[1].path, dir2)
-        self.assertEqual(entries.entries[2].path, dir3)
+        self.assertEqual(entries.entries[0].path, DIR1)
+        self.assertEqual(entries.entries[1].path, DIR2)
+        self.assertEqual(entries.entries[2].path, DIR3)
 
         entries.sort(attribute_name='path', reverse=True)
-        self.assertEqual(entries.entries[0].path, dir3)
-        self.assertEqual(entries.entries[1].path, dir2)
-        self.assertEqual(entries.entries[2].path, dir1)
+        self.assertEqual(entries.entries[0].path, DIR3)
+        self.assertEqual(entries.entries[1].path, DIR2)
+        self.assertEqual(entries.entries[2].path, DIR1)
 
     def test_method_write(self):
         old_path = os.path.join('test', 'files', 'sdirs')
@@ -741,22 +741,22 @@ class TestClassShellmarkEntries(unittest.TestCase):
 
     def test_combinations(self):
         entries = ShellmarkEntries(path=tmp_file())
-        entries.add_entry(mark='dir1', path=dir1)
-        entries.add_entry(mark='dir2', path=dir2)
-        entries.add_entry(mark='dir3', path=dir3)
-        self.assertEqual(entries.get_entries(mark='dir3')[0].path, dir3)
+        entries.add_entry(mark='dir1', path=DIR1)
+        entries.add_entry(mark='dir2', path=DIR2)
+        entries.add_entry(mark='dir3', path=DIR3)
+        self.assertEqual(entries.get_entries(mark='dir3')[0].path, DIR3)
 
         # Delete one entry
         entries.delete_entries(mark='dir2')
-        self.assertEqual(entries.get_entries(mark='dir3')[0].path, dir3)
+        self.assertEqual(entries.get_entries(mark='dir3')[0].path, DIR3)
 
         # Sort
         entries.sort(reverse=True)
-        self.assertEqual(entries.get_entries(mark='dir3')[0].path, dir3)
+        self.assertEqual(entries.get_entries(mark='dir3')[0].path, DIR3)
 
         # Update one entry
-        entries.update_entries(old_mark='dir1', new_path=dir2)
-        self.assertEqual(entries.get_entries(mark='dir3')[0].path, dir3)
+        entries.update_entries(old_mark='dir1', new_path=DIR2)
+        self.assertEqual(entries.get_entries(mark='dir3')[0].path, DIR3)
 
         entries.write()
 
@@ -764,5 +764,5 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(
             content,
             'export DIR_dir3="{0}/dir3"\nexport DIR_dir1="{0}/dir2"\n'
-            .format(test_files)
+            .format(TEST_PATH)
         )
