@@ -363,7 +363,11 @@ class ShellmarkEntries:
         :param boolean avoid_duplicate_paths: Avoid duplicate paths
         :param boolean delete_old_entries: Delete old entries instead of not
           adding a new entry.
+
+        :return mixed: False by not adding action, else the index number.
         """
+
+        add_action = False
 
         if avoid_duplicate_marks and delete_old_entries:
             self.delete_entries(mark=mark)
@@ -382,6 +386,8 @@ class ShellmarkEntries:
             self.entries.append(entry)
             self._store_index_number('mark', entry.mark, index)
             self._store_index_number('path', entry.path, index)
+            add_action = index
+        return add_action
 
     def update_entries(self, old_mark='', old_path='', new_mark='',
                        new_path=''):
