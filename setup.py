@@ -1,6 +1,6 @@
-
 from setuptools import setup
 from os import path
+import versioneer
 
 # read the contents of your README file
 this_directory = path.abspath(path.dirname(__file__))
@@ -13,7 +13,8 @@ setup(
     'used directories like the tools shellmarks and bashmarks do.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    version='2.0.1',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     author='Josef Friedrich',
     author_email='josef@friedrich.rocks',
     license='GPL3',

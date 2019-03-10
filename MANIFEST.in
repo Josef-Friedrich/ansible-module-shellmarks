@@ -2,3 +2,5 @@ include LICENSE
 include shellmarks.py
 prune test
 
+include versioneer.py
+include _version.py
