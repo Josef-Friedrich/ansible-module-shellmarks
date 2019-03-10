@@ -223,15 +223,13 @@ class ShellmarkEntries:
 
         key: marks
 
-        A dictonary: The key is the bookmark name, the value is the
-        the corresponding index number of the self.entries list containing
-        entries.
+        A dictonary: The key is the bookmark / shellmark name and the value is
+        a list of the corresponding index numbers.
 
         key: paths
 
-        A dictonary: The key is the path, the value is the
-        the corresponding index number of the self.entries list containing
-        entries.
+        A dictonary: The key is the path and the value is a list
+        the corresponding index numbers
         """
 
         if os.path.isfile(path):
@@ -244,21 +242,30 @@ class ShellmarkEntries:
         for line in lines:
             self.add(entry=line)
 
-    def _get_index(self, mark='', path=''):
+    @staticmethod
+    def _list_intersection(list1, list2):
+        """https://www.geeksforgeeks.org/python-intersection-two-lists/"""
+        return [value for value in list1 if value in list2]
+
+    def _get_indexes(self, mark='', path=''):
         """Get the index of an entry in the list of entries. Select this entry
         by the bookmark name or by path or by both.
 
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
 
-        :return: integer The index number (starting from 0).
+        :return: list A list of index numbers. Index numbers are starting from
+          0.
         """
         if mark and path:
             if self._index['marks'][mark] != self._index['paths'][path]:
                 raise ValueError(
                     'mark ({}) and path ({}) didn’t match.'.format(mark, path)
                 )
-            return self._index['marks'][mark]
+            return self._list_intersection(
+                self._index['marks'][mark],
+                self._index['paths'][path]
+            )
         elif mark:
             return self._index['marks'][mark]
         elif path:
@@ -273,8 +280,8 @@ class ShellmarkEntries:
         }
         index = 0
         for entry in self.entries:
-            self._index['marks'][entry.mark] = index
-            self._index['paths'][entry.path] = index
+            self._add_entry_to_index('mark', entry.mark, index)
+            self._add_entry_to_index('path', entry.path, index)
             index += 1
 
     def get_by_index(self, index):
@@ -291,13 +298,29 @@ class ShellmarkEntries:
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
 
-        :return: A shellmark entry.
+        :return: A list of shellmark entries.
         """
 
-        index = self._get_index(mark=mark, path=path)
-        return self.entries[index]
+        indexes = self._get_indexes(mark=mark, path=path)
+        return [self.entries[index] for index in indexes]
 
-    def add(self, mark='', path='', entry=''):
+    def _add_entry_to_index(self, attribute_name, value, index):
+        """Add the index number of an entry to the index store.
+
+        :param string attribute_name: `mark` or `path`
+        :param string value: The value of the attribute name. For example
+        `$HOME/Downloads` for `path` and `downloads` for `mark`
+        :param integer index: The index number of the entry in the list of
+        entries.
+        """
+        attribute_index_name = attribute_name + 's'
+        if value not in self._index[attribute_index_name]:
+            self._index[attribute_index_name][value] = [index]
+        elif index not in self._index[attribute_index_name][value]:
+            self._index[attribute_index_name][value].append(index)
+
+    def add(self, mark='', path='', entry='', skip_duplicate_mark=False,
+            skip_duplicate_path=False):
         """Add one bookmark / shellmark entry.
 
         :param string mark: The name of the bookmark / shellmark.
@@ -306,12 +329,17 @@ class ShellmarkEntries:
           (export DIR_dir1="/dir1").
         """
         entry = Entry(mark=mark, path=path, entry=entry)
-        if entry.mark not in self._index['marks'] and \
-           entry.path not in self._index['paths']:
-            index = len(self.entries)
-            self.entries.append(entry)
-            self._index['marks'][entry.mark] = index
-            self._index['paths'][entry.path] = index
+
+        if skip_duplicate_mark and entry.mark in self._index['mark']:
+            return
+
+        if skip_duplicate_path and entry.path in self._index['path']:
+            return
+
+        index = len(self.entries)
+        self.entries.append(entry)
+        self._add_entry_to_index('mark', entry.mark, index)
+        self._add_entry_to_index('path', entry.path, index)
 
     def sort(self, attribute_name='mark', reverse=False):
         """Sort the bookmark entries by mark or path.
@@ -331,12 +359,13 @@ class ShellmarkEntries:
         :param string new_mark: The name of the new bookmark / shellmark.
         :param string new_path: The path of the new bookmark / shellmark.
         """
-        index = self._get_index(mark=old_mark, path=old_path)
-        entry = self.get_by_index(index)
-        if new_mark:
-            entry.mark = new_mark
-        if new_path:
-            entry.path = new_path
+        indexes = self._get_indexes(mark=old_mark, path=old_path)
+        for index in indexes:
+            entry = self.get_by_index(index)
+            if new_mark:
+                entry.mark = new_mark
+            if new_path:
+                entry.path = new_path
         self._update_index()
 
     def delete(self, mark='', path=''):
@@ -344,8 +373,9 @@ class ShellmarkEntries:
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
         """
-        index = self._get_index(mark=mark, path=path)
-        del self.entries[index]
+        indexes = self._get_indexes(mark=mark, path=path)
+        for index in indexes:
+            del self.entries[index]
         self._update_index()
 
     def write(self, new_path=''):

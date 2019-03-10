@@ -392,9 +392,9 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(entries.entries[0].mark, 'dir1')
         self.assertEqual(entries.entries[1].mark, 'dir2')
         self.assertEqual(entries.entries[2].mark, 'dir3')
-        self.assertEqual(entries._index['marks']['dir1'], 0)
-        self.assertEqual(entries._index['marks']['dir2'], 1)
-        self.assertEqual(entries._index['marks']['dir3'], 2)
+        self.assertEqual(entries._index['marks']['dir1'], [0])
+        self.assertEqual(entries._index['marks']['dir2'], [1])
+        self.assertEqual(entries._index['marks']['dir3'], [2])
 
     def test_init_non_existent_file(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'xxx'))
@@ -408,21 +408,21 @@ class TestClassShellmarkEntries(unittest.TestCase):
         entries.add(mark='dir1', path=os.path.join('test', 'files', 'dir1'))
         self.assertEqual(len(entries.entries), 1)
         self.assertEqual(entries.entries[0].mark, 'dir1')
-        self.assertEqual(entries._index['marks']['dir1'], 0)
+        self.assertEqual(entries._index['marks']['dir1'], [0])
 
         entries.add(mark='dir2', path=os.path.join('test', 'files', 'dir2'))
         self.assertEqual(len(entries.entries), 2)
         self.assertEqual(entries.entries[1].mark, 'dir2')
-        self.assertEqual(entries._index['marks']['dir2'], 1)
+        self.assertEqual(entries._index['marks']['dir2'], [1])
 
-    def test_method__get_index(self):
+    def test_method__get_indexes(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
-        self.assertEqual(entries._get_index(mark='dir1'), 0)
-        self.assertEqual(entries._get_index(path=dir2), 1)
-        self.assertEqual(entries._get_index(mark='dir3', path=dir3), 2)
+        self.assertEqual(entries._get_indexes(mark='dir1'), [0])
+        self.assertEqual(entries._get_indexes(path=dir2), [1])
+        self.assertEqual(entries._get_indexes(mark='dir3', path=dir3), [2])
 
         with self.assertRaises(ValueError) as cm:
-            entries._get_index(mark='dir1', path=dir3)
+            entries._get_indexes(mark='dir1', path=dir3)
         self.assertIn(
             'mark (dir1) and path',
             str(cm.exception)
@@ -432,14 +432,14 @@ class TestClassShellmarkEntries(unittest.TestCase):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
         path = os.path.abspath(os.path.join('test', 'files', 'dir1'))
 
-        entry = entries.get(mark='dir1')
-        self.assertEqual(entry.mark, 'dir1')
+        result = entries.get(mark='dir1')
+        self.assertEqual(result[0].mark, 'dir1')
 
-        entry = entries.get(path=path)
-        self.assertEqual(entry.mark, 'dir1')
+        result = entries.get(path=path)
+        self.assertEqual(result[0].mark, 'dir1')
 
-        entry = entries.get(mark='dir1', path=path)
-        self.assertEqual(entry.mark, 'dir1')
+        result = entries.get(mark='dir1', path=path)
+        self.assertEqual(result[0].mark, 'dir1')
 
         with self.assertRaises(ValueError) as cm:
             entries.get(mark='dir2', path=path)
@@ -510,5 +510,5 @@ class TestClassShellmarkEntries(unittest.TestCase):
     def test_method_update(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
         entries.update(old_mark='dir1', new_mark='new1')
-        entry = entries.get(mark='new1')
-        self.assertEqual(entry.path, dir1)
+        result = entries.get(mark='new1')
+        self.assertEqual(result[0].path, dir1)
