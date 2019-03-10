@@ -10,13 +10,18 @@ import pwd
 import os
 __metaclass__ = type
 
+test_files = os.path.abspath(os.path.join('test', 'files'))
+dir1 = os.path.join(test_files, 'dir1')
+dir2 = os.path.join(test_files, 'dir2')
+dir3 = os.path.join(test_files, 'dir3')
 
-def sdirs_by_content(content):
-    sdirs = tmp_file()
-    f = open(sdirs, 'w')
-    f.write(content)
-    f.close()
-    return sdirs
+
+def create_tmp_text_file_with_content(content):
+    path = tmp_file()
+    file_handler = open(path, 'w')
+    file_handler.write(content)
+    file_handler.close()
+    return path
 
 
 def tmp_file():
@@ -31,10 +36,29 @@ def read(sdirs):
     return open(sdirs, 'r').readlines()
 
 
-test_files = os.path.abspath(os.path.join('test', 'files'))
-dir1 = os.path.join(test_files, 'dir1')
-dir2 = os.path.join(test_files, 'dir2')
-dir3 = os.path.join(test_files, 'dir3')
+def mock_main(params, check_mode=False):
+    sdirs = tmp_file()
+    defaults = {
+        "cleanup": False,
+        "mark": False,
+        "path": False,
+        "replace_home": True,
+        "sdirs": sdirs,
+        "sorted": True,
+        "state": "present",
+    }
+
+    for key, value in list(defaults.items()):
+        if key not in params:
+            params[key] = value
+
+    with mock.patch('shellmarks.AnsibleModule') as AnsibleModule:
+        module = AnsibleModule.return_value
+        module.params = params
+        module.check_mode = check_mode
+        shellmarks.main()
+
+    return sdirs
 
 
 class TestUnitTest(unittest.TestCase):
@@ -53,6 +77,48 @@ class TestUnitTest(unittest.TestCase):
         self.assertTrue(sm.error)
         sm = shellmarks.ShellMarks({'mark': 'l,l', 'path': '/lol'})
         self.assertTrue(sm.error)
+
+
+class TestFunctionalWithMock(unittest.TestCase):
+
+    @staticmethod
+    def create_sdirs_file():
+        content = 'export DIR_dirB="{}"\n' + \
+            'export DIR_dirC="{}"\n' + \
+            'export DIR_dirA="{}"\n'
+        content = content.format(dir2, dir3, dir1)
+        return create_tmp_text_file_with_content(content)
+
+    def test_present(self):
+        sdirs = mock_main({'path': dir1, 'mark': 'tmp'})
+        entries = ShellmarkEntries(path=sdirs)
+        self.assertEqual(len(entries.entries), 1)
+        entry = entries.get_entry_by_index(0)
+        self.assertEqual(entry.mark, 'tmp')
+        self.assertEqual(entry.path, dir1)
+
+    def test_sort(self):
+        # With check mode enabled
+        sdirs = self.create_sdirs_file()
+        mock_main({'sorted': True, 'sdirs': sdirs}, True)
+        entries = ShellmarkEntries(path=sdirs)
+        self.assertEqual(entries.entries[0].mark, 'dirB')
+
+        # Sort
+        sdirs = self.create_sdirs_file()
+        mock_main({'sorted': True, 'sdirs': sdirs}, False)
+        entries = ShellmarkEntries(path=sdirs)
+        self.assertEqual(entries.entries[0].mark, 'dirA')
+        self.assertEqual(entries.entries[1].mark, 'dirB')
+        self.assertEqual(entries.entries[2].mark, 'dirC')
+
+        # Sort not
+        sdirs = self.create_sdirs_file()
+        mock_main({'sorted': False, 'sdirs': sdirs}, False)
+        entries = ShellmarkEntries(path=sdirs)
+        self.assertEqual(entries.entries[0].mark, 'dirB')
+        self.assertEqual(entries.entries[1].mark, 'dirC')
+        self.assertEqual(entries.entries[2].mark, 'dirA')
 
 
 class TestFunction(unittest.TestCase):
@@ -101,28 +167,6 @@ class TestFunction(unittest.TestCase):
 
         args = module.exit_json.call_args
         self.assertEqual(mock.call(changed=False, msg='tmp : /tmp'), args)
-
-
-class TestObject(unittest.TestCase):
-
-    def test_present(self):
-        sdirs = tmp_file()
-        shellmarks.ShellMarks({'sdirs': sdirs, 'path': '/tmp',
-                               'mark': 'tmp'})
-
-        self.assertEqual(read(sdirs)[0], 'export DIR_tmp="/tmp"\n')
-
-    def test_sort(self):
-        content = 'export DIR_tmpb="/tmp/b"\n' + \
-            'export DIR_tmpc="/tmp/c"\n' + \
-            'export DIR_tmpa="/tmp/a"\n'
-        sdirs = sdirs_by_content(content)
-
-        sm = shellmarks.ShellMarks({'sorted': False, 'sdirs': sdirs}, True)
-        self.assertEqual(sm.entries[0], 'export DIR_tmpb="/tmp/b"\n')
-
-        sm = shellmarks.ShellMarks({'sorted': True, 'sdirs': sdirs}, True)
-        self.assertEqual(sm.entries[0], 'export DIR_tmpa="/tmp/a"\n')
 
 
 class TestAdd(unittest.TestCase):
@@ -260,7 +304,7 @@ class TestCleanUp(unittest.TestCase):
         no = 'export DIR_tmpb="/tmpXDR34723df4WER/d4REd4RE64er64erb"\n'
         content = no + no + no + \
             'export DIR_exists="' + path + '"\n' + no + no + no
-        sdirs = sdirs_by_content(content)
+        sdirs = create_tmp_text_file_with_content(content)
 
         sm = shellmarks.ShellMarks({
             'cleanup': True,
