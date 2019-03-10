@@ -318,10 +318,11 @@ class ShellmarkEntries:
                 self._index['marks'][mark],
                 self._index['paths'][path]
             )
-        elif mark:
+        elif mark and mark in self._index['marks']:
             return self._index['marks'][mark]
-        elif path:
+        elif path and path in self._index['paths']:
             return self._index['paths'][path]
+        return []
 
     def get_raw(self):
         """The raw content of the file  ~/.sdirs."""
@@ -349,31 +350,34 @@ class ShellmarkEntries:
         indexes = self._get_indexes(mark=mark, path=path)
         return [self.entries[index] for index in indexes]
 
-    def add_entry(self, mark='', path='', entry='', skip_duplicate_mark=False,
-                  skip_duplicate_path=False):
+    def add_entry(self, mark='', path='', entry='',
+                  avoid_duplicate_marks=False, avoid_duplicate_paths=False,
+                  delete_old_entries=False):
         """Add one bookmark / shellmark entry.
 
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
         :param string entry: One line in the file ~/.sdirs
           (export DIR_dir1="/dir1").
-        :param boolean skip_duplicate_mark: Don’t add the entry to the list if
-          the same mark already exists.
-        :param boolean skip_duplicate_path: Don’t add the entry to the list if
-          the same path already exists.
         """
-        entry = Entry(mark=mark, path=path, entry=entry)
 
-        if skip_duplicate_mark and entry.mark in self._index['mark']:
-            return
+        if avoid_duplicate_marks and delete_old_entries:
+            self.delete_entries(mark=mark)
 
-        if skip_duplicate_path and entry.path in self._index['path']:
-            return
+        if avoid_duplicate_paths and delete_old_entries:
+            self.delete_entries(path=path)
 
-        index = len(self.entries)
-        self.entries.append(entry)
-        self._store_index_number('mark', entry.mark, index)
-        self._store_index_number('path', entry.path, index)
+        same_mark_entries = self.get_entries(mark=mark)
+        same_path_entries = self.get_entries(path=path)
+
+        if (not avoid_duplicate_marks and not avoid_duplicate_paths) or \
+           (avoid_duplicate_marks and not same_mark_entries) or \
+           (avoid_duplicate_paths and not same_path_entries):
+            entry = Entry(mark=mark, path=path, entry=entry)
+            index = len(self.entries)
+            self.entries.append(entry)
+            self._store_index_number('mark', entry.mark, index)
+            self._store_index_number('path', entry.path, index)
 
     def update_entries(self, old_mark='', old_path='', new_mark='',
                        new_path=''):

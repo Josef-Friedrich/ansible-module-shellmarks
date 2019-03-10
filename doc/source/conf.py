@@ -1,6 +1,4 @@
-
 import sphinx_rtd_theme
-import shellmarks
 from _version import get_versions
 
 html_theme = 'sphinx_rtd_theme'
@@ -26,4 +24,5 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 html_static_path = []
 htmlhelp_basename = 'shellmarksdoc'
-autodoc_default_flags = ['members', 'undoc-members', 'private-members', 'show-inheritance']
+autodoc_default_flags = ['members', 'undoc-members', 'private-members',
+                         'show-inheritance']
