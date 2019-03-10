@@ -598,3 +598,31 @@ class TestClassShellmarkEntries(unittest.TestCase):
         entries.write(new_path=new_path)
         new_path_content = open(new_path, 'r').read()
         self.assertTrue(new_path_content)
+
+    def test_combinations(self):
+        entries = ShellmarkEntries(path=tmp_file())
+        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir2', path=dir2)
+        entries.add_entry(mark='dir3', path=dir3)
+        self.assertEqual(entries.get_entries(mark='dir3')[0].path, dir3)
+
+        # Delete one entry
+        entries.delete_entries(mark='dir2')
+        self.assertEqual(entries.get_entries(mark='dir3')[0].path, dir3)
+
+        # Sort
+        entries.sort(reverse=True)
+        self.assertEqual(entries.get_entries(mark='dir3')[0].path, dir3)
+
+        # Update one entry
+        entries.update_entries(old_mark='dir1', new_path=dir2)
+        self.assertEqual(entries.get_entries(mark='dir3')[0].path, dir3)
+
+        entries.write()
+
+        content = entries.get_raw()
+        self.assertEqual(
+            content,
+            'export DIR_dir3="{0}/dir3"\nexport DIR_dir1="{0}/dir2"\n'
+            .format(test_files)
+        )

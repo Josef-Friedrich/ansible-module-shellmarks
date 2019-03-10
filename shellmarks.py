@@ -312,6 +312,12 @@ class ShellmarkEntries:
         elif path:
             return self._index['paths'][path]
 
+    def get_raw(self):
+        """The raw content of the file  ~/.sdirs."""
+        with open(self.path, 'r') as file_sdirs:
+            content = file_sdirs.read()
+        return content
+
     def get_entry_by_index(self, index):
         """Get an entry by the index number.
 
