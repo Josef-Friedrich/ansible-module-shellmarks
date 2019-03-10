@@ -663,13 +663,6 @@ class ShellMarks:
         self.generate_msg()
 
 
-def mark_entry(bookmark, path):
-    for character in ['-', ' ', '/']:
-        if character in bookmark:
-            bookmark = bookmark.replace(character, '')
-    return 'export DIR_' + bookmark + '=\"' + path + '\"\n'
-
-
 def main():
     module = AnsibleModule(
         argument_spec=dict(
