@@ -426,6 +426,24 @@ class ShellmarkEntries:
         self._update_index()
         return delete_action
 
+    def delete_duplicates(self, marks=True, paths=False):
+        """Delete duplicate entries.
+
+        :params boolean marks: Delete duplicate entries with the same
+          mark attribute.
+        :params boolean paths: Delete duplicate entries with the same
+          path attribute.
+        """
+        # Create a copy of the entries list.
+        old_entries = list(self.entries)
+        self.entries = []
+        self._update_index()
+        for entry in old_entries:
+            self.add_entry(mark=entry.mark, path=entry.path,
+                           avoid_duplicate_marks=marks,
+                           avoid_duplicate_paths=paths,
+                           delete_old_entries=True)
+
     def sort(self, attribute_name='mark', reverse=False):
         """Sort the bookmark entries by mark or path.
 

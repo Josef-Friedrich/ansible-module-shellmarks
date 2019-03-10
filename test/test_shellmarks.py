@@ -623,6 +623,26 @@ class TestClassShellmarkEntries(unittest.TestCase):
         entries.delete_entries(mark='dir1')
         self.assertEqual(len(entries.entries), 0)
 
+    def test_method_delete_duplicates(self):
+        entries = ShellmarkEntries(path=tmp_file())
+        entries.add_entry(mark='mark', path=dir1)
+        entries.add_entry(mark='mark', path=dir2)
+        entries.delete_duplicates(marks=True, paths=False)
+        self.assertEqual(entries.entries[0].path, dir2)
+
+        entries = ShellmarkEntries(path=tmp_file())
+        entries.add_entry(mark='mark1', path=dir1)
+        entries.add_entry(mark='mark2', path=dir1)
+        entries.delete_duplicates(marks=False, paths=True)
+        self.assertEqual(entries.entries[0].mark, 'mark2')
+
+        entries = ShellmarkEntries(path=tmp_file())
+        entries.add_entry(mark='mark1', path=dir1)
+        entries.add_entry(mark='mark1', path=dir1)
+        entries.delete_duplicates(marks=True, paths=True)
+        self.assertEqual(entries.entries[0].mark, 'mark1')
+        self.assertEqual(entries.entries[0].path, dir1)
+
     def test_method_sort(self):
         sdirs = tmp_file()
         entries = ShellmarkEntries(path=sdirs)
