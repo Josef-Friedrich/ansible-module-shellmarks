@@ -240,7 +240,7 @@ class ShellmarkEntries:
             lines = []
 
         for line in lines:
-            self.add(entry=line)
+            self.add_entry(entry=line)
 
     @staticmethod
     def _list_intersection(list1, list2):
@@ -319,8 +319,8 @@ class ShellmarkEntries:
         elif index not in self._index[attribute_index_name][value]:
             self._index[attribute_index_name][value].append(index)
 
-    def add(self, mark='', path='', entry='', skip_duplicate_mark=False,
-            skip_duplicate_path=False):
+    def add_entry(self, mark='', path='', entry='', skip_duplicate_mark=False,
+                  skip_duplicate_path=False):
         """Add one bookmark / shellmark entry.
 
         :param string mark: The name of the bookmark / shellmark.
@@ -355,7 +355,8 @@ class ShellmarkEntries:
                           reverse=reverse)
         self._update_index()
 
-    def update(self, old_mark='', old_path='', new_mark='', new_path=''):
+    def update_entries(self, old_mark='', old_path='', new_mark='',
+                       new_path=''):
         """Update the entries which match the conditions.
 
         :param string old_mark: The name of the old bookmark / shellmark.
@@ -372,7 +373,7 @@ class ShellmarkEntries:
                 entry.path = new_path
         self._update_index()
 
-    def delete(self, mark='', path=''):
+    def delete_entries(self, mark='', path=''):
         """Delete entries which match the specified conditions.
 
         :param string mark: The name of the bookmark / shellmark.

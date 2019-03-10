@@ -402,15 +402,15 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(len(entries._index['marks']), 0)
         self.assertEqual(len(entries._index['paths']), 0)
 
-    def test_method_add(self):
+    def test_method_add_entry(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'xxx'))
 
-        entries.add(mark='dir1', path=os.path.join('test', 'files', 'dir1'))
+        entries.add_entry(mark='dir1', path=dir1)
         self.assertEqual(len(entries.entries), 1)
         self.assertEqual(entries.entries[0].mark, 'dir1')
         self.assertEqual(entries._index['marks']['dir1'], [0])
 
-        entries.add(mark='dir2', path=os.path.join('test', 'files', 'dir2'))
+        entries.add_entry(mark='dir2', path=dir2)
         self.assertEqual(len(entries.entries), 2)
         self.assertEqual(entries.entries[1].mark, 'dir2')
         self.assertEqual(entries._index['marks']['dir2'], [1])
@@ -459,9 +459,9 @@ class TestClassShellmarkEntries(unittest.TestCase):
     def test_method_sort(self):
         sdirs = tmp_file()
         entries = ShellmarkEntries(path=sdirs)
-        entries.add(mark='dir3', path=dir1)
-        entries.add(mark='dir2', path=dir2)
-        entries.add(mark='dir1', path=dir3)
+        entries.add_entry(mark='dir3', path=dir1)
+        entries.add_entry(mark='dir2', path=dir2)
+        entries.add_entry(mark='dir1', path=dir3)
         self.assertEqual(entries.entries[0].mark, 'dir3')
         self.assertEqual(entries.entries[1].mark, 'dir2')
         self.assertEqual(entries.entries[2].mark, 'dir1')
@@ -491,11 +491,11 @@ class TestClassShellmarkEntries(unittest.TestCase):
 
     def test_method_delete(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
-        entries.delete(mark='dir1')
+        entries.delete_entries(mark='dir1')
         self.assertEqual(len(entries.entries), 2)
-        entries.delete(path=dir2)
+        entries.delete_entries(path=dir2)
         self.assertEqual(len(entries.entries), 1)
-        entries.delete(mark='dir3', path=dir3)
+        entries.delete_entries(mark='dir3', path=dir3)
         self.assertEqual(len(entries.entries), 0)
 
     def test_method_get_by_index(self):
@@ -507,8 +507,8 @@ class TestClassShellmarkEntries(unittest.TestCase):
         entry = entries.get_by_index(2)
         self.assertEqual(entry.mark, 'dir3')
 
-    def test_method_update(self):
+    def test_method_update_entries(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
-        entries.update(old_mark='dir1', new_mark='new1')
+        entries.update_entries(old_mark='dir1', new_mark='new1')
         result = entries.get(mark='new1')
         self.assertEqual(result[0].path, dir1)
