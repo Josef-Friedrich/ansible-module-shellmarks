@@ -497,3 +497,18 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(len(entries.entries), 1)
         entries.delete(mark='dir3', path=dir3)
         self.assertEqual(len(entries.entries), 0)
+
+    def test_method_get_by_index(self):
+        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
+        entry = entries.get_by_index(0)
+        self.assertEqual(entry.mark, 'dir1')
+        entry = entries.get_by_index(1)
+        self.assertEqual(entry.mark, 'dir2')
+        entry = entries.get_by_index(2)
+        self.assertEqual(entry.mark, 'dir3')
+
+    def test_method_update(self):
+        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
+        entries.update(old_mark='dir1', new_mark='new1')
+        entry = entries.get(mark='new1')
+        self.assertEqual(entry.path, dir1)

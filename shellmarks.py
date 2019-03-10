@@ -265,7 +265,7 @@ class ShellmarkEntries:
             return self._index['paths'][path]
 
     def _update_index(self):
-        """Update the index numbers. Wipe out the whole index store and
+        """Update the index numbers. Wipe out the whole index, store and
         generate it again."""
         self._index = {
             'marks': {},
@@ -276,6 +276,13 @@ class ShellmarkEntries:
             self._index['marks'][entry.mark] = index
             self._index['paths'][entry.path] = index
             index += 1
+
+    def get_by_index(self, index):
+        """Get an entry by the index number.
+
+        :param integer index: The index number of the entry.
+        """
+        return self.entries[index]
 
     def get(self, mark='', path=''):
         """Get one shellmark entry. Select this entry
@@ -316,7 +323,21 @@ class ShellmarkEntries:
                           reverse=reverse)
 
     def update(self, old_mark='', old_path='', new_mark='', new_path=''):
-        pass
+        """
+        Update one bookmark entry.
+
+        :param string old_mark: The name of the old bookmark / shellmark.
+        :param string old_path: The path of the old bookmark / shellmark.
+        :param string new_mark: The name of the new bookmark / shellmark.
+        :param string new_path: The path of the new bookmark / shellmark.
+        """
+        index = self._get_index(mark=old_mark, path=old_path)
+        entry = self.get_by_index(index)
+        if new_mark:
+            entry.mark = new_mark
+        if new_path:
+            entry.path = new_path
+        self._update_index()
 
     def delete(self, mark='', path=''):
         """
