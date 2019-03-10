@@ -149,6 +149,12 @@ class Entry:
     """A object representation of one line in the ~/.sdirs file"""
 
     def __init__(self, path='', mark='', entry=''):
+        """
+        :param string mark: The name of the bookmark / shellmark.
+        :param string path: The path of the bookmark / shellmark.
+        :param string entry: One line in the file ~/.sdirs
+          (export DIR_dir1="/dir1").
+        """
         self.mark = ''
         """The name of the bookmark."""
 
@@ -205,8 +211,13 @@ class Entry:
 
 
 class ShellmarkEntries:
+    """A class to store, add, get, update and delete shellmark entries."""
 
     def __init__(self, path):
+        """
+        :param string path: The path of the text file where all shellmark
+          entries are stored.
+        """
 
         self.path = path
         """The path of the .sdirs file."""
