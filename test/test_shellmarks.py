@@ -488,3 +488,12 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(entries.entries[0].path, dir3)
         self.assertEqual(entries.entries[1].path, dir2)
         self.assertEqual(entries.entries[2].path, dir1)
+
+    def test_method_delete(self):
+        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
+        entries.delete(mark='dir1')
+        self.assertEqual(len(entries.entries), 2)
+        entries.delete(path=dir2)
+        self.assertEqual(len(entries.entries), 1)
+        entries.delete(mark='dir3', path=dir3)
+        self.assertEqual(len(entries.entries), 0)

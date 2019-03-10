@@ -264,6 +264,19 @@ class ShellmarkEntries:
         elif path:
             return self._index['paths'][path]
 
+    def _update_index(self):
+        """Update the index numbers. Wipe out the whole index store and
+        generate it again."""
+        self._index = {
+            'marks': {},
+            'paths': {},
+        }
+        index = 0
+        for entry in self.entries:
+            self._index['marks'][entry.mark] = index
+            self._index['paths'][entry.path] = index
+            index += 1
+
     def get(self, mark='', path=''):
         """Get one shellmark entry. Select this entry
         by the bookmark name (mark) or by path or by both.
@@ -306,7 +319,13 @@ class ShellmarkEntries:
         pass
 
     def delete(self, mark='', path=''):
-        pass
+        """
+        :param string mark: The name of the bookmark / shellmark.
+        :param string path: The path of the bookmark / shellmark.
+        """
+        index = self._get_index(mark=mark, path=path)
+        del self.entries[index]
+        self._update_index()
 
     def write(self, new_path=''):
         """Write the bookmark / shellmarks to the disk.
