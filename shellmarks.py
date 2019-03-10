@@ -383,6 +383,9 @@ class ShellmarkEntries:
         :param string path: The path of the bookmark / shellmark.
         """
         indexes = self._get_indexes(mark=mark, path=path)
+        # The deletion of an entry affects the index number of subsequent
+        # entries.
+        indexes.sort(reverse=True)
         for index in indexes:
             del self.entries[index]
         self._update_index()

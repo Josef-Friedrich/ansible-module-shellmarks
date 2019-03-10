@@ -507,11 +507,38 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(entries.entries[1].mark, 'dir2')
         self.assertEqual(entries._index['marks']['dir2'], [1])
 
+    def test_method_add_entry_exception(self):
+        entries = ShellmarkEntries(path=tmp_file())
+        with self.assertRaises(ValueError):
+            entries.add_entry(mark='dör1', path=dir1)
+        with self.assertRaises(ValueError):
+            entries.add_entry(mark='d i r 1', path=dir1)
+        with self.assertRaises(ValueError):
+            entries.add_entry(mark='dir 1', path=dir1)
+
+    def test_method_add_entry_duplicates(self):
+        entries = ShellmarkEntries(path=tmp_file())
+        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=dir1)
+        self.assertEqual(len(entries.entries), 3)
+        self.assertEqual(entries._index['marks']['dir1'], [0, 1, 2])
+        self.assertEqual(entries._index['paths'][dir1], [0, 1, 2])
+
     def test_method_update_entries(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
         entries.update_entries(old_mark='dir1', new_mark='new1')
         result = entries.get_entries(mark='new1')
         self.assertEqual(result[0].path, dir1)
+
+    def test_method_update_entries_duplicates(self):
+        entries = ShellmarkEntries(path=tmp_file())
+        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=dir1)
+        entries.update_entries(old_mark='dir1', new_mark='new1')
+        self.assertEqual(entries._index['marks']['new1'], [0, 1, 2])
+        self.assertEqual(entries._index['paths'][dir1], [0, 1, 2])
 
     def test_method_delete_entries(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
@@ -520,6 +547,15 @@ class TestClassShellmarkEntries(unittest.TestCase):
         entries.delete_entries(path=dir2)
         self.assertEqual(len(entries.entries), 1)
         entries.delete_entries(mark='dir3', path=dir3)
+        self.assertEqual(len(entries.entries), 0)
+
+    def test_method_delete_entries_duplicates(self):
+        entries = ShellmarkEntries(path=tmp_file())
+        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=dir1)
+        entries.add_entry(mark='dir1', path=dir1)
+        self.assertEqual(len(entries.entries), 3)
+        entries.delete_entries(mark='dir1')
         self.assertEqual(len(entries.entries), 0)
 
     def test_method_sort(self):
