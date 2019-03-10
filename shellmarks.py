@@ -256,7 +256,7 @@ class ShellmarkEntries:
     @staticmethod
     def _list_intersection(list1, list2):
         """Build the intersection of two lists
-        https://www.geeksforgeeks.org/python-intersection-two-lists/
+        https://www.geeksforgeeks.org/python-intersection-two-lists
 
         :param list list1: A list
         :param list list2: A list
@@ -271,9 +271,9 @@ class ShellmarkEntries:
 
         :param string attribute_name: `mark` or `path`
         :param string value: The value of the attribute name. For example
-        `$HOME/Downloads` for `path` and `downloads` for `mark`
+          `$HOME/Downloads` for `path` and `downloads` for `mark`
         :param integer index: The index number of the entry in the list of
-        entries.
+          entries.
         """
         if attribute_name not in ('mark', 'path'):
             raise ValueError(
