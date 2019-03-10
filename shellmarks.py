@@ -244,8 +244,16 @@ class ShellmarkEntries:
 
     @staticmethod
     def _list_intersection(list1, list2):
-        """https://www.geeksforgeeks.org/python-intersection-two-lists/"""
-        return [value for value in list1 if value in list2]
+        """Build the intersection of two lists
+        https://www.geeksforgeeks.org/python-intersection-two-lists/
+
+        :param list list1: A list
+        :param list list2: A list
+        """
+        intersection = [value for value in list1 if value in list2]
+        if len(intersection) > 1:
+            intersection = sorted(intersection)
+        return intersection
 
     def _get_indexes(self, mark='', path=''):
         """Get the index of an entry in the list of entries. Select this entry
@@ -284,14 +292,14 @@ class ShellmarkEntries:
             self._store_index_number('path', entry.path, index)
             index += 1
 
-    def get_by_index(self, index):
+    def get_entry_by_index(self, index):
         """Get an entry by the index number.
 
         :param integer index: The index number of the entry.
         """
         return self.entries[index]
 
-    def get(self, mark='', path=''):
+    def get_entries(self, mark='', path=''):
         """Retrieve shellmark entries for the list of entries. The entries are
         selected by the bookmark name (mark) or by the path or by both.
 
@@ -361,7 +369,7 @@ class ShellmarkEntries:
         """
         indexes = self._get_indexes(mark=old_mark, path=old_path)
         for index in indexes:
-            entry = self.get_by_index(index)
+            entry = self.get_entry_by_index(index)
             if new_mark:
                 entry.mark = new_mark
             if new_path:
