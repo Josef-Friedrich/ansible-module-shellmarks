@@ -255,6 +255,39 @@ class ShellmarkEntries:
             intersection = sorted(intersection)
         return intersection
 
+    def _store_index_number(self, attribute_name, value, index):
+        """Add the index number of an entry to the index store.
+
+        :param string attribute_name: `mark` or `path`
+        :param string value: The value of the attribute name. For example
+        `$HOME/Downloads` for `path` and `downloads` for `mark`
+        :param integer index: The index number of the entry in the list of
+        entries.
+        """
+        if attribute_name not in ('mark', 'path'):
+            raise ValueError(
+                'attribute_name “{}” unkown.'.format(attribute_name)
+            )
+        attribute_index_name = attribute_name + 's'
+        if value not in self._index[attribute_index_name]:
+            self._index[attribute_index_name][value] = [index]
+        elif index not in self._index[attribute_index_name][value]:
+            self._index[attribute_index_name][value].append(index)
+            self._index[attribute_index_name][value].sort()
+
+    def _update_index(self):
+        """Update the index numbers. Wipe out the whole index, store and
+        generate it again."""
+        self._index = {
+            'marks': {},
+            'paths': {},
+        }
+        index = 0
+        for entry in self.entries:
+            self._store_index_number('mark', entry.mark, index)
+            self._store_index_number('path', entry.path, index)
+            index += 1
+
     def _get_indexes(self, mark='', path=''):
         """Get the index of an entry in the list of entries. Select this entry
         by the bookmark name or by path or by both.
@@ -279,19 +312,6 @@ class ShellmarkEntries:
         elif path:
             return self._index['paths'][path]
 
-    def _update_index(self):
-        """Update the index numbers. Wipe out the whole index, store and
-        generate it again."""
-        self._index = {
-            'marks': {},
-            'paths': {},
-        }
-        index = 0
-        for entry in self.entries:
-            self._store_index_number('mark', entry.mark, index)
-            self._store_index_number('path', entry.path, index)
-            index += 1
-
     def get_entry_by_index(self, index):
         """Get an entry by the index number.
 
@@ -311,26 +331,6 @@ class ShellmarkEntries:
 
         indexes = self._get_indexes(mark=mark, path=path)
         return [self.entries[index] for index in indexes]
-
-    def _store_index_number(self, attribute_name, value, index):
-        """Add the index number of an entry to the index store.
-
-        :param string attribute_name: `mark` or `path`
-        :param string value: The value of the attribute name. For example
-        `$HOME/Downloads` for `path` and `downloads` for `mark`
-        :param integer index: The index number of the entry in the list of
-        entries.
-        """
-        if attribute_name not in ('mark', 'path'):
-            raise ValueError(
-                'attribute_name “{}” unkown.'.format(attribute_name)
-            )
-        attribute_index_name = attribute_name + 's'
-        if value not in self._index[attribute_index_name]:
-            self._index[attribute_index_name][value] = [index]
-        elif index not in self._index[attribute_index_name][value]:
-            self._index[attribute_index_name][value].append(index)
-            self._index[attribute_index_name][value].sort()
 
     def add_entry(self, mark='', path='', entry='', skip_duplicate_mark=False,
                   skip_duplicate_path=False):
