@@ -359,6 +359,10 @@ class ShellmarkEntries:
         :param string path: The path of the bookmark / shellmark.
         :param string entry: One line in the file ~/.sdirs
           (export DIR_dir1="/dir1").
+        :param boolean avoid_duplicate_marks: Avoid duplicate marks
+        :param boolean avoid_duplicate_paths: Avoid duplicate paths
+        :param boolean delete_old_entries: Delete old entries instead of not
+          adding a new entry.
         """
 
         if avoid_duplicate_marks and delete_old_entries:
@@ -402,14 +406,19 @@ class ShellmarkEntries:
 
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
+
+        :return boolean: True if deletion was successful, False otherwise.
         """
         indexes = self._get_indexes(mark=mark, path=path)
         # The deletion of an entry affects the index number of subsequent
         # entries.
         indexes.sort(reverse=True)
+        delete_action = False
         for index in indexes:
             del self.entries[index]
+            delete_action = True
         self._update_index()
+        return delete_action
 
     def sort(self, attribute_name='mark', reverse=False):
         """Sort the bookmark entries by mark or path.

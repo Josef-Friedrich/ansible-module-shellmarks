@@ -494,6 +494,12 @@ class TestClassShellmarkEntries(unittest.TestCase):
             str(cm.exception)
         )
 
+        # Get an entry which doesn’t exist by mark.
+        self.assertEqual(entries.get_entries(mark='lol'), [])
+
+        # Get an entry which doesn’t exist by path.
+        self.assertEqual(entries.get_entries(path='lol'), [])
+
     def test_method_add_entry(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'xxx'))
 
@@ -548,6 +554,12 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(len(entries.entries), 1)
         entries.delete_entries(mark='dir3', path=dir3)
         self.assertEqual(len(entries.entries), 0)
+
+        # Delete entries which don’t exist by mark.
+        self.assertEqual(entries.delete_entries(mark='lol'), False)
+
+        # Delete entries which don’t exist by path.
+        self.assertEqual(entries.delete_entries(path='lol'), False)
 
     def test_method_delete_entries_duplicates(self):
         entries = ShellmarkEntries(path=tmp_file())
