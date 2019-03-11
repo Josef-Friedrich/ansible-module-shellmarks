@@ -469,7 +469,6 @@ class TestClassEntry(unittest.TestCase):
             str(cm.exception)
         )
 
-    @unittest.skip('Fix later')
     def test_init_exception_path_non_existent_validate_false(self):
         entry = Entry(path='xxx', mark='xxx', validate=False)
         self.assertEqual(entry.path, 'xxx')

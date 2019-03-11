@@ -255,7 +255,10 @@ class Entry:
             path = re.sub(r'(.+)/?$', r'\1', path)
             path = re.sub(r'^~', self._home_dir, path)
             path = re.sub(r'^\$HOME', self._home_dir, path)
-            return os.path.abspath(path)
+            # Only existing paths should converted to absolute paths.
+            if os.path.exists(path):
+                path = os.path.abspath(path)
+            return path
         return ''
 
     def to_export_string(self):
