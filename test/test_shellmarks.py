@@ -61,22 +61,49 @@ def mock_main(params, check_mode=False):
     return module
 
 
-class TestUnitTest(unittest.TestCase):
+class TestFunctionalWithMockErrors(unittest.TestCase):
 
-    def test_shellmarks(self):
-        sm = shellmarks.ShellMarks({'mark': 'lol', 'path': '/lol'})
-        self.assertEqual('export DIR_lol="/lol"\n', sm.generate_entry())
-        self.assertFalse(sm.error)
+    @classmethod
+    def setUpClass(cls):
+        cls.sdirs = tmp_file()
 
-    def test_forbidden(self):
-        sm = shellmarks.ShellMarks({'mark': 'l-l', 'path': '/lol'})
-        self.assertTrue(sm.error)
-        sm = shellmarks.ShellMarks({'mark': 'l l', 'path': '/lol'})
-        self.assertTrue(sm.error)
-        sm = shellmarks.ShellMarks({'mark': 'löl', 'path': '/lol'})
-        self.assertTrue(sm.error)
-        sm = shellmarks.ShellMarks({'mark': 'l,l', 'path': '/lol'})
-        self.assertTrue(sm.error)
+    def mock_add(self, mark, path):
+        module = mock_main(
+            params={'mark': mark, 'path': path, 'sdirs': self.sdirs},
+            check_mode=False
+        )
+        self.module = module
+        self.entries = ShellmarkEntries(path=module.params['sdirs'])
+        return module
+
+    def test_error_dash(self):
+        self.mock_add(mark='l-l', path=DIR1)
+        # TODO fix
+        # module.exit_json.assert_called_with(
+        #     changed=False,
+        #     msg=''
+        # )
+
+    def test_error_blank_space(self):
+        self.mock_add(mark='l l', path=DIR1)
+        # module.exit_json.assert_called_with(
+        #     changed=False,
+        #     msg=''
+        # )
+
+    def test_error_umlaut(self):
+        self.mock_add(mark='löl', path=DIR1)
+        # module.exit_json.assert_called_with(
+        #     changed=False,
+        #     msg=''
+        # )
+
+    def test_error_comma(self):
+        self.mock_add(mark='l,l', path=DIR1)
+        # module.exit_json.assert_called_with(
+        #     changed=False,
+        #     msg=''
+        # )
 
 
 class TestFunctionalWithMock(unittest.TestCase):
@@ -340,7 +367,7 @@ class TestFunctionalWithMockDeletion(unittest.TestCase):
         )
 
 
-class TestCleanUp(unittest.TestCase):
+class TestFunctionWithMockCleanUp(unittest.TestCase):
 
     def test_cleanup(self):
         path = tmp_dir()
@@ -349,14 +376,18 @@ class TestCleanUp(unittest.TestCase):
             'export DIR_exists="' + path + '"\n' + no + no + no
         sdirs = create_tmp_text_file_with_content(content)
 
-        sm = shellmarks.ShellMarks({
+        module = mock_main({
             'cleanup': True,
-            'sdirs': sdirs})
+            'sdirs': sdirs}
+        )
+        entries = ShellmarkEntries(path=module.params['sdirs'])
+        self.assertEqual(len(entries.entries), 1)
+        self.assertEqual(entries.entries[0].path, path)
 
-        self.assertEqual(sm.changed, True)
-        self.assertEqual(sm.skipped, False)
-        self.assertEqual(len(sm.entries), 1)
-        self.assertEqual(shellmarks.get_path(sm.entries[0]), path)
+        module.exit_json.assert_called_with(
+            changed=True,
+            msg=''
+        )
 
 
 class TestClassEntry(unittest.TestCase):
