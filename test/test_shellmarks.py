@@ -503,22 +503,6 @@ class TestClassEntry(unittest.TestCase):
         entry = Entry(path='xxx', mark='xxx', validate=False)
         self.assertEqual(entry.path, 'xxx')
 
-    def test_method_to_export_string(self):
-        entry = Entry(mark='test', path='/tmp')
-        self.assertEqual(
-            entry.to_export_string(),
-            'export DIR_test="/tmp"'
-        )
-
-    def test_method_normalize_path(self):
-        self.assertNormalizePath('/tmp/lol', '/tmp/lol')
-        self.assertNormalizePath('~/.lol', '/home/jf/.lol')
-        self.assertNormalizePath('', '')
-        self.assertNormalizePath('/', '/')
-        self.assertNormalizePath(False, '')
-        self.assertNormalizePath('/tmp/', '/tmp')
-        self.assertNormalizePath('$HOME/tmp', '/home/jf/tmp')
-
     def test_method_check_mark(self):
         self.assertEqual(Entry.check_mark('lol'), True)
         self.assertEqual(Entry.check_mark('LOL_lol_123'), True)
@@ -529,6 +513,29 @@ class TestClassEntry(unittest.TestCase):
         self.assertEqual(Entry.check_mark('löl'), False)
         self.assertEqual(Entry.check_mark('l-l'), False)
         self.assertEqual(Entry.check_mark('l,l'), False)
+
+    def test_method_normalize_path(self):
+        self.assertNormalizePath('/tmp/lol', '/tmp/lol')
+        self.assertNormalizePath('~/.lol', '/home/jf/.lol')
+        self.assertNormalizePath('', '')
+        self.assertNormalizePath('/', '/')
+        self.assertNormalizePath(False, '')
+        self.assertNormalizePath('/tmp/', '/tmp')
+        self.assertNormalizePath('$HOME/tmp', '/home/jf/tmp')
+
+    def test_method_to_dict(self):
+        entry = Entry(mark='test', path='/tmp')
+        self.assertEqual(
+            entry.to_dict(),
+            {'mark': 'test', 'path': '/tmp'}
+        )
+
+    def test_method_to_export_string(self):
+        entry = Entry(mark='test', path='/tmp')
+        self.assertEqual(
+            entry.to_export_string(),
+            'export DIR_test="/tmp"'
+        )
 
 
 class TestClassShellmarkEntries(unittest.TestCase):

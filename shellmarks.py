@@ -261,6 +261,16 @@ class Entry:
             return path
         return ''
 
+    def to_dict(self):
+        """Bundle the two public attributes of this class into a dictonary.
+        It is not possible to use the magic method __dict__ because this
+        method also includes private attributes.
+
+        :return: A dictionary with two keys: mark and path
+        :rtype: dict
+        """
+        return {'mark': self.mark, 'path': self.path}
+
     def to_export_string(self):
         """Assemble the attributes `mark` and `path` to entry line
         (export DIR_mark="path").
