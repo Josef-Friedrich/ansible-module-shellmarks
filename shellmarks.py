@@ -161,15 +161,23 @@ def normalize_path(path, home_dir):
 
 
 class Entry:
-    """A object representation of one line in the ~/.sdirs file"""
+    """A object representation of one line in the `~/.sdirs` file.
 
-    def __init__(self, path='', mark='', entry=''):
-        """
-        :param string mark: The name of the bookmark / shellmark.
-        :param string path: The path of the bookmark / shellmark.
-        :param string entry: One line in the file ~/.sdirs
-          (export DIR_dir1="/dir1").
-        """
+    :param string mark: The name of the bookmark / shellmark.
+    :param string path: The path of the bookmark / shellmark.
+    :param string entry: One line in the file `~/.sdirs`
+      (export DIR_dir1="/dir1").
+    :param boolean validate: Validate the input. Raise some exceptions if
+      the bookmark strings are invalid or if the paths don’t exist.
+
+    :raises ValueError: If not all necessary class arguments are specified.
+    :raises MarkInvalidError: If `validate=True` and the given mark contains
+      invalid characters.
+    :raises NoPathError: If `validate=True` and the given path doesn’t exist.
+    """
+
+    def __init__(self, path='', mark='', entry='', validate=True):
+
         self.mark = ''
         """The name of the bookmark."""
 
@@ -190,7 +198,7 @@ class Entry:
             self.mark = mark
             self.path = path
 
-        if not check_mark(self.mark):
+        if validate and not check_mark(self.mark):
             message = 'Invalid mark string: “{}”. ' + \
                       'Allowed characters for bookmark names are: ' + \
                       '“0-9a-zA-Z_”.'
@@ -201,17 +209,33 @@ class Entry:
 
         self.path = self.normalize_path(self.path)
 
-        if not os.path.exists(self.path):
+        if validate and not os.path.exists(self.path):
             raise NoPathError(
-                'Path “{}” doesn’t exist.'.format(self.path)
+                'The path “{}” doesn’t exist.'.format(self.path)
             )
 
     @staticmethod
     def parse_entry(entry):
+        """Extract from a entry line the name of the bookmark and the path.
+
+        :param string entry: One line in the file ~/.sdirs
+          (export DIR_dir1="/dir1").
+
+        :return: A match tuple
+        :rtype: tuple
+        """
         return re.findall(r'export DIR_(.*)="(.*)"', entry)[0]
 
     @staticmethod
     def check_mark(mark):
+        """
+        Check if a bookmark string is valid.
+
+        :param string mark: The name of the bookmark / shellmark.
+
+        :return: True if the bookmark contains no invalid characters, false
+          otherwise.
+        :rtype: boolean"""
         regex = re.compile(r'^[0-9a-zA-Z_]+$')
         match = regex.match(str(mark))
         if match:
@@ -221,6 +245,11 @@ class Entry:
     def normalize_path(self, path):
         """Replace ~ and $HOME with a the actual path string. Replace trailing
         slashes. Convert to a absolute path.
+
+        :param string path: The path of the bookmark / shellmark.
+
+        :return: A normalized path string.
+        :rtype: string
         """
         if path:
             path = re.sub(r'(.+)/?$', r'\1', path)
@@ -230,6 +259,12 @@ class Entry:
         return ''
 
     def to_export_string(self):
+        """Assemble the attributes `mark` and `path` to entry line
+        (export DIR_mark="path").
+
+        :return: The export string (export ...)
+        :rtype: string
+        """
         return 'export DIR_{}=\"{}\"'.format(self.mark, self.path)
 
 
