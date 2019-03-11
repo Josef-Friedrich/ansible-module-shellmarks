@@ -100,3 +100,6 @@ ENV/
 # mypy
 .mypy_cache/
 .vscode/
+
+# Depends on absolute paths and on the location of the repository
+test/files/sdirs

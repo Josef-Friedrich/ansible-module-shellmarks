@@ -15,6 +15,15 @@ DIR1 = os.path.join(TEST_PATH, 'dir1')
 DIR2 = os.path.join(TEST_PATH, 'dir2')
 DIR3 = os.path.join(TEST_PATH, 'dir3')
 
+# Paths in this file have to be absolute paths. The path depends on the
+# location of the repository.
+sdirs_file = open(os.path.join(TEST_PATH, 'sdirs'), 'w')
+sdirs_file.write(
+    'export DIR_dir1="{}"\nexport DIR_dir2="{}"\nexport DIR_dir3="{}"\n'
+    .format(DIR1, DIR2, DIR3)
+)
+sdirs_file.close()
+
 
 def create_tmp_text_file_with_content(content):
     path = tmp_file()
