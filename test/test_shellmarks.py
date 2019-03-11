@@ -452,14 +452,18 @@ class TestClassEntry(unittest.TestCase):
             'Specify entry OR both path and mark.'
         )
 
-    @unittest.skip('Fix later')
     def test_init_exception_disallowed_character(self):
         with self.assertRaises(MarkInvalidError) as cm:
             Entry(path='p', mark='ö')
         self.assertEqual(
             str(cm.exception),
-            'Allowed characters for mark: 0-9a-zA-Z_'
+            'Invalid mark string: “ö”. Allowed characters for bookmark names '
+            'are: “0-9a-zA-Z_”.'
         )
+
+    def test_init_exception_disallowed_character_validate_false(self):
+        entry = Entry(path='p', mark='ö', validate=False)
+        self.assertEqual(entry.mark, 'ö')
 
     def test_init_exception_path_non_existent(self):
         with self.assertRaises(NoPathError) as cm:
@@ -473,7 +477,7 @@ class TestClassEntry(unittest.TestCase):
         entry = Entry(path='xxx', mark='xxx', validate=False)
         self.assertEqual(entry.path, 'xxx')
 
-    def test_method_to_entry_string(self):
+    def test_method_to_export_string(self):
         entry = Entry(mark='test', path='/tmp')
         self.assertEqual(
             entry.to_export_string(),
