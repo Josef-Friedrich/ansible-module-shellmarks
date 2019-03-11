@@ -6,7 +6,7 @@ import os
 from ansible.compat.tests import unittest
 import mock
 import shellmarks
-from shellmarks import Entry, ShellmarkEntries
+from shellmarks import Entry, ShellmarkEntries, MarkInvalidError, NoPathError
 
 __metaclass__ = type
 
@@ -65,6 +65,8 @@ class TestFunctionalWithMockErrors(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        cls.module = False
+        cls.entries = False
         cls.sdirs = tmp_file()
 
     def mock_add(self, mark, path):
@@ -78,32 +80,31 @@ class TestFunctionalWithMockErrors(unittest.TestCase):
 
     def test_error_dash(self):
         self.mock_add(mark='l-l', path=DIR1)
-        # TODO fix
-        # module.exit_json.assert_called_with(
-        #     changed=False,
-        #     msg=''
-        # )
+        self.module.fail_json.assert_called_with(
+            msg='Invalid mark string: “l-l”. Allowed characters for bookmark '
+            'names are: “0-9a-zA-Z_”.'
+        )
 
     def test_error_blank_space(self):
         self.mock_add(mark='l l', path=DIR1)
-        # module.exit_json.assert_called_with(
-        #     changed=False,
-        #     msg=''
-        # )
+        self.module.fail_json.assert_called_with(
+            msg='Invalid mark string: “l l”. Allowed characters for bookmark '
+            'names are: “0-9a-zA-Z_”.'
+        )
 
     def test_error_umlaut(self):
         self.mock_add(mark='löl', path=DIR1)
-        # module.exit_json.assert_called_with(
-        #     changed=False,
-        #     msg=''
-        # )
+        self.module.fail_json.assert_called_with(
+            msg='Invalid mark string: “löl”. Allowed characters for bookmark '
+            'names are: “0-9a-zA-Z_”.'
+        )
 
     def test_error_comma(self):
         self.mock_add(mark='l,l', path=DIR1)
-        # module.exit_json.assert_called_with(
-        #     changed=False,
-        #     msg=''
-        # )
+        self.module.fail_json.assert_called_with(
+            msg='Invalid mark string: “l,l”. Allowed characters for bookmark '
+            'names are: “0-9a-zA-Z_”.'
+        )
 
 
 class TestFunctionalWithMock(unittest.TestCase):
@@ -443,7 +444,7 @@ class TestClassEntry(unittest.TestCase):
         )
 
     def test_init_exception_disallowed_character(self):
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(MarkInvalidError) as cm:
             Entry(path='p', mark='ö')
         self.assertEqual(
             str(cm.exception),
@@ -451,7 +452,7 @@ class TestClassEntry(unittest.TestCase):
         )
 
     def test_init_exception_path_non_existent(self):
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(NoPathError) as cm:
             Entry(path='xxx', mark='xxx')
         self.assertIn(
             'xxx” doesn’t exist.',
@@ -502,6 +503,12 @@ class TestClassShellmarkEntries(unittest.TestCase):
         self.assertEqual(len(entries.entries), 0)
         self.assertEqual(len(entries._index['marks']), 0)
         self.assertEqual(len(entries._index['paths']), 0)
+
+    def test_property_changed(self):
+        entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
+        self.assertEqual(entries.changed, False)
+        entries.add_entry(mark='dir1', path=DIR1)
+        self.assertEqual(entries.changed, True)
 
     def test_method__list_intersection(self):
         list_intersection = ShellmarkEntries._list_intersection
@@ -616,11 +623,11 @@ class TestClassShellmarkEntries(unittest.TestCase):
 
     def test_method_add_entry_exception(self):
         entries = ShellmarkEntries(path=tmp_file())
-        with self.assertRaises(ValueError):
+        with self.assertRaises(MarkInvalidError):
             entries.add_entry(mark='dör1', path=DIR1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(MarkInvalidError):
             entries.add_entry(mark='d i r 1', path=DIR1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(MarkInvalidError):
             entries.add_entry(mark='dir 1', path=DIR1)
 
     def test_method_add_entry_duplicates(self):
