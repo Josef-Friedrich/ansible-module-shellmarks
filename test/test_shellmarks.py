@@ -353,21 +353,25 @@ class TestFunctionalWithMockDeletion(unittest.TestCase):
             check_mode=False
         )
 
-    @unittest.skip('Fix later')
     def test_delete_by_mark(self):
         module = mock_main({
             'sdirs': self.sdirs,
             'mark': 'tmp1',
-            'state': 'absent'})
-
+            'state': 'absent',
+        })
         entries = ShellmarkEntries(path=module.params['sdirs'])
         self.assertEqual(len(entries.entries), 2)
         module.exit_json.assert_called_with(
             changed=True,
-            msg='tmp1'
+            changes=[
+                {
+                    'action': 'delete',
+                    'mark': 'tmp1',
+                    'path': DIR1
+                },
+            ]
         )
 
-    @unittest.skip('Fix later')
     def test_delete_nonexistent(self):
         non_existent = '/tmp/tmp34723423643646346etfjf34gegf623646'
         module = mock_main({
@@ -377,48 +381,58 @@ class TestFunctionalWithMockDeletion(unittest.TestCase):
         entries = ShellmarkEntries(path=module.params['sdirs'])
         self.assertEqual(len(entries.entries), 3)
         module.exit_json.assert_called_with(
-            changed=False,
-            msg=non_existent
+            changed=False
         )
 
     def test_delete_by_path(self):
-        mock_main({
+        module = mock_main({
             'sdirs': self.sdirs,
             'path': DIR1,
-            'state': 'absent'})
-        # entries = ShellmarkEntries(path=module.params['sdirs'])
-        # TODO: fix
-        # self.assertEqual(len(entries.entries), 2)
-        # module.exit_json.assert_called_with(
-        #     changed=True,
-        #     msg=''
-        # )
+            'state': 'absent'
+        })
+        entries = ShellmarkEntries(path=module.params['sdirs'])
+        self.assertEqual(len(entries.entries), 2)
+        module.exit_json.assert_called_with(
+            changed=True,
+            changes=[
+                {
+                    'action': 'delete',
+                    'mark': 'tmp1',
+                    'path': DIR1
+                },
+            ]
+        )
 
-    @unittest.skip('Fix later')
     def test_delete_by_path_and_mark(self):
         module = mock_main({
             'sdirs': self.sdirs,
             'mark': 'tmp1',
             'path': DIR1,
-            'state': 'absent'})
+            'state': 'absent'
+        })
         entries = ShellmarkEntries(path=module.params['sdirs'])
         self.assertEqual(len(entries.entries), 2)
         module.exit_json.assert_called_with(
             changed=True,
-            msg='tmp1 : {}'.format(DIR1)
+            changes=[
+                {
+                    'action': 'delete',
+                    'mark': 'tmp1',
+                    'path': DIR1
+                },
+            ]
         )
 
-    @unittest.skip('Fix later')
     def test_delete_casesensitivity(self):
         module = mock_main({
             'sdirs': self.sdirs,
             'mark': 'TMP1',
-            'state': 'absent'})
+            'state': 'absent'
+        })
         entries = ShellmarkEntries(path=module.params['sdirs'])
         self.assertEqual(len(entries.entries), 3)
         module.exit_json.assert_called_with(
-            changed=False,
-            msg='TMP1'
+            changed=False
         )
 
 

@@ -611,7 +611,7 @@ def main():
         except MarkInvalidError as exception:
             module.fail_json(msg=str(exception))
 
-    if params['mark'] and params['path'] and params['state'] == 'absent':
+    if (params['mark'] or params['path']) and params['state'] == 'absent':
         entries.delete_entries(mark=params['mark'], path=params['path'])
 
     # if self.replace_home:
