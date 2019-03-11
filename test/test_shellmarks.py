@@ -359,25 +359,6 @@ class TestCleanUp(unittest.TestCase):
         self.assertEqual(shellmarks.get_path(sm.entries[0]), path)
 
 
-class TestFunctions(unittest.TestCase):
-
-    entry = 'export DIR_tmp="/tmp"'
-
-    def test_get_path(self):
-        self.assertEqual(shellmarks.get_path(self.entry), '/tmp')
-
-    def test_get_mark(self):
-        self.assertEqual(shellmarks.get_mark(self.entry), 'tmp')
-
-    def test_del_entries(self):
-        entries = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l']
-        shellmarks.del_entries(entries, [1, 5, 11])
-
-        self.assertEqual(entries[1], 'c')
-        self.assertEqual(entries[5], 'h')
-        self.assertEqual(entries[8], 'k')
-
-
 class TestClassEntry(unittest.TestCase):
 
     def assertNormalizePath(self, path, result):
