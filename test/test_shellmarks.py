@@ -238,65 +238,105 @@ class TestFunctionalWithMockAdd(unittest.TestCase):
         self.assertEqual(len(entries.entries), 1)
         module.exit_json.assert_called_with(
             changed=True,
-            msg='Entry added: (mark: {} path: {})'.format('tmp1', DIR1)
+            changes=[
+                {
+                    'action': 'add',
+                    'mark': 'tmp1',
+                    'path': DIR1
+                },
+            ]
         )
 
-        # same entry
+        # same entry (not added)
         module = self.mock_add('tmp1', DIR1)
         entries = ShellmarkEntries(path=module.params['sdirs'])
         self.assertEqual(len(entries.entries), 1)
         module.exit_json.assert_called_with(
-            changed=False,
-            msg='No changes.'
+            changed=False
         )
 
-        # # same mark
-        # module = self.mock_add('tmp1', DIR2)
-        # entries = ShellmarkEntries(path=module.params['sdirs'])
-        # self.assertEqual(len(entries.entries), 1)
-        # module.exit_json.assert_called_with(
-        #     changed=False,
-        #     msg='tmp1 : {}'.format(DIR2)
-        # )
+        # same mark (update mark with new dir)
+        module = self.mock_add('tmp1', DIR2)
+        entries = ShellmarkEntries(path=module.params['sdirs'])
+        self.assertEqual(len(entries.entries), 1)
+        module.exit_json.assert_called_with(
+            changed=True,
+            changes=[
+                {
+                    'action': 'delete',
+                    'mark': 'tmp1',
+                    'path': DIR1
+                },
+                {
+                    'action': 'add',
+                    'mark': 'tmp1',
+                    'path': DIR2
+                },
+            ]
+        )
 
-        # # second entry
-        # module = self.mock_add('tmp2', DIR2)
-        # entries = ShellmarkEntries(path=module.params['sdirs'])
-        # self.assertEqual(len(entries.entries), 2)
-        # module.exit_json.assert_called_with(
-        #     changed=True,
-        #     msg='tmp2 : {}'.format(DIR2)
-        # )
-        # # third entry
-        # module = self.mock_add('tmp3', DIR3)
-        # entries = ShellmarkEntries(path=module.params['sdirs'])
-        # self.assertEqual(len(entries.entries), 3)
-        # module.exit_json.assert_called_with(
-        #     changed=True,
-        #     msg='tmp3 : {}'.format(DIR3)
-        # )
+        # duplicate path: (update path with new makr)
+        module = self.mock_add('tmp2', DIR2)
+        entries = ShellmarkEntries(path=module.params['sdirs'])
+        self.assertEqual(len(entries.entries), 1)
+        module.exit_json.assert_called_with(
+            changed=True,
+            changes=[
+                {
+                    'action': 'delete',
+                    'mark': 'tmp1',
+                    'path': DIR2
+                },
+                {
+                    'action': 'add',
+                    'mark': 'tmp2',
+                    'path': DIR2
+                },
+            ]
+        )
 
-        # # nonexistent
-        # module = self.mock_add('tmp4', '/jhkskdflsuizqwewqkfsfdlksjkui')
-        # entries = ShellmarkEntries(path=module.params['sdirs'])
-        # # TODO fix
-        # # module.exit_json.assert_called_with(skipped=True, msg='')
+        # add entry
+        module = self.mock_add('tmp3', DIR3)
+        entries = ShellmarkEntries(path=module.params['sdirs'])
+        self.assertEqual(len(entries.entries), 2)
+        module.exit_json.assert_called_with(
+            changed=True,
+            changes=[
+                {
+                    'action': 'add',
+                    'mark': 'tmp3',
+                    'path': DIR3
+                },
+            ]
+        )
 
-        # # Check casesensitivity
-        # module = self.mock_add('TMP1', DIR1)
-        # entries = ShellmarkEntries(path=module.params['sdirs'])
-        # self.assertEqual(len(entries.entries), 4)
-        # module.exit_json.assert_called_with(
-        #     changed=True,
-        #     msg='TMP1 : {}'.format(DIR1)
-        # )
+        # nonexistent
+        module = self.mock_add('tmp4', '/jhkskdflsuizqwewqkfsfdlksjkui')
+        entries = ShellmarkEntries(path=module.params['sdirs'])
+        module.fail_json.assert_called_with(
+            msg='The path “/jhkskdflsuizqwewqkfsfdlksjkui” doesn’t exist.'
+        )
 
-        # TODO: fix
-        # module = self.mock_add('T M P 1', DIR1)
-        # module.exit_json.assert_called_with(
-        #     changed=True,
-        #     msg='TMP1 : {}'.format(DIR1)
-        # )
+        # Check casesensitivity
+        module = self.mock_add('TMP1', DIR1)
+        entries = ShellmarkEntries(path=module.params['sdirs'])
+        self.assertEqual(len(entries.entries), 3)
+        module.exit_json.assert_called_with(
+            changed=True,
+            changes=[
+                {
+                    'action': 'add',
+                    'mark': 'TMP1',
+                    'path': DIR1
+                },
+            ]
+        )
+
+        module = self.mock_add('T M P 1', DIR1)
+        module.fail_json.assert_called_with(
+            msg='Invalid mark string: “T M P 1”. Allowed characters for '
+                'bookmark names are: “0-9a-zA-Z_”.'
+        )
 
 
 class TestFunctionalWithMockDeletion(unittest.TestCase):
@@ -401,7 +441,7 @@ class TestFunctionWithMockCleanUp(unittest.TestCase):
 
         module.exit_json.assert_called_with(
             changed=True,
-            msg='Cleaned up 6 entries.'
+            changes=[{'action': 'cleanup', 'count': 6}]
         )
 
     def test_nothing_to_do(self):
@@ -421,8 +461,7 @@ class TestFunctionWithMockCleanUp(unittest.TestCase):
         self.assertEqual(entries.entries[0].path, DIR1)
 
         module.exit_json.assert_called_with(
-            changed=False,
-            msg='No changes.'
+            changed=False
         )
 
 
@@ -561,12 +600,15 @@ class TestClassShellmarkEntries(unittest.TestCase):
         entries.add_entry(mark='dir1', path=DIR1)
         self.assertEqual(entries.changed, True)
 
-    def test_property_msg(self):
+    def test_property_changes(self):
         entries = ShellmarkEntries(path=os.path.join('test', 'files', 'sdirs'))
-        self.assertEqual(entries.msg, 'No changes.')
-        # entries._messages.append('test1')
-        # entries._messages.append('test2')
-        # self.assertEqual(entries.msg, 'test1 test2')
+        self.assertEqual(entries.changes, [])
+        entries.delete_entries(mark='dir1')
+        self.assertEqual(entries.changes, [{
+            'action': 'delete',
+            'mark': 'dir1',
+            'path': DIR1
+        }])
 
     def test_method__list_intersection(self):
         list_intersection = ShellmarkEntries._list_intersection

@@ -282,10 +282,9 @@ class ShellmarkEntries:
         the corresponding index numbers
         """
 
-        self._messages = []
-        """A list of message strings. Some methods add summaries of their
-        actions to this list. This list can be used for the Ansibel `msg`
-        variable."""
+        self.changes = []
+        """A list of changes. Each change is a dictonary with the keys
+        action, mark, path"""
 
         if os.path.isfile(path):
             sdirs = open(self.path, 'r')
@@ -317,13 +316,6 @@ class ShellmarkEntries:
             if entry.path != self._entries_original[index].path:
                 return True
         return False
-
-    @property
-    def msg(self):
-        """A summary message about all past actions on entries list."""
-        if self.changed:
-            return ' '.join(self._messages)
-        return 'No changes.'
 
     @staticmethod
     def _list_intersection(list1, list2):
@@ -473,8 +465,11 @@ class ShellmarkEntries:
             self._store_index_number('path', entry.path, index)
             add_action = index
             if not silent:
-                self._messages.append('Entry added: (mark: {} path: {})'
-                                      .format(entry.mark, entry.path))
+                self.changes.append({
+                    'action': 'add',
+                    'mark': entry.mark,
+                    'path': entry.path,
+                })
         return add_action
 
     def update_entries(self, old_mark='', old_path='', new_mark='',
@@ -511,8 +506,11 @@ class ShellmarkEntries:
         delete_action = False
         for index in indexes:
             entry = self.entries[index]
-            self._messages.append('Entry deleted: (mark: {} path: {})'
-                                  .format(entry.mark, entry.path))
+            self.changes.append({
+                'action': 'delete',
+                'mark': entry.mark,
+                'path': entry.path,
+            })
             del self.entries[index]
             delete_action = True
         self._update_index()
@@ -550,7 +548,11 @@ class ShellmarkEntries:
                 pass
 
         cleanup_entries = len(old_entries) - len(self.entries)
-        self._messages.append('Cleaned up {} entries.'.format(cleanup_entries))
+        if cleanup_entries > 0:
+            self.changes.append({
+                'action': 'cleanup',
+                'count': cleanup_entries
+            })
 
     def sort(self, attribute_name='mark', reverse=False):
         """Sort the bookmark entries by mark or path.
@@ -633,7 +635,10 @@ def main():
     # if shell_marks.skipped:
     #     module.exit_json(skipped=True, msg=shell_marks.msg)
 
-    module.exit_json(changed=entries.changed, msg=entries.msg)
+    if entries.changed and entries.changes:
+        module.exit_json(changed=entries.changed, changes=entries.changes)
+    else:
+        module.exit_json(changed=entries.changed)
 
 
 if __name__ == '__main__':
