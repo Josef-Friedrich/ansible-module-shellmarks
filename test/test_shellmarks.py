@@ -378,7 +378,6 @@ class TestFunctionalWithMockDeletion(unittest.TestCase):
 
 class TestFunctionWithMockCleanUp(unittest.TestCase):
 
-    @unittest.skip('Fix later')
     def test_cleanup(self):
         path = tmp_dir()
         no = 'export DIR_tmpb="/tmpXDR34723df4WER/d4REd4RE64er64erb"\n'
@@ -388,15 +387,36 @@ class TestFunctionWithMockCleanUp(unittest.TestCase):
 
         module = mock_main({
             'cleanup': True,
-            'sdirs': sdirs}
-        )
+            'sdirs': sdirs
+        })
         entries = ShellmarkEntries(path=module.params['sdirs'])
         self.assertEqual(len(entries.entries), 1)
         self.assertEqual(entries.entries[0].path, path)
 
         module.exit_json.assert_called_with(
             changed=True,
-            msg=''
+            msg='Cleaned up 6 entries.'
+        )
+
+    def test_nothing_to_do(self):
+        entries = ShellmarkEntries(path=tmp_file())
+        entries.add_entry(mark='dir1', path=DIR1)
+        entries.add_entry(mark='dir2', path=DIR2)
+        entries.add_entry(mark='dir3', path=DIR3)
+        entries.write()
+
+        module = mock_main({
+            'cleanup': True,
+            'sdirs': entries.path
+        })
+
+        entries = ShellmarkEntries(path=module.params['sdirs'])
+        self.assertEqual(len(entries.entries), 3)
+        self.assertEqual(entries.entries[0].path, DIR1)
+
+        module.exit_json.assert_called_with(
+            changed=False,
+            msg='Cleaned up 0 entries.'
         )
 
 
