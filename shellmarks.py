@@ -272,14 +272,13 @@ class Entry:
 
 
 class ShellmarkEntries:
-    """A class to store, add, get, update and delete shellmark entries."""
+    """A class to store, add, get, update and delete shellmark entries.
+
+    :param string path: The path of the text file where all shellmark
+      entries are stored.
+    """
 
     def __init__(self, path):
-        """
-        :param string path: The path of the text file where all shellmark
-          entries are stored.
-        """
-
         self.path = path
         """The path of the .sdirs file."""
 
@@ -320,6 +319,8 @@ class ShellmarkEntries:
 
     @property
     def changed(self):
+        """True if the shellmark entries are changed ofter the object
+        initialisation."""
         if self._entries_original == self.entries:
             return False
         else:
@@ -332,6 +333,9 @@ class ShellmarkEntries:
 
         :param list list1: A list
         :param list list2: A list
+
+        :return: A list of index numbers which appear in both input lists.
+        :rtype: list
         """
         intersection = [value for value in list1 if value in list2]
         if len(intersection) > 1:
@@ -378,8 +382,9 @@ class ShellmarkEntries:
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
 
-        :return: list A list of index numbers. Index numbers are starting from
+        :return: A list of index numbers. Index numbers are starting from
           0.
+        :rtype: list
         """
         if mark and path:
             if self._index['marks'][mark] != self._index['paths'][path]:
@@ -397,7 +402,12 @@ class ShellmarkEntries:
         return []
 
     def get_raw(self):
-        """The raw content of the file  ~/.sdirs."""
+        """The raw content of the file specified with the `path` attribute.
+
+        :return: The raw content of the file specified with the `path`
+          attribute.
+        :rtype: string
+        """
         with open(self.path, 'r') as file_sdirs:
             content = file_sdirs.read()
         return content
@@ -436,7 +446,8 @@ class ShellmarkEntries:
         :param boolean delete_old_entries: Delete old entries instead of not
           adding a new entry.
 
-        :return mixed: False by not adding action, else the index number.
+        :return: False by not adding action, else the index number.
+        :rtype: mixed
         """
 
         add_action = False
@@ -485,7 +496,8 @@ class ShellmarkEntries:
         :param string mark: The name of the bookmark / shellmark.
         :param string path: The path of the bookmark / shellmark.
 
-        :return boolean: True if deletion was successful, False otherwise.
+        :return: True if deletion was successful, False otherwise.
+        :rtype: boolean
         """
         indexes = self._get_indexes(mark=mark, path=path)
         # The deletion of an entry affects the index number of subsequent
@@ -501,9 +513,9 @@ class ShellmarkEntries:
     def delete_duplicates(self, marks=True, paths=False):
         """Delete duplicate entries.
 
-        :params boolean marks: Delete duplicate entries with the same
+        :param boolean marks: Delete duplicate entries with the same
           mark attribute.
-        :params boolean paths: Delete duplicate entries with the same
+        :param boolean paths: Delete duplicate entries with the same
           path attribute.
         """
         # Create a copy of the entries list.
@@ -733,6 +745,7 @@ class ShellMarks:
 
 
 def main():
+    """Main function which gets called by Ansible."""
     module = AnsibleModule(
         argument_spec=dict(
             cleanup=dict(default=False, type='bool'),
