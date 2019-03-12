@@ -10,7 +10,7 @@ matrix:
           env: TOXENV=flake
 
 install:
-    - sudo apt install ansible
+    - pip install ansible
     - pip install tox
 
 before_script:
