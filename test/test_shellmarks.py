@@ -188,16 +188,17 @@ class TestFunctionalWithMock(unittest.TestCase):
 
 class TestFunction(unittest.TestCase):
 
-    @unittest.skip('Fix later')
     @mock.patch("shellmarks.AnsibleModule")
     def test_mock(self, AnsibleModule):
         sdirs = tmp_file()
         module = AnsibleModule.return_value
         module.params = {
             'state': 'present',
-            'path': '/tmp',
-            'mark': 'tmp',
-            'sdirs': sdirs
+            'path': DIR1,
+            'mark': 'dir1',
+            'sdirs': sdirs,
+            'sorted': False,
+            'cleanup': False,
         }
         module.check_mode = False
         shellmarks.main()
@@ -216,9 +217,8 @@ class TestFunction(unittest.TestCase):
                supports_check_mode=True) == AnsibleModule.call_args)
 
         lines = read(sdirs)
-        self.assertEqual(lines[0], 'export DIR_tmp="/tmp"\n')
+        self.assertEqual(lines[0], 'export DIR_dir1="{}"\n'.format(DIR1))
 
-    @unittest.skip('Fix later')
     @mock.patch("shellmarks.AnsibleModule")
     def test_delete(self, AnsibleModule):
         sdirs = tmp_file()
@@ -227,13 +227,15 @@ class TestFunction(unittest.TestCase):
             'state': 'absent',
             'path': '/tmp',
             'mark': 'tmp',
-            'sdirs': sdirs
+            'sdirs': sdirs,
+            'sorted': False,
+            'cleanup': False,
         }
         module.check_mode = False
         shellmarks.main()
 
         args = module.exit_json.call_args
-        self.assertEqual(mock.call(changed=False, msg='tmp : /tmp'), args)
+        self.assertEqual(mock.call(changed=False), args)
 
 
 class TestFunctionalWithMockAdd(unittest.TestCase):

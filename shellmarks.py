@@ -377,19 +377,24 @@ class ShellmarkEntries:
           0.
         :rtype: list
         """
+        marks = self._index['marks']
+        paths = self._index['paths']
+
+        if mark not in marks and path not in paths:
+            return []
         if mark and path:
-            if self._index['marks'][mark] != self._index['paths'][path]:
+            if marks[mark] != paths[path]:
                 raise ValueError(
                     'mark ({}) and path ({}) didn’t match.'.format(mark, path)
                 )
             return self._list_intersection(
-                self._index['marks'][mark],
-                self._index['paths'][path]
+                marks[mark],
+                paths[path]
             )
-        elif mark and mark in self._index['marks']:
-            return self._index['marks'][mark]
-        elif path and path in self._index['paths']:
-            return self._index['paths'][path]
+        elif mark and mark in marks:
+            return marks[mark]
+        elif path and path in paths:
+            return paths[path]
         return []
 
     def get_raw(self):
