@@ -453,6 +453,37 @@ class TestFunctionalWithMockDeletion(unittest.TestCase):
             changed=False
         )
 
+    def test_delete_on_empty_sdirs_by_mark(self):
+        module = mock_main({
+            'sdirs': tmp_file(),
+            'mark': 'dir1',
+            'state': 'absent'
+        })
+        module.exit_json.assert_called_with(
+            changed=False
+        )
+
+    def test_delete_on_empty_sdirs_by_path(self):
+        module = mock_main({
+            'sdirs': tmp_file(),
+            'path': '/dir1',
+            'state': 'absent'
+        })
+        module.exit_json.assert_called_with(
+            changed=False
+        )
+
+    def test_delete_on_empty_sdirs_by_path_and_mark(self):
+        module = mock_main({
+            'sdirs': tmp_file(),
+            'mark': 'dir1',
+            'path': '/dir1',
+            'state': 'absent'
+        })
+        module.exit_json.assert_called_with(
+            changed=False
+        )
+
 
 class TestFunctionWithMockCleanUp(unittest.TestCase):
 
