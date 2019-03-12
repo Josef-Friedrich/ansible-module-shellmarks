@@ -84,6 +84,25 @@ options:
             - src
 '''
 
+RETURN = '''
+changes:
+    description: A list of actions
+    returned: On changed
+    type: list
+    sample:
+      - action: add
+        mark: dir1
+        path: /dir1
+      - action: delete
+        mark: dir1
+        path: /dir1
+      - action: sort
+        sort_by: mark
+        reverse: false
+      - action: cleanup
+        count: 1
+'''
+
 EXAMPLES = '''
 # Bookmark the ansible configuration directory
 - shellmarks:
