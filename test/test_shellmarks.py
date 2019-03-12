@@ -53,7 +53,7 @@ def mock_main(params, check_mode=False):
         "path": False,
         "replace_home": True,
         "sdirs": sdirs,
-        "sorted": True,
+        "sorted": False,
         "state": "present",
     }
 
@@ -135,7 +135,6 @@ class TestFunctionalWithMock(unittest.TestCase):
         self.assertEqual(entry.mark, 'tmp')
         self.assertEqual(entry.path, DIR1)
 
-    @unittest.skip('Fix later')
     def test_sort(self):
         # With check mode enabled
         sdirs = self.create_sdirs_file()
@@ -143,8 +142,16 @@ class TestFunctionalWithMock(unittest.TestCase):
                            check_mode=True)
         entries = ShellmarkEntries(path=sdirs)
         self.assertEqual(entries.entries[0].mark, 'dirB')
-        # TODO: msg?
-        module.exit_json.assert_called_with(changed=True, msg='')
+        module.exit_json.assert_called_with(
+            changed=True,
+            changes=[
+                {
+                    'action': 'sort',
+                    'sort_by': 'mark',
+                    'reverse': False,
+                },
+            ]
+        )
 
         # Sort
         sdirs = self.create_sdirs_file()
@@ -155,8 +162,16 @@ class TestFunctionalWithMock(unittest.TestCase):
         self.assertEqual(entries.entries[1].mark, 'dirB')
         self.assertEqual(entries.entries[2].mark, 'dirC')
         self.assertEqual(entries.entries[2].mark, 'dirC')
-        # TODO: msg?
-        module.exit_json.assert_called_with(changed=True, msg='')
+        module.exit_json.assert_called_with(
+            changed=True,
+            changes=[
+                {
+                    'action': 'sort',
+                    'sort_by': 'mark',
+                    'reverse': False,
+                },
+            ]
+        )
 
         # Sort not
         sdirs = self.create_sdirs_file()
@@ -166,8 +181,9 @@ class TestFunctionalWithMock(unittest.TestCase):
         self.assertEqual(entries.entries[0].mark, 'dirB')
         self.assertEqual(entries.entries[1].mark, 'dirC')
         self.assertEqual(entries.entries[2].mark, 'dirA')
-        # TODO: changed=True is wrong, msg?
-        # module.exit_json.assert_called_with(changed=False, msg='')
+        module.exit_json.assert_called_with(
+            changed=False
+        )
 
 
 class TestFunction(unittest.TestCase):

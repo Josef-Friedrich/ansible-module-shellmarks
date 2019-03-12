@@ -563,6 +563,11 @@ class ShellmarkEntries:
         self.entries.sort(key=lambda entry: getattr(entry, attribute_name),
                           reverse=reverse)
         self._update_index()
+        self.changes.append({
+            'action': 'sort',
+            'sort_by': attribute_name,
+            'reverse': reverse,
+        })
 
     def write(self, new_path=''):
         """Write the bookmark / shellmarks to the disk.
