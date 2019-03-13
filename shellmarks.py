@@ -189,7 +189,10 @@ class Entry:
                       '“0-9a-zA-Z_”.'
             raise MarkInvalidError(message.format(self.mark))
 
-        self.path = self.normalize_path(self.path)
+        self._home_dir = pwd.getpwuid(os.getuid()).pw_dir
+        """The path of the home directory."""
+
+        self.path = self.normalize_path(self.path, self._home_dir)
 
         if validate and not os.path.exists(self.path):
             raise NoPathError(
@@ -225,17 +228,16 @@ class Entry:
         return False
 
     @staticmethod
-    def normalize_path(path):
+    def normalize_path(path, home_dir):
         """Replace ~ and $HOME with a the actual path string. Replace trailing
         slashes. Convert to a absolute path.
 
         :param string path: The path of the bookmark / shellmark.
+        :param string home_dir: The path of the home directory.
 
         :return: A normalized path string.
         :rtype: string
         """
-        home_dir = pwd.getpwuid(os.getuid()).pw_dir
-
         if path:
             path = re.sub(r'(.+)/?$', r'\1', path)
             path = re.sub(r'^~', home_dir, path)
@@ -256,14 +258,21 @@ class Entry:
         """
         return {'mark': self.mark, 'path': self.path}
 
-    def to_export_string(self):
+    def to_export_string(self, replace_home=False):
         """Assemble the attributes `mark` and `path` to entry line
         (export DIR_mark="path").
+
+        :param boolean replace_home: Replace the home directory with the
+          environment variable $HOME.
 
         :return: The export string (export ...)
         :rtype: string
         """
-        return 'export DIR_{}=\"{}\"'.format(self.mark, self.path)
+        if replace_home:
+            path = self.path.replace(self._home_dir, '$HOME')
+        else:
+            path = self.path
+        return 'export DIR_{}=\"{}\"'.format(self.mark, path)
 
 
 class ShellmarkEntries:
@@ -593,11 +602,14 @@ class ShellmarkEntries:
             'reverse': reverse,
         })
 
-    def write(self, new_path=''):
+    def write(self, new_path='', replace_home=False):
         """Write the bookmark / shellmarks to the disk.
 
         :param string new_path: Path of a different output file then specifed
           by the initialisation of the object.
+
+        :param boolean replace_home: Replace the home directory with the
+          environment variable $HOME.
         """
         if new_path:
             path = new_path
@@ -605,7 +617,9 @@ class ShellmarkEntries:
             path = self.path
         output_file = open(path, 'w')
         for entry in self.entries:
-            output_file.write(entry.to_export_string() + '\n')
+            output_file.write(
+                entry.to_export_string(replace_home=replace_home) + '\n'
+            )
         output_file.close()
 
 
@@ -626,7 +640,8 @@ def main():
 
     params = module.params
 
-    params['sdirs'] = Entry.normalize_path(params['sdirs'])
+    home_dir = pwd.getpwuid(os.getuid()).pw_dir
+    params['sdirs'] = Entry.normalize_path(params['sdirs'], home_dir)
     entries = ShellmarkEntries(path=params['sdirs'], validate_on_init=False)
 
     if params['mark'] and params['path'] and params['state'] == 'present':
@@ -644,26 +659,14 @@ def main():
     if (params['mark'] or params['path']) and params['state'] == 'absent':
         entries.delete_entries(mark=params['mark'], path=params['path'])
 
-    # if self.replace_home:
-    #     self.entries = [entry.replace(self.home_dir, '$HOME')
-    #                     for entry in self.entries]
-
     if params['sorted']:
         entries.sort()
 
     if params['cleanup']:
         entries.cleanup()
 
-    # if self.entries != self.entries_origin:
-    #     self.changed = True
-
-    # self.process_skipped()
-
     if not module.check_mode and entries.changed:
-        entries.write()
-
-    # if shell_marks.skipped:
-    #     module.exit_json(skipped=True, msg=shell_marks.msg)
+        entries.write(replace_home=params['replace_home'])
 
     if entries.changed and entries.changes:
         module.exit_json(changed=entries.changed, changes=entries.changes)

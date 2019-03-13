@@ -14,6 +14,7 @@ TEST_PATH = os.path.abspath(os.path.join('test', 'files'))
 DIR1 = os.path.join(TEST_PATH, 'dir1')
 DIR2 = os.path.join(TEST_PATH, 'dir2')
 DIR3 = os.path.join(TEST_PATH, 'dir3')
+HOME_DIR = pwd.getpwuid(os.getuid()).pw_dir
 
 # Paths in this file have to be absolute paths. The path depends on the
 # location of the repository.
@@ -193,12 +194,13 @@ class TestFunction(unittest.TestCase):
         sdirs = tmp_file()
         module = AnsibleModule.return_value
         module.params = {
-            'state': 'present',
-            'path': DIR1,
+            'cleanup': False,
             'mark': 'dir1',
+            'path': DIR1,
+            'replace_home': True,
             'sdirs': sdirs,
             'sorted': False,
-            'cleanup': False,
+            'state': 'present',
         }
         module.check_mode = False
         shellmarks.main()
@@ -217,7 +219,11 @@ class TestFunction(unittest.TestCase):
                supports_check_mode=True) == AnsibleModule.call_args)
 
         lines = read(sdirs)
-        self.assertEqual(lines[0], 'export DIR_dir1="{}"\n'.format(DIR1))
+        result_path = DIR1.replace(HOME_DIR, '$HOME')
+        self.assertEqual(
+            lines[0],
+            'export DIR_dir1="{}"\n'.format(result_path)
+        )
 
     @mock.patch("shellmarks.AnsibleModule")
     def test_delete(self, AnsibleModule):
@@ -532,8 +538,7 @@ class TestClassEntry(unittest.TestCase):
 
     def assertNormalizePath(self, path, result):
         entry = Entry(mark='test', path=DIR1)
-        entry._home_dir = '/home/jf'
-        self.assertEqual(entry.normalize_path(path), result)
+        self.assertEqual(entry.normalize_path(path, '/home/jf'), result)
 
     def test_init_by_mark_and_path(self):
         entry = Entry(mark='test', path='/tmp')
