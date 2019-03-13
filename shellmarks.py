@@ -189,9 +189,6 @@ class Entry:
                       '“0-9a-zA-Z_”.'
             raise MarkInvalidError(message.format(self.mark))
 
-        self._home_dir = pwd.getpwuid(os.getuid()).pw_dir
-        """The path of the home directory"""
-
         self.path = self.normalize_path(self.path)
 
         if validate and not os.path.exists(self.path):
@@ -227,7 +224,8 @@ class Entry:
             return match.group(0) == mark
         return False
 
-    def normalize_path(self, path):
+    @staticmethod
+    def normalize_path(path):
         """Replace ~ and $HOME with a the actual path string. Replace trailing
         slashes. Convert to a absolute path.
 
@@ -236,10 +234,12 @@ class Entry:
         :return: A normalized path string.
         :rtype: string
         """
+        home_dir = pwd.getpwuid(os.getuid()).pw_dir
+
         if path:
             path = re.sub(r'(.+)/?$', r'\1', path)
-            path = re.sub(r'^~', self._home_dir, path)
-            path = re.sub(r'^\$HOME', self._home_dir, path)
+            path = re.sub(r'^~', home_dir, path)
+            path = re.sub(r'^\$HOME', home_dir, path)
             # Only existing paths should converted to absolute paths.
             if os.path.exists(path):
                 path = os.path.abspath(path)
@@ -626,6 +626,7 @@ def main():
 
     params = module.params
 
+    params['sdirs'] = Entry.normalize_path(params['sdirs'])
     entries = ShellmarkEntries(path=params['sdirs'], validate_on_init=False)
 
     if params['mark'] and params['path'] and params['state'] == 'present':
