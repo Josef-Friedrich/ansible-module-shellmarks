@@ -20,3 +20,11 @@ class TestFunctionalWithSubprocess(unittest.TestCase):
             'commonly used directories',
             output
         )
+
+
+    def test_ansible_playbook(self):
+        output = subprocess.run(['ansible-playbook', 'playbook.yml'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(
+            'commonly used directories',
+            output.stderr
+        )

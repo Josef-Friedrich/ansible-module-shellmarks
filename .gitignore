@@ -103,3 +103,4 @@ ENV/
 
 # Depends on absolute paths and on the location of the repository
 test/files/sdirs
+*.retry

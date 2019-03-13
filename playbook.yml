@@ -1,5 +1,7 @@
 ---
-- name: Add a shellmark for the home folder
-  shellmarks:
-    mark: home
-    path: $HOME
+- hosts: all
+  tasks:
+    - name: Add a shellmark for the home folder
+      shellmarks:
+        mark: home
+        path: $HOME
