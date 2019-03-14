@@ -5,6 +5,7 @@ import pwd
 import os
 import mock
 import shellmarks
+from shellmarks import ShellmarkEntries
 
 
 TEST_PATH = os.path.abspath(os.path.join('test', 'files'))
@@ -66,4 +67,10 @@ def mock_main(params, check_mode=False):
         module.check_mode = check_mode
         shellmarks.main()
 
-    return module
+    entries = ShellmarkEntries(path=module.params['sdirs'])
+
+    return {
+        'module': module,
+        'AnsibleModule': AnsibleModule,
+        'entries': entries,
+    }

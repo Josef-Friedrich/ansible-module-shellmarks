@@ -2,7 +2,6 @@
 from __future__ import (absolute_import, division)
 from ansible.compat.tests import unittest
 import mock
-import shellmarks
 from shellmarks import ShellmarkEntries
 
 from _helper import \
@@ -26,13 +25,13 @@ class TestFunctionalWithMockErrors(unittest.TestCase):
         cls.sdirs = tmp_file()
 
     def mock_add(self, mark, path):
-        module = mock_main(
+        mock_objects = mock_main(
             params={'mark': mark, 'path': path, 'sdirs': self.sdirs},
             check_mode=False
         )
-        self.module = module
-        self.entries = ShellmarkEntries(path=module.params['sdirs'])
-        return module
+        self.module = mock_objects['module']
+        self.entries = mock_objects['entries']
+        return mock
 
     def test_error_dash(self):
         self.mock_add(mark='l-l', path=DIR1)
@@ -74,22 +73,19 @@ class TestFunctionalWithMock(unittest.TestCase):
         return create_tmp_text_file_with_content(content)
 
     def test_present(self):
-        module = mock_main(params={'path': DIR1, 'mark': 'tmp'})
-        sdirs = module.params['sdirs']
-        entries = ShellmarkEntries(path=sdirs)
-        self.assertEqual(len(entries.entries), 1)
-        entry = entries.get_entry_by_index(0)
+        mock_objects = mock_main(params={'path': DIR1, 'mark': 'tmp'})
+        self.assertEqual(len(mock_objects['entries'].entries), 1)
+        entry = mock_objects['entries'].get_entry_by_index(0)
         self.assertEqual(entry.mark, 'tmp')
         self.assertEqual(entry.path, DIR1)
 
     def test_sort(self):
         # With check mode enabled
         sdirs = self.create_sdirs_file()
-        module = mock_main(params={'sorted': True, 'sdirs': sdirs},
-                           check_mode=True)
-        entries = ShellmarkEntries(path=sdirs)
-        self.assertEqual(entries.entries[0].mark, 'dirB')
-        module.exit_json.assert_called_with(
+        mock_objects = mock_main(params={'sorted': True, 'sdirs': sdirs},
+                                 check_mode=True)
+        self.assertEqual(mock_objects['entries'].entries[0].mark, 'dirB')
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -102,14 +98,13 @@ class TestFunctionalWithMock(unittest.TestCase):
 
         # Sort
         sdirs = self.create_sdirs_file()
-        module = mock_main(params={'sorted': True, 'sdirs': sdirs},
-                           check_mode=False)
-        entries = ShellmarkEntries(path=sdirs)
-        self.assertEqual(entries.entries[0].mark, 'dirA')
-        self.assertEqual(entries.entries[1].mark, 'dirB')
-        self.assertEqual(entries.entries[2].mark, 'dirC')
-        self.assertEqual(entries.entries[2].mark, 'dirC')
-        module.exit_json.assert_called_with(
+        mock_objects = mock_main(params={'sorted': True, 'sdirs': sdirs},
+                                 check_mode=False)
+        self.assertEqual(mock_objects['entries'].entries[0].mark, 'dirA')
+        self.assertEqual(mock_objects['entries'].entries[1].mark, 'dirB')
+        self.assertEqual(mock_objects['entries'].entries[2].mark, 'dirC')
+        self.assertEqual(mock_objects['entries'].entries[2].mark, 'dirC')
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -122,24 +117,21 @@ class TestFunctionalWithMock(unittest.TestCase):
 
         # Sort not
         sdirs = self.create_sdirs_file()
-        module = mock_main(params={'sorted': False, 'sdirs': sdirs},
-                           check_mode=False)
-        entries = ShellmarkEntries(path=sdirs)
-        self.assertEqual(entries.entries[0].mark, 'dirB')
-        self.assertEqual(entries.entries[1].mark, 'dirC')
-        self.assertEqual(entries.entries[2].mark, 'dirA')
-        module.exit_json.assert_called_with(
+        mock_objects = mock_main(params={'sorted': False, 'sdirs': sdirs},
+                                 check_mode=False)
+        self.assertEqual(mock_objects['entries'].entries[0].mark, 'dirB')
+        self.assertEqual(mock_objects['entries'].entries[1].mark, 'dirC')
+        self.assertEqual(mock_objects['entries'].entries[2].mark, 'dirA')
+        mock_objects['module'].exit_json.assert_called_with(
             changed=False
         )
 
 
 class TestFunction(unittest.TestCase):
 
-    @mock.patch("shellmarks.AnsibleModule")
-    def test_mock(self, AnsibleModule):
+    def test_mock(self):
         sdirs = tmp_file()
-        module = AnsibleModule.return_value
-        module.params = {
+        mock_objects = mock_main({
             'cleanup': False,
             'delete_duplicates': False,
             'mark': 'dir1',
@@ -148,9 +140,7 @@ class TestFunction(unittest.TestCase):
             'sdirs': sdirs,
             'sorted': False,
             'state': 'present',
-        }
-        module.check_mode = False
-        shellmarks.main()
+        }, check_mode=False)
 
         expected = dict(
             cleanup=dict(default=False, type='bool'),
@@ -163,8 +153,12 @@ class TestFunction(unittest.TestCase):
             state=dict(default='present', choices=['present', 'absent']),
         )
 
-        assert(mock.call(argument_spec=expected,
-               supports_check_mode=True) == AnsibleModule.call_args)
+        assert(
+            mock.call(
+                argument_spec=expected,
+                supports_check_mode=True
+            ) == mock_objects['AnsibleModule'].call_args
+        )
 
         lines = read(sdirs)
         result_path = DIR1.replace(HOME_DIR, '$HOME')
@@ -173,23 +167,17 @@ class TestFunction(unittest.TestCase):
             'export DIR_dir1="{}"\n'.format(result_path)
         )
 
-    @mock.patch("shellmarks.AnsibleModule")
-    def test_delete(self, AnsibleModule):
-        sdirs = tmp_file()
-        module = AnsibleModule.return_value
-        module.params = {
+    def test_delete(self):
+        mock_objects = mock_main({
             'state': 'absent',
             'delete_duplicates': False,
             'path': '/tmp',
             'mark': 'tmp',
-            'sdirs': sdirs,
             'sorted': False,
             'cleanup': False,
-        }
-        module.check_mode = False
-        shellmarks.main()
+        }, check_mode=False)
 
-        args = module.exit_json.call_args
+        args = mock_objects['module'].exit_json.call_args
         self.assertEqual(mock.call(changed=False), args)
 
 
@@ -206,10 +194,9 @@ class TestFunctionalWithMockAdd(unittest.TestCase):
         )
 
     def test_add(self):
-        module = self.mock_add('tmp1', DIR1)
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 1)
-        module.exit_json.assert_called_with(
+        mock_objects = self.mock_add('tmp1', DIR1)
+        self.assertEqual(len(mock_objects['entries'].entries), 1)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -221,18 +208,16 @@ class TestFunctionalWithMockAdd(unittest.TestCase):
         )
 
         # same entry (not added)
-        module = self.mock_add('tmp1', DIR1)
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 1)
-        module.exit_json.assert_called_with(
+        mock_objects = self.mock_add('tmp1', DIR1)
+        self.assertEqual(len(mock_objects['entries'].entries), 1)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=False
         )
 
         # same mark (update mark with new dir)
-        module = self.mock_add('tmp1', DIR2)
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 1)
-        module.exit_json.assert_called_with(
+        mock_objects = self.mock_add('tmp1', DIR2)
+        self.assertEqual(len(mock_objects['entries'].entries), 1)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -249,10 +234,9 @@ class TestFunctionalWithMockAdd(unittest.TestCase):
         )
 
         # duplicate path: (update path with new makr)
-        module = self.mock_add('tmp2', DIR2)
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 1)
-        module.exit_json.assert_called_with(
+        mock_objects = self.mock_add('tmp2', DIR2)
+        self.assertEqual(len(mock_objects['entries'].entries), 1)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -269,10 +253,9 @@ class TestFunctionalWithMockAdd(unittest.TestCase):
         )
 
         # add entry
-        module = self.mock_add('tmp3', DIR3)
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 2)
-        module.exit_json.assert_called_with(
+        mock_objects = self.mock_add('tmp3', DIR3)
+        self.assertEqual(len(mock_objects['entries'].entries), 2)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -284,17 +267,15 @@ class TestFunctionalWithMockAdd(unittest.TestCase):
         )
 
         # nonexistent
-        module = self.mock_add('tmp4', '/jhkskdflsuizqwewqkfsfdlksjkui')
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        module.fail_json.assert_called_with(
+        mock_objects = self.mock_add('tmp4', '/jhkskdflsuizqwewqkfsfdlksjkui')
+        mock_objects['module'].fail_json.assert_called_with(
             msg='The path “/jhkskdflsuizqwewqkfsfdlksjkui” doesn’t exist.'
         )
 
         # Check casesensitivity
-        module = self.mock_add('TMP1', DIR1)
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 3)
-        module.exit_json.assert_called_with(
+        mock_objects = self.mock_add('TMP1', DIR1)
+        self.assertEqual(len(mock_objects['entries'].entries), 3)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -305,8 +286,8 @@ class TestFunctionalWithMockAdd(unittest.TestCase):
             ]
         )
 
-        module = self.mock_add('T M P 1', DIR1)
-        module.fail_json.assert_called_with(
+        mock_objects = self.mock_add('T M P 1', DIR1)
+        mock_objects['module'].fail_json.assert_called_with(
             msg='Invalid mark string: “T M P 1”. Allowed characters for '
                 'bookmark names are: “0-9a-zA-Z_”.'
         )
@@ -327,14 +308,13 @@ class TestFunctionalWithMockDeletion(unittest.TestCase):
         )
 
     def test_delete_by_mark(self):
-        module = mock_main({
+        mock_objects = mock_main({
             'sdirs': self.sdirs,
             'mark': 'tmp1',
             'state': 'absent',
         })
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 2)
-        module.exit_json.assert_called_with(
+        self.assertEqual(len(mock_objects['entries'].entries), 2)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -347,25 +327,23 @@ class TestFunctionalWithMockDeletion(unittest.TestCase):
 
     def test_delete_nonexistent(self):
         non_existent = '/tmp/tmp34723423643646346etfjf34gegf623646'
-        module = mock_main({
+        mock_objects = mock_main({
             'sdirs': self.sdirs,
             'path': non_existent,
             'state': 'absent'})
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 3)
-        module.exit_json.assert_called_with(
+        self.assertEqual(len(mock_objects['entries'].entries), 3)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=False
         )
 
     def test_delete_by_path(self):
-        module = mock_main({
+        mock_objects = mock_main({
             'sdirs': self.sdirs,
             'path': DIR1,
             'state': 'absent'
         })
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 2)
-        module.exit_json.assert_called_with(
+        self.assertEqual(len(mock_objects['entries'].entries), 2)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -377,15 +355,14 @@ class TestFunctionalWithMockDeletion(unittest.TestCase):
         )
 
     def test_delete_by_path_and_mark(self):
-        module = mock_main({
+        mock_objects = mock_main({
             'sdirs': self.sdirs,
             'mark': 'tmp1',
             'path': DIR1,
             'state': 'absent'
         })
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 2)
-        module.exit_json.assert_called_with(
+        self.assertEqual(len(mock_objects['entries'].entries), 2)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -397,45 +374,44 @@ class TestFunctionalWithMockDeletion(unittest.TestCase):
         )
 
     def test_delete_casesensitivity(self):
-        module = mock_main({
+        mock_objects = mock_main({
             'sdirs': self.sdirs,
             'mark': 'TMP1',
             'state': 'absent'
         })
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 3)
-        module.exit_json.assert_called_with(
+        self.assertEqual(len(mock_objects['entries'].entries), 3)
+        mock_objects['module'].exit_json.assert_called_with(
             changed=False
         )
 
     def test_delete_on_empty_sdirs_by_mark(self):
-        module = mock_main({
+        mock_objects = mock_main({
             'sdirs': tmp_file(),
             'mark': 'dir1',
             'state': 'absent'
         })
-        module.exit_json.assert_called_with(
+        mock_objects['module'].exit_json.assert_called_with(
             changed=False
         )
 
     def test_delete_on_empty_sdirs_by_path(self):
-        module = mock_main({
+        mock_objects = mock_main({
             'sdirs': tmp_file(),
             'path': '/dir1',
             'state': 'absent'
         })
-        module.exit_json.assert_called_with(
+        mock_objects['module'].exit_json.assert_called_with(
             changed=False
         )
 
     def test_delete_on_empty_sdirs_by_path_and_mark(self):
-        module = mock_main({
+        mock_objects = mock_main({
             'sdirs': tmp_file(),
             'mark': 'dir1',
             'path': '/dir1',
             'state': 'absent'
         })
-        module.exit_json.assert_called_with(
+        mock_objects['module'].exit_json.assert_called_with(
             changed=False
         )
 
@@ -449,15 +425,14 @@ class TestFunctionWithMockCleanUp(unittest.TestCase):
             'export DIR_exists="' + path + '"\n' + no + no + no
         sdirs = create_tmp_text_file_with_content(content)
 
-        module = mock_main({
+        mock_objects = mock_main({
             'cleanup': True,
             'sdirs': sdirs
         })
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 1)
-        self.assertEqual(entries.entries[0].path, path)
+        self.assertEqual(len(mock_objects['entries'].entries), 1)
+        self.assertEqual(mock_objects['entries'].entries[0].path, path)
 
-        module.exit_json.assert_called_with(
+        mock_objects['module'].exit_json.assert_called_with(
             changed=True,
             changes=[{'action': 'cleanup', 'count': 6}]
         )
@@ -469,15 +444,15 @@ class TestFunctionWithMockCleanUp(unittest.TestCase):
         entries.add_entry(mark='dir3', path=DIR3)
         entries.write()
 
-        module = mock_main({
+        mock_objects = mock_main({
             'cleanup': True,
             'sdirs': entries.path
         })
 
-        entries = ShellmarkEntries(path=module.params['sdirs'])
-        self.assertEqual(len(entries.entries), 3)
-        self.assertEqual(entries.entries[0].path, DIR1)
+        entries = ShellmarkEntries(path=mock_objects['module'].params['sdirs'])
+        self.assertEqual(len(mock_objects['entries'].entries), 3)
+        self.assertEqual(mock_objects['entries'].entries[0].path, DIR1)
 
-        module.exit_json.assert_called_with(
+        mock_objects['module'].exit_json.assert_called_with(
             changed=False
         )
