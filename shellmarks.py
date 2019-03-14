@@ -132,17 +132,14 @@ EXAMPLES = '''
 
 class ShellmarksError(Exception):
     """Base class for other exceptions"""
-    pass
 
 
 class MarkInvalidError(ShellmarksError):
     """Raised when the mark contains invalid characters."""
-    pass
 
 
 class NoPathError(ShellmarksError):
     """Raised when the path to bookmark is non-existent."""
-    pass
 
 
 class Entry:
@@ -369,6 +366,8 @@ class ShellmarkEntries:
           `$HOME/Downloads` for `path` and `downloads` for `mark`
         :param integer index: The index number of the entry in the list of
           entries.
+
+        :raises ValueError: If `attribute_name` is not `mark` or `path`.
         """
         if attribute_name not in ('mark', 'path'):
             raise ValueError(
@@ -404,6 +403,8 @@ class ShellmarkEntries:
         :return: A list of index numbers. Index numbers are starting from
           0.
         :rtype: list
+
+        :raises ValueError: If `mark` or `path` didn’t match.
         """
         marks = self._index['marks']
         paths = self._index['paths']
@@ -440,6 +441,9 @@ class ShellmarkEntries:
         """Get an entry by the index number.
 
         :param integer index: The index number of the entry.
+
+        :return: An entry object
+        :rtype: Entry
         """
         return self.entries[index]
 
@@ -451,6 +455,7 @@ class ShellmarkEntries:
         :param string path: The path of the bookmark / shellmark.
 
         :return: A list of shellmark entries.
+        :rtype: list
         """
 
         indexes = self._get_indexes(mark=mark, path=path)
