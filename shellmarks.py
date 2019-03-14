@@ -45,6 +45,13 @@ options:
             - Delete bookmarks of nonexistent directories.
         required: false
         default: false
+    delete_duplicates:
+        description:
+            - Delete duplicate bookmark entries. This option deletes both
+              duplicate mark and duplicate path entries. Entries at the
+              beginning are deleted, entries at the end are perserved.
+        required: false
+        default: false
     mark:
         description:
             - Name of the bookmark.
@@ -633,6 +640,7 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             cleanup=dict(default=False, type='bool'),
+            delete_duplicates=dict(default=False, type='bool'),
             mark=dict(aliases=['bookmark']),
             path=dict(aliases=['src']),
             replace_home=dict(default=True, type='bool'),
@@ -669,6 +677,9 @@ def main():
 
     if params['cleanup']:
         entries.cleanup()
+
+    if params['delete_duplicates']:
+        entries.delete_duplicates()
 
     if not module.check_mode and entries.changed:
         entries.write(replace_home=params['replace_home'])

@@ -50,6 +50,7 @@ def mock_main(params, check_mode=False):
     sdirs = tmp_file()
     defaults = {
         "cleanup": False,
+        "delete_duplicates": False,
         "mark": False,
         "path": False,
         "replace_home": True,
@@ -195,6 +196,7 @@ class TestFunction(unittest.TestCase):
         module = AnsibleModule.return_value
         module.params = {
             'cleanup': False,
+            'delete_duplicates': False,
             'mark': 'dir1',
             'path': DIR1,
             'replace_home': True,
@@ -207,6 +209,7 @@ class TestFunction(unittest.TestCase):
 
         expected = dict(
             cleanup=dict(default=False, type='bool'),
+            delete_duplicates=dict(default=False, type='bool'),
             mark=dict(aliases=['bookmark']),
             path=dict(aliases=['src']),
             replace_home=dict(default=True, type='bool'),
@@ -231,6 +234,7 @@ class TestFunction(unittest.TestCase):
         module = AnsibleModule.return_value
         module.params = {
             'state': 'absent',
+            'delete_duplicates': False,
             'path': '/tmp',
             'mark': 'tmp',
             'sdirs': sdirs,
