@@ -44,6 +44,18 @@ def read(sdirs):
     return open(sdirs, 'r').readlines()
 
 
+def create_sdirs(config):
+    sdirs = tmp_file()
+
+    entries = ShellmarkEntries(path=sdirs)
+
+    for entry in config:
+        entries.add_entry(mark=entry[0], path=entry[1], validate=False)
+    entries.write()
+
+    return entries
+
+
 def mock_main(params, check_mode=False):
     sdirs = tmp_file()
     defaults = {
