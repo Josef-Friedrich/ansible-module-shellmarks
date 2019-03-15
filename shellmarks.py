@@ -579,6 +579,13 @@ class ShellmarkEntries:
                            avoid_duplicate_paths=paths,
                            delete_old_entries=True)
 
+        duplicate_entries = len(old_entries) - len(self.entries)
+        if duplicate_entries > 0:
+            self.changes.append({
+                'action': 'delete_duplicates',
+                'count': duplicate_entries
+            })
+
     def cleanup(self):
         """Clean up invalid entries. Readd all entries which are valid."""
         # Create a copy of the entries list.
@@ -672,14 +679,14 @@ def main():
     if (params['mark'] or params['path']) and params['state'] == 'absent':
         entries.delete_entries(mark=params['mark'], path=params['path'])
 
-    if params['sorted']:
-        entries.sort()
-
     if params['cleanup']:
         entries.cleanup()
 
     if params['delete_duplicates']:
         entries.delete_duplicates()
+
+    if params['sorted']:
+        entries.sort()
 
     if not module.check_mode and entries.changed:
         entries.write(replace_home=params['replace_home'])
