@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division)
 from ansible.compat.tests import unittest
 import mock
 
@@ -11,7 +10,7 @@ from _helper import \
     tmp_file
 
 
-class TestFunctionalWithMockErrors(unittest.TestCase):
+class TestErrors(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -57,7 +56,7 @@ class TestFunctionalWithMockErrors(unittest.TestCase):
         )
 
 
-class TestFunction(unittest.TestCase):
+class TestParams(unittest.TestCase):
 
     def test_mock(self):
         sdirs = tmp_file()
