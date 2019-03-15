@@ -28,7 +28,6 @@ class TestSortTrue(unittest.TestCase):
         self.assertEqual(entry.path, DIR1)
 
     def test_sorted_true_check_mode_true(self):
-        # With check mode enabled
         sdirs = self.create_sdirs_file()
         mock_objects = mock_main(params={'sorted': True, 'sdirs': sdirs},
                                  check_mode=True)
