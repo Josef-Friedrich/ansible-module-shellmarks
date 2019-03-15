@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 from ansible.compat.tests import unittest
 
-from _helper import DIR1, DIR2, tmp_file, mock_main, create_sdirs
+from _helper import \
+    create_sdirs, \
+    DIR1, \
+    DIR2, \
+    mock_main, \
+    tmp_file
 
 
 class TestStatePresent(unittest.TestCase):
