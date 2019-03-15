@@ -20,13 +20,6 @@ class TestSortTrue(unittest.TestCase):
         ])
         return entries.path
 
-    def test_present(self):
-        mock_objects = mock_main(params={'path': DIR1, 'mark': 'tmp'})
-        self.assertEqual(len(mock_objects['entries'].entries), 1)
-        entry = mock_objects['entries'].get_entry_by_index(0)
-        self.assertEqual(entry.mark, 'tmp')
-        self.assertEqual(entry.path, DIR1)
-
     def test_sorted_true_check_mode_true(self):
         sdirs = self.create_sdirs_file()
         mock_objects = mock_main(params={'sorted': True, 'sdirs': sdirs},

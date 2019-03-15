@@ -19,6 +19,14 @@ class TestStatePresent(unittest.TestCase):
             check_mode=False
         )
 
+    def test_present(self):
+        mock_objects = mock_main(params={'state': 'present', 'path': DIR1,
+                                         'mark': 'tmp'})
+        self.assertEqual(len(mock_objects['entries'].entries), 1)
+        entry = mock_objects['entries'].get_entry_by_index(0)
+        self.assertEqual(entry.mark, 'tmp')
+        self.assertEqual(entry.path, DIR1)
+
     def test_add(self):
         mock_objects = self.mock_add('tmp1', DIR1)
         self.assertEqual(len(mock_objects['entries'].entries), 1)
