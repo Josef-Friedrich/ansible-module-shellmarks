@@ -63,7 +63,7 @@ def mock_main(params, check_mode=False):
         "delete_duplicates": False,
         "mark": False,
         "path": False,
-        "replace_home": True,
+        "replace_home": False,
         "sdirs": sdirs,
         "sorted": False,
         "state": "present",

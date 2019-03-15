@@ -95,3 +95,7 @@ class TestParams(unittest.TestCase):
             lines[0],
             'export DIR_dir1="{}"\n'.format(result_path)
         )
+
+
+if __name__ == '__main__':
+    unittest.main()
