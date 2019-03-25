@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/Josef-Friedrich/ansible-module-shellmarks.svg?branch=master)](https://travis-ci.org/Josef-Friedrich/ansible-module-shellmarks)
+[![Documentation Status](https://readthedocs.org/projects/ansible-module-shellmarks/badge/?version=latest)](https://ansible-module-shellmarks.readthedocs.io/en/latest/?badge=latest)
 
 # ansible-module-shellmarks
 
