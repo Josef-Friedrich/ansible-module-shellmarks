@@ -1,17 +1,29 @@
+import os
+
 from setuptools import setup
-from os import path
 import versioneer
 
-# read the contents of your README file
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, 'README.md'), 'rb') as f:
-    long_description = f.read().decode("UTF-8")
+
+def read(file_name):
+    """
+    Read the contents of a text file and return its content.
+
+    :param str file_name: The name of the file to read.
+
+    :return: The content of the text file.
+    :rtype: str
+    """
+    return open(
+        os.path.join(os.path.dirname(__file__), file_name),
+        encoding='utf-8'
+    ).read()
+
 
 setup(
     name='shellmarks',
     description='shellmarks is a ansible module to set bookmarks to commonly '
     'used directories like the tools shellmarks and bashmarks do.',
-    long_description=long_description,
+    long_description=read('README.md'),
     long_description_content_type='text/markdown',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
