@@ -1,7 +1,6 @@
 import os
 
 from setuptools import setup
-import versioneer
 
 
 def read(file_name):
@@ -25,8 +24,7 @@ setup(
     'used directories like the tools shellmarks and bashmarks do.',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version='0.0.0',
     author='Josef Friedrich',
     author_email='josef@friedrich.rocks',
     license='GPL3',
