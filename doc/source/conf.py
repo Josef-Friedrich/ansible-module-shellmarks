@@ -13,9 +13,9 @@ source_suffix = '.rst'
 
 master_doc = 'index'
 
-project = u'shellmarks'
-copyright = u'2019, Josef Friedrich'
-author = u'Josef Friedrich'
+project = 'shellmarks'
+copyright = '2019, Josef Friedrich'
+author = 'Josef Friedrich'
 version = get_versions()['version']
 release = get_versions()['version']
 language = None
