@@ -22,7 +22,7 @@ This module is able to write bookmarks to this file.
    export DIR_shellmarks_module_ansible="$HOME/ansible-module-shellmarks"
    export DIR_skeleton_SHELL_GITHUB="$HOME/skeleton.sh"
 
-{{ cli('ansible-doc gitupdater') | code }}
+{{ cli('ansible-doc shellmarks') | code }}
 
 Development
 ===========
