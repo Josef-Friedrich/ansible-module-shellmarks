@@ -1,4 +1,4 @@
-|Build Status| |Documentation Status|
+{{ badge.readthedocs }}
 
 ansible-module-shellmarks
 =========================
