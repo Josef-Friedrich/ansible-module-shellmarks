@@ -1,9 +1,9 @@
 import os
 from unittest import TestCase
 
-from _helper import DIR1, DIR2, DIR3, TEST_PATH, tmp_file
-
 from shellmarks import MarkInvalidError, ShellmarkEntries
+
+from ._helper import DIR1, DIR2, DIR3, TEST_PATH, tmp_file
 
 
 class TestClassShellmarkEntries(TestCase):

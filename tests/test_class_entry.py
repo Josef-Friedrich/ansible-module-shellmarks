@@ -1,8 +1,8 @@
 from unittest import TestCase, mock
 
-from _helper import DIR1, HOME_DIR
-
 from shellmarks import Entry, MarkInvalidError, NoPathError
+
+from ._helper import DIR1, HOME_DIR
 
 
 class TestClassEntry(TestCase):

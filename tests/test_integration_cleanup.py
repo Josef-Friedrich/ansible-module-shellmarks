@@ -1,6 +1,8 @@
 from unittest import TestCase
 
-from _helper import (
+from shellmarks import ShellmarkEntries
+
+from ._helper import (
     DIR1,
     DIR2,
     DIR3,
@@ -9,8 +11,6 @@ from _helper import (
     tmp_dir,
     tmp_file,
 )
-
-from shellmarks import ShellmarkEntries
 
 
 class TestCleanup(TestCase):

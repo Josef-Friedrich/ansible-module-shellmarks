@@ -1,6 +1,6 @@
 from unittest import TestCase, main, mock
 
-from _helper import DIR1, HOME_DIR, mock_main, read, tmp_file
+from ._helper import DIR1, HOME_DIR, mock_main, read, tmp_file
 
 
 class TestErrors(TestCase):

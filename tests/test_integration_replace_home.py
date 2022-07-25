@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from _helper import DIR1, HOME_DIR, create_sdirs, mock_main, read
+from ._helper import DIR1, HOME_DIR, create_sdirs, mock_main, read
 
 
 class TestReplaceHome(TestCase):

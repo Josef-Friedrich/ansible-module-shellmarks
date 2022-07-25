@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from _helper import DIR1, DIR2, DIR3, mock_main, tmp_file
+from ._helper import DIR1, DIR2, DIR3, mock_main, tmp_file
 
 
 class TestStateAbsent(TestCase):

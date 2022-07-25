@@ -19,6 +19,7 @@
 import os
 import pwd
 import re
+from typing import List, Literal
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -154,11 +155,11 @@ class NoPathError(ShellmarksError):
 class Entry:
     """A object representation of one line in the `~/.sdirs` file.
 
-    :param string mark: The name of the bookmark / shellmark.
-    :param string path: The path of the bookmark / shellmark.
-    :param string entry: One line in the file `~/.sdirs`
+    :param mark: The name of the bookmark / shellmark.
+    :param path: The path of the bookmark / shellmark.
+    :param entry: One line in the file `~/.sdirs`
       (export DIR_dir1="/dir1").
-    :param boolean validate: Validate the input. Raise some exceptions if
+    :param validate: Validate the input. Raise some exceptions if
       the bookmark strings are invalid or if the paths don’t exist.
 
     :raises ValueError: If not all necessary class arguments are specified.
@@ -167,13 +168,22 @@ class Entry:
     :raises NoPathError: If `validate=True` and the given path doesn’t exist.
     """
 
-    def __init__(self, path="", mark="", entry="", validate=True):
+    mark: str
+    """The name of the bookmark."""
+
+    path: str
+    """The path which should be bookmark."""
+
+    _home_dir: str
+    """The path of the home directory."""
+
+    def __init__(
+        self, path: str = "", mark: str = "", entry: str = "", validate: bool = True
+    ):
 
         self.mark = ""
-        """The name of the bookmark."""
 
         self.path = ""
-        """The path which should be bookmark."""
 
         if entry and (path or mark):
             raise ValueError("Specify entry OR both path and mark.")
@@ -198,7 +208,6 @@ class Entry:
             raise MarkInvalidError(message.format(self.mark))
 
         self._home_dir = pwd.getpwuid(os.getuid()).pw_dir
-        """The path of the home directory."""
 
         self.path = self.normalize_path(self.path, self._home_dir)
 
@@ -206,7 +215,7 @@ class Entry:
             raise NoPathError("The path “{}” doesn’t exist.".format(self.path))
 
     @staticmethod
-    def parse_entry(entry):
+    def parse_entry(entry: str):
         """Extract from a entry line the name of the bookmark and the path.
 
         :param string entry: One line in the file ~/.sdirs
@@ -218,11 +227,11 @@ class Entry:
         return re.findall(r'export DIR_(.*)="(.*)"', entry)[0]
 
     @staticmethod
-    def check_mark(mark):
+    def check_mark(mark: str):
         """
         Check if a bookmark string is valid.
 
-        :param string mark: The name of the bookmark / shellmark.
+        :param mark: The name of the bookmark / shellmark.
 
         :return: True if the bookmark contains no invalid characters, false
           otherwise.
@@ -234,7 +243,7 @@ class Entry:
         return False
 
     @staticmethod
-    def normalize_path(path, home_dir):
+    def normalize_path(path: str, home_dir: str):
         """Replace ~ and $HOME with a the actual path string. Replace trailing
         slashes. Convert to a absolute path.
 
@@ -264,7 +273,7 @@ class Entry:
         """
         return {"mark": self.mark, "path": self.path}
 
-    def to_export_string(self, replace_home=False):
+    def to_export_string(self, replace_home: bool = False):
         """Assemble the attributes `mark` and `path` to entry line
         (export DIR_mark="path").
 
@@ -291,7 +300,7 @@ class ShellmarkEntries:
       `path` on object initialisation.
     """
 
-    def __init__(self, path, validate_on_init=True):
+    def __init__(self, path: str, validate_on_init: bool = True):
         self.path = path
         """The path of the .sdirs file."""
 
@@ -361,12 +370,12 @@ class ShellmarkEntries:
         return False
 
     @staticmethod
-    def _list_intersection(list1, list2):
+    def _list_intersection(list1: List[int], list2: List[int]) -> List[int]:
         """Build the intersection of two lists
         https://www.geeksforgeeks.org/python-intersection-two-lists
 
-        :param list list1: A list
-        :param list list2: A list
+        :param list1: A list
+        :param list2: A list
 
         :return: A list of index numbers which appear in both input lists.
         :rtype: list
@@ -376,13 +385,13 @@ class ShellmarkEntries:
             intersection = sorted(intersection)
         return intersection
 
-    def _store_index_number(self, attribute_name, value, index):
+    def _store_index_number(self, attribute_name: str, value: int, index: int):
         """Add the index number of an entry to the index store.
 
-        :param string attribute_name: `mark` or `path`
-        :param string value: The value of the attribute name. For example
+        :param attribute_name: `mark` or `path`
+        :param value: The value of the attribute name. For example
           `$HOME/Downloads` for `path` and `downloads` for `mark`
-        :param integer index: The index number of the entry in the list of
+        :param index: The index number of the entry in the list of
           entries.
 
         :raises ValueError: If `attribute_name` is not `mark` or `path`.
@@ -409,12 +418,12 @@ class ShellmarkEntries:
             self._store_index_number("path", entry.path, index)
             index += 1
 
-    def _get_indexes(self, mark="", path=""):
+    def _get_indexes(self, mark: str = "", path: str = ""):
         """Get the index of an entry in the list of entries. Select this entry
         by the bookmark name or by path or by both.
 
-        :param string mark: The name of the bookmark / shellmark.
-        :param string path: The path of the bookmark / shellmark.
+        :param mark: The name of the bookmark / shellmark.
+        :param path: The path of the bookmark / shellmark.
 
         :return: A list of index numbers. Index numbers are starting from
           0.
@@ -450,17 +459,17 @@ class ShellmarkEntries:
             content = file_sdirs.read()
         return content
 
-    def get_entry_by_index(self, index):
+    def get_entry_by_index(self, index: int):
         """Get an entry by the index number.
 
-        :param integer index: The index number of the entry.
+        :param index: The index number of the entry.
 
         :return: An entry object
         :rtype: Entry
         """
         return self.entries[index]
 
-    def get_entries(self, mark="", path=""):
+    def get_entries(self, mark: str = "", path: str = ""):
         """Retrieve shellmark entries for the list of entries. The entries are
         selected by the bookmark name (mark) or by the path or by both.
 
@@ -476,28 +485,28 @@ class ShellmarkEntries:
 
     def add_entry(
         self,
-        mark="",
-        path="",
-        entry="",
-        avoid_duplicate_marks=False,
-        avoid_duplicate_paths=False,
-        delete_old_entries=False,
-        validate=True,
-        silent=True,
+        mark: str = "",
+        path: str = "",
+        entry: str = "",
+        avoid_duplicate_marks: bool = False,
+        avoid_duplicate_paths: bool = False,
+        delete_old_entries: bool = False,
+        validate: bool = True,
+        silent: bool = True,
     ):
         """Add one bookmark / shellmark entry.
 
-        :param string mark: The name of the bookmark / shellmark.
-        :param string path: The path of the bookmark / shellmark.
-        :param string entry: One line in the file ~/.sdirs
+        :param mark: The name of the bookmark / shellmark.
+        :param path: The path of the bookmark / shellmark.
+        :param entry: One line in the file ~/.sdirs
           (export DIR_dir1="/dir1").
-        :param boolean avoid_duplicate_marks: Avoid duplicate marks
-        :param boolean avoid_duplicate_paths: Avoid duplicate paths
-        :param boolean delete_old_entries: Delete old entries instead of not
+        :param avoid_duplicate_marks: Avoid duplicate marks
+        :param avoid_duplicate_paths: Avoid duplicate paths
+        :param delete_old_entries: Delete old entries instead of not
           adding a new entry.
-        :param boolean validate: Validate the attributes `mark` and `path`.
+        :param validate: Validate the attributes `mark` and `path`.
           If invalid, raise an exception.
-        :param boolean silent: Add no messages to the action summary (.msg).
+        :param silent: Add no messages to the action summary (.msg).
 
         :return: False if adding of a new entry is rejected, else the index
           number.
@@ -535,13 +544,19 @@ class ShellmarkEntries:
                 )
         return add_action
 
-    def update_entries(self, old_mark="", old_path="", new_mark="", new_path=""):
+    def update_entries(
+        self,
+        old_mark: str = "",
+        old_path: str = "",
+        new_mark: str = "",
+        new_path: str = "",
+    ):
         """Update the entries which match the conditions.
 
-        :param string old_mark: The name of the old bookmark / shellmark.
-        :param string old_path: The path of the old bookmark / shellmark.
-        :param string new_mark: The name of the new bookmark / shellmark.
-        :param string new_path: The path of the new bookmark / shellmark.
+        :param old_mark: The name of the old bookmark / shellmark.
+        :param old_path: The path of the old bookmark / shellmark.
+        :param new_mark: The name of the new bookmark / shellmark.
+        :param new_path: The path of the new bookmark / shellmark.
         """
         indexes = self._get_indexes(mark=old_mark, path=old_path)
         for index in indexes:
@@ -552,11 +567,11 @@ class ShellmarkEntries:
                 entry.path = new_path
         self._update_index()
 
-    def delete_entries(self, mark="", path=""):
+    def delete_entries(self, mark: str = "", path: str = ""):
         """Delete entries which match the specified conditions.
 
-        :param string mark: The name of the bookmark / shellmark.
-        :param string path: The path of the bookmark / shellmark.
+        :param mark: The name of the bookmark / shellmark.
+        :param path: The path of the bookmark / shellmark.
 
         :return: True if deletion was successful, False otherwise.
         :rtype: boolean
@@ -580,12 +595,12 @@ class ShellmarkEntries:
         self._update_index()
         return delete_action
 
-    def delete_duplicates(self, marks=True, paths=False):
+    def delete_duplicates(self, marks: bool = True, paths: bool = False):
         """Delete duplicate entries.
 
-        :param boolean marks: Delete duplicate entries with the same
+        :param marks: Delete duplicate entries with the same
           mark attribute.
-        :param boolean paths: Delete duplicate entries with the same
+        :param paths: Delete duplicate entries with the same
           path attribute.
         """
         # Create a copy of the entries list.
@@ -624,11 +639,13 @@ class ShellmarkEntries:
         if cleanup_entries > 0:
             self.changes.append({"action": "cleanup", "count": cleanup_entries})
 
-    def sort(self, attribute_name="mark", reverse=False):
+    def sort(
+        self, attribute_name: Literal["mark", "path"] = "mark", reverse: bool = False
+    ):
         """Sort the bookmark entries by mark or path.
 
-        :param string attribute_name: 'mark' or 'path'
-        :param boolean reverse: Reverse the sort.
+        :param attribute_name: 'mark' or 'path'
+        :param reverse: Reverse the sort.
         """
         self.entries.sort(
             key=lambda entry: getattr(entry, attribute_name), reverse=reverse
@@ -642,10 +659,10 @@ class ShellmarkEntries:
             }
         )
 
-    def write(self, new_path=""):
+    def write(self, new_path: str = ""):
         """Write the bookmark / shellmarks to the disk.
 
-        :param string new_path: Path of a different output file then specifed
+        :param new_path: Path of a different output file then specifed
           by the initialisation of the object.
         """
         if new_path:

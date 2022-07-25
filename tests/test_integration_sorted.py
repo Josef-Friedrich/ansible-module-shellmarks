@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from _helper import DIR1, DIR2, DIR3, create_sdirs, mock_main
+from ._helper import DIR1, DIR2, DIR3, create_sdirs, mock_main
 
 
 class TestSortTrue(TestCase):
