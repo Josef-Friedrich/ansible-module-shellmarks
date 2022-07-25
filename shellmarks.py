@@ -22,11 +22,13 @@ import re
 
 from ansible.module_utils.basic import AnsibleModule
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
-                    'status': ['preview'],
-                    'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.0",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: shellmarks
 short_description: |
@@ -89,9 +91,9 @@ options:
             - absent
         aliases:
             - src
-'''
+"""
 
-RETURN = '''
+RETURN = """
 changes:
     description: A list of actions
     returned: On changed
@@ -108,9 +110,9 @@ changes:
         reverse: false
       - action: cleanup
         count: 1
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # Bookmark the ansible configuration directory
 - shellmarks:
     mark: ansible
@@ -134,7 +136,7 @@ EXAMPLES = '''
 # Delete bookmarks of no longer existing directories
 - shellmarks:
     cleanup: true
-'''
+"""
 
 
 class ShellmarksError(Exception):
@@ -165,19 +167,19 @@ class Entry:
     :raises NoPathError: If `validate=True` and the given path doesn’t exist.
     """
 
-    def __init__(self, path='', mark='', entry='', validate=True):
+    def __init__(self, path="", mark="", entry="", validate=True):
 
-        self.mark = ''
+        self.mark = ""
         """The name of the bookmark."""
 
-        self.path = ''
+        self.path = ""
         """The path which should be bookmark."""
 
         if entry and (path or mark):
-            raise ValueError('Specify entry OR both path and mark.')
+            raise ValueError("Specify entry OR both path and mark.")
 
         if (path and not mark) or (mark and not path):
-            raise ValueError('Specify both variables: path and mark')
+            raise ValueError("Specify both variables: path and mark")
 
         if entry:
             match = self.parse_entry(entry)
@@ -188,9 +190,11 @@ class Entry:
             self.path = path
 
         if validate and not self.check_mark(self.mark):
-            message = 'Invalid mark string: “{}”. ' + \
-                      'Allowed characters for bookmark names are: ' + \
-                      '“0-9a-zA-Z_”.'
+            message = (
+                "Invalid mark string: “{}”. "
+                + "Allowed characters for bookmark names are: "
+                + "“0-9a-zA-Z_”."
+            )
             raise MarkInvalidError(message.format(self.mark))
 
         self._home_dir = pwd.getpwuid(os.getuid()).pw_dir
@@ -199,9 +203,7 @@ class Entry:
         self.path = self.normalize_path(self.path, self._home_dir)
 
         if validate and not os.path.exists(self.path):
-            raise NoPathError(
-                'The path “{}” doesn’t exist.'.format(self.path)
-            )
+            raise NoPathError("The path “{}” doesn’t exist.".format(self.path))
 
     @staticmethod
     def parse_entry(entry):
@@ -225,7 +227,7 @@ class Entry:
         :return: True if the bookmark contains no invalid characters, false
           otherwise.
         :rtype: boolean"""
-        regex = re.compile(r'^[0-9a-zA-Z_]+$')
+        regex = re.compile(r"^[0-9a-zA-Z_]+$")
         match = regex.match(str(mark))
         if match:
             return match.group(0) == mark
@@ -243,14 +245,14 @@ class Entry:
         :rtype: string
         """
         if path:
-            path = re.sub(r'(.+)/?$', r'\1', path)
-            path = re.sub(r'^~', home_dir, path)
-            path = re.sub(r'^\$HOME', home_dir, path)
+            path = re.sub(r"(.+)/?$", r"\1", path)
+            path = re.sub(r"^~", home_dir, path)
+            path = re.sub(r"^\$HOME", home_dir, path)
             # Only existing paths should converted to absolute paths.
             if os.path.exists(path):
                 path = os.path.abspath(path)
             return path
-        return ''
+        return ""
 
     def to_dict(self):
         """Bundle the two public attributes of this class into a dictonary.
@@ -260,7 +262,7 @@ class Entry:
         :return: A dictionary with two keys: mark and path
         :rtype: dict
         """
-        return {'mark': self.mark, 'path': self.path}
+        return {"mark": self.mark, "path": self.path}
 
     def to_export_string(self, replace_home=False):
         """Assemble the attributes `mark` and `path` to entry line
@@ -273,10 +275,10 @@ class Entry:
         :rtype: string
         """
         if replace_home:
-            path = self.path.replace(self._home_dir, '$HOME')
+            path = self.path.replace(self._home_dir, "$HOME")
         else:
             path = self.path
-        return 'export DIR_{}=\"{}\"'.format(self.mark, path)
+        return 'export DIR_{}="{}"'.format(self.mark, path)
 
 
 class ShellmarkEntries:
@@ -297,8 +299,8 @@ class ShellmarkEntries:
         """A list of shellmark entries. """
 
         self._index = {
-            'marks': {},
-            'paths': {},
+            "marks": {},
+            "paths": {},
         }
         """A collection of dictionaries to hold the indexes (position of
         the single entries in the list of entries).
@@ -325,7 +327,7 @@ class ShellmarkEntries:
         """Replace the home folder with the variable $HOME."""
 
         if os.path.isfile(path):
-            sdirs = open(self.path, 'r')
+            sdirs = open(self.path, "r")
             self._lines_original = sdirs.readlines()
             sdirs.close()
 
@@ -350,7 +352,7 @@ class ShellmarkEntries:
 
         for entry in self.entries:
             lines_new.append(
-                entry.to_export_string(replace_home=self.replace_home) + '\n'
+                entry.to_export_string(replace_home=self.replace_home) + "\n"
             )
 
         if self._lines_original != lines_new:
@@ -385,11 +387,9 @@ class ShellmarkEntries:
 
         :raises ValueError: If `attribute_name` is not `mark` or `path`.
         """
-        if attribute_name not in ('mark', 'path'):
-            raise ValueError(
-                'attribute_name “{}” unkown.'.format(attribute_name)
-            )
-        attribute_index_name = attribute_name + 's'
+        if attribute_name not in ("mark", "path"):
+            raise ValueError("attribute_name “{}” unkown.".format(attribute_name))
+        attribute_index_name = attribute_name + "s"
         if value not in self._index[attribute_index_name]:
             self._index[attribute_index_name][value] = [index]
         elif index not in self._index[attribute_index_name][value]:
@@ -400,16 +400,16 @@ class ShellmarkEntries:
         """Update the index numbers. Wipe out the whole index, store and
         generate it again."""
         self._index = {
-            'marks': {},
-            'paths': {},
+            "marks": {},
+            "paths": {},
         }
         index = 0
         for entry in self.entries:
-            self._store_index_number('mark', entry.mark, index)
-            self._store_index_number('path', entry.path, index)
+            self._store_index_number("mark", entry.mark, index)
+            self._store_index_number("path", entry.path, index)
             index += 1
 
-    def _get_indexes(self, mark='', path=''):
+    def _get_indexes(self, mark="", path=""):
         """Get the index of an entry in the list of entries. Select this entry
         by the bookmark name or by path or by both.
 
@@ -422,20 +422,17 @@ class ShellmarkEntries:
 
         :raises ValueError: If `mark` or `path` didn’t match.
         """
-        marks = self._index['marks']
-        paths = self._index['paths']
+        marks = self._index["marks"]
+        paths = self._index["paths"]
 
         if mark not in marks and path not in paths:
             return []
         if mark and path:
             if marks[mark] != paths[path]:
                 raise ValueError(
-                    'mark ({}) and path ({}) didn’t match.'.format(mark, path)
+                    "mark ({}) and path ({}) didn’t match.".format(mark, path)
                 )
-            return self._list_intersection(
-                marks[mark],
-                paths[path]
-            )
+            return self._list_intersection(marks[mark], paths[path])
         elif mark and mark in marks:
             return marks[mark]
         elif path and path in paths:
@@ -449,7 +446,7 @@ class ShellmarkEntries:
           attribute.
         :rtype: string
         """
-        with open(self.path, 'r') as file_sdirs:
+        with open(self.path, "r") as file_sdirs:
             content = file_sdirs.read()
         return content
 
@@ -463,7 +460,7 @@ class ShellmarkEntries:
         """
         return self.entries[index]
 
-    def get_entries(self, mark='', path=''):
+    def get_entries(self, mark="", path=""):
         """Retrieve shellmark entries for the list of entries. The entries are
         selected by the bookmark name (mark) or by the path or by both.
 
@@ -477,9 +474,17 @@ class ShellmarkEntries:
         indexes = self._get_indexes(mark=mark, path=path)
         return [self.entries[index] for index in indexes]
 
-    def add_entry(self, mark='', path='', entry='',
-                  avoid_duplicate_marks=False, avoid_duplicate_paths=False,
-                  delete_old_entries=False, validate=True, silent=True):
+    def add_entry(
+        self,
+        mark="",
+        path="",
+        entry="",
+        avoid_duplicate_marks=False,
+        avoid_duplicate_paths=False,
+        delete_old_entries=False,
+        validate=True,
+        silent=True,
+    ):
         """Add one bookmark / shellmark entry.
 
         :param string mark: The name of the bookmark / shellmark.
@@ -509,25 +514,28 @@ class ShellmarkEntries:
         same_mark_entries = self.get_entries(mark=mark)
         same_path_entries = self.get_entries(path=path)
 
-        if (not avoid_duplicate_marks and not avoid_duplicate_paths) or \
-           (avoid_duplicate_marks and not same_mark_entries) or \
-           (avoid_duplicate_paths and not same_path_entries):
+        if (
+            (not avoid_duplicate_marks and not avoid_duplicate_paths)
+            or (avoid_duplicate_marks and not same_mark_entries)
+            or (avoid_duplicate_paths and not same_path_entries)
+        ):
             entry = Entry(mark=mark, path=path, entry=entry, validate=validate)
             index = len(self.entries)
             self.entries.append(entry)
-            self._store_index_number('mark', entry.mark, index)
-            self._store_index_number('path', entry.path, index)
+            self._store_index_number("mark", entry.mark, index)
+            self._store_index_number("path", entry.path, index)
             add_action = index
             if not silent:
-                self.changes.append({
-                    'action': 'add',
-                    'mark': entry.mark,
-                    'path': entry.path,
-                })
+                self.changes.append(
+                    {
+                        "action": "add",
+                        "mark": entry.mark,
+                        "path": entry.path,
+                    }
+                )
         return add_action
 
-    def update_entries(self, old_mark='', old_path='', new_mark='',
-                       new_path=''):
+    def update_entries(self, old_mark="", old_path="", new_mark="", new_path=""):
         """Update the entries which match the conditions.
 
         :param string old_mark: The name of the old bookmark / shellmark.
@@ -544,7 +552,7 @@ class ShellmarkEntries:
                 entry.path = new_path
         self._update_index()
 
-    def delete_entries(self, mark='', path=''):
+    def delete_entries(self, mark="", path=""):
         """Delete entries which match the specified conditions.
 
         :param string mark: The name of the bookmark / shellmark.
@@ -560,11 +568,13 @@ class ShellmarkEntries:
         delete_action = False
         for index in indexes:
             entry = self.entries[index]
-            self.changes.append({
-                'action': 'delete',
-                'mark': entry.mark,
-                'path': entry.path,
-            })
+            self.changes.append(
+                {
+                    "action": "delete",
+                    "mark": entry.mark,
+                    "path": entry.path,
+                }
+            )
             del self.entries[index]
             delete_action = True
         self._update_index()
@@ -583,17 +593,20 @@ class ShellmarkEntries:
         self.entries = []
         self._update_index()
         for entry in old_entries:
-            self.add_entry(mark=entry.mark, path=entry.path, validate=False,
-                           avoid_duplicate_marks=marks,
-                           avoid_duplicate_paths=paths,
-                           delete_old_entries=True)
+            self.add_entry(
+                mark=entry.mark,
+                path=entry.path,
+                validate=False,
+                avoid_duplicate_marks=marks,
+                avoid_duplicate_paths=paths,
+                delete_old_entries=True,
+            )
 
         duplicate_entries = len(old_entries) - len(self.entries)
         if duplicate_entries > 0:
-            self.changes.append({
-                'action': 'delete_duplicates',
-                'count': duplicate_entries
-            })
+            self.changes.append(
+                {"action": "delete_duplicates", "count": duplicate_entries}
+            )
 
     def cleanup(self):
         """Clean up invalid entries. Readd all entries which are valid."""
@@ -603,34 +616,33 @@ class ShellmarkEntries:
         self._update_index()
         for entry in old_entries:
             try:
-                self.add_entry(mark=entry.mark, path=entry.path,
-                               validate=True)
+                self.add_entry(mark=entry.mark, path=entry.path, validate=True)
             except ShellmarksError:
                 pass
 
         cleanup_entries = len(old_entries) - len(self.entries)
         if cleanup_entries > 0:
-            self.changes.append({
-                'action': 'cleanup',
-                'count': cleanup_entries
-            })
+            self.changes.append({"action": "cleanup", "count": cleanup_entries})
 
-    def sort(self, attribute_name='mark', reverse=False):
+    def sort(self, attribute_name="mark", reverse=False):
         """Sort the bookmark entries by mark or path.
 
         :param string attribute_name: 'mark' or 'path'
         :param boolean reverse: Reverse the sort.
         """
-        self.entries.sort(key=lambda entry: getattr(entry, attribute_name),
-                          reverse=reverse)
+        self.entries.sort(
+            key=lambda entry: getattr(entry, attribute_name), reverse=reverse
+        )
         self._update_index()
-        self.changes.append({
-            'action': 'sort',
-            'sort_by': attribute_name,
-            'reverse': reverse,
-        })
+        self.changes.append(
+            {
+                "action": "sort",
+                "sort_by": attribute_name,
+                "reverse": reverse,
+            }
+        )
 
-    def write(self, new_path=''):
+    def write(self, new_path=""):
         """Write the bookmark / shellmarks to the disk.
 
         :param string new_path: Path of a different output file then specifed
@@ -640,10 +652,10 @@ class ShellmarkEntries:
             path = new_path
         else:
             path = self.path
-        output_file = open(path, 'w')
+        output_file = open(path, "w")
         for entry in self.entries:
             output_file.write(
-                entry.to_export_string(replace_home=self.replace_home) + '\n'
+                entry.to_export_string(replace_home=self.replace_home) + "\n"
             )
         output_file.close()
 
@@ -652,47 +664,50 @@ def main():
     """Main function which gets called by Ansible."""
     module = AnsibleModule(
         argument_spec=dict(
-            cleanup=dict(default=False, type='bool'),
-            delete_duplicates=dict(default=False, type='bool'),
-            mark=dict(aliases=['bookmark']),
-            path=dict(aliases=['src']),
-            replace_home=dict(default=True, type='bool'),
-            sdirs=dict(default='~/.sdirs'),
-            sorted=dict(default=True, type='bool'),
-            state=dict(default='present', choices=['present', 'absent']),
+            cleanup=dict(default=False, type="bool"),
+            delete_duplicates=dict(default=False, type="bool"),
+            mark=dict(aliases=["bookmark"]),
+            path=dict(aliases=["src"]),
+            replace_home=dict(default=True, type="bool"),
+            sdirs=dict(default="~/.sdirs"),
+            sorted=dict(default=True, type="bool"),
+            state=dict(default="present", choices=["present", "absent"]),
         ),
-        supports_check_mode=True
+        supports_check_mode=True,
     )
 
     params = module.params
 
     home_dir = pwd.getpwuid(os.getuid()).pw_dir
-    params['sdirs'] = Entry.normalize_path(params['sdirs'], home_dir)
-    entries = ShellmarkEntries(path=params['sdirs'], validate_on_init=False)
-    entries.replace_home = params['replace_home']
+    params["sdirs"] = Entry.normalize_path(params["sdirs"], home_dir)
+    entries = ShellmarkEntries(path=params["sdirs"], validate_on_init=False)
+    entries.replace_home = params["replace_home"]
 
-    if params['mark'] and params['path'] and params['state'] == 'present':
+    if params["mark"] and params["path"] and params["state"] == "present":
         try:
-            entries.add_entry(mark=params['mark'], path=params['path'],
-                              avoid_duplicate_marks=True,
-                              avoid_duplicate_paths=True,
-                              delete_old_entries=True,
-                              silent=False)
+            entries.add_entry(
+                mark=params["mark"],
+                path=params["path"],
+                avoid_duplicate_marks=True,
+                avoid_duplicate_paths=True,
+                delete_old_entries=True,
+                silent=False,
+            )
         except NoPathError as exception:
             module.fail_json(msg=str(exception))
         except MarkInvalidError as exception:
             module.fail_json(msg=str(exception))
 
-    if (params['mark'] or params['path']) and params['state'] == 'absent':
-        entries.delete_entries(mark=params['mark'], path=params['path'])
+    if (params["mark"] or params["path"]) and params["state"] == "absent":
+        entries.delete_entries(mark=params["mark"], path=params["path"])
 
-    if params['cleanup']:
+    if params["cleanup"]:
         entries.cleanup()
 
-    if params['delete_duplicates']:
+    if params["delete_duplicates"]:
         entries.delete_duplicates()
 
-    if params['sorted']:
+    if params["sorted"]:
         entries.sort()
 
     if not module.check_mode and entries.changed:
@@ -704,5 +719,5 @@ def main():
         module.exit_json(changed=entries.changed)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
