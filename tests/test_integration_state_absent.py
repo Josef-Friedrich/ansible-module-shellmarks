@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
+from unittest import TestCase
+
 from _helper import DIR1, DIR2, DIR3, mock_main, tmp_file
-from ansible.compat.tests import unittest
 
 
-class TestStateAbsent(unittest.TestCase):
+class TestStateAbsent(TestCase):
     def setUp(self):
         self.sdirs = tmp_file()
         self.mock_add("tmp1", DIR1)

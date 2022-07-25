@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+from unittest import TestCase
+
 from _helper import (
     DIR1,
     DIR2,
@@ -8,12 +9,11 @@ from _helper import (
     tmp_dir,
     tmp_file,
 )
-from ansible.compat.tests import unittest
 
 from shellmarks import ShellmarkEntries
 
 
-class TestCleanup(unittest.TestCase):
+class TestCleanup(TestCase):
     def test_cleanup(self):
         path = tmp_dir()
         no = 'export DIR_tmpb="/tmpXDR34723df4WER/d4REd4RE64er64erb"\n'

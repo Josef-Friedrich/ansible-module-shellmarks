@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
+from unittest import TestCase
+
 from _helper import DIR1, DIR2, DIR3, create_sdirs, mock_main
-from ansible.compat.tests import unittest
 
 
-class TestSortTrue(unittest.TestCase):
+class TestSortTrue(TestCase):
     @staticmethod
     def create_sdirs_file():
         entries = create_sdirs(

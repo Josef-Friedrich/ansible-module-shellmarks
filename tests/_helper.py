@@ -1,16 +1,13 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division
-
 import os
 import pwd
 import tempfile
-
-import mock
+from typing import List
+from unittest import mock
 
 import shellmarks
 from shellmarks import ShellmarkEntries
 
-TEST_PATH = os.path.abspath(os.path.join("test", "files"))
+TEST_PATH = os.path.abspath(os.path.join("tests", "files"))
 DIR1 = os.path.join(TEST_PATH, "dir1")
 DIR2 = os.path.join(TEST_PATH, "dir2")
 DIR3 = os.path.join(TEST_PATH, "dir3")
@@ -27,7 +24,7 @@ sdirs_file.write(
 sdirs_file.close()
 
 
-def create_tmp_text_file_with_content(content):
+def create_tmp_text_file_with_content(content: str) -> str:
     path = tmp_file()
     file_handler = open(path, "w")
     file_handler.write(content)
@@ -35,15 +32,15 @@ def create_tmp_text_file_with_content(content):
     return path
 
 
-def tmp_file():
+def tmp_file() -> str:
     return tempfile.mkstemp()[1]
 
 
-def tmp_dir():
+def tmp_dir() -> str:
     return tempfile.mkdtemp()
 
 
-def read(sdirs):
+def read(sdirs: str) -> List[str]:
     return open(sdirs, "r").readlines()
 
 

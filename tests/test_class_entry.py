@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-import mock
+from unittest import TestCase, mock
+
 from _helper import DIR1, HOME_DIR
-from ansible.compat.tests import unittest
 
 from shellmarks import Entry, MarkInvalidError, NoPathError
 
 
-class TestClassEntry(unittest.TestCase):
+class TestClassEntry(TestCase):
     def assertNormalizePath(self, path, result):
         entry = Entry(mark="test", path=DIR1)
         self.assertEqual(entry.normalize_path(path, "/home/jf"), result)

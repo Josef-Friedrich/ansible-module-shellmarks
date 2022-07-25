@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-import mock
+from unittest import TestCase, main, mock
+
 from _helper import DIR1, HOME_DIR, mock_main, read, tmp_file
-from ansible.compat.tests import unittest
 
 
-class TestErrors(unittest.TestCase):
+class TestErrors(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.module = False
@@ -48,7 +47,7 @@ class TestErrors(unittest.TestCase):
         )
 
 
-class TestParams(unittest.TestCase):
+class TestParams(TestCase):
     def test_mock(self):
         sdirs = tmp_file()
         mock_objects = mock_main(
@@ -87,4 +86,4 @@ class TestParams(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    main()

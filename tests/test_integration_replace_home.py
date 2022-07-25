@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
+from unittest import TestCase
+
 from _helper import DIR1, HOME_DIR, create_sdirs, mock_main, read
-from ansible.compat.tests import unittest
 
 
-class TestReplaceHome(unittest.TestCase):
+class TestReplaceHome(TestCase):
     @staticmethod
     def create_sdirs_file():
         entries = create_sdirs([["home", HOME_DIR]])

@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
 import os
+from unittest import TestCase
 
 from _helper import DIR1, DIR2, DIR3, TEST_PATH, tmp_file
-from ansible.compat.tests import unittest
 
 from shellmarks import MarkInvalidError, ShellmarkEntries
 
 
-class TestClassShellmarkEntries(unittest.TestCase):
+class TestClassShellmarkEntries(TestCase):
     def test_init_existent_file(self):
         entries = ShellmarkEntries(path=os.path.join("test", "files", "sdirs"))
         self.assertEqual(entries.entries[0].mark, "dir1")

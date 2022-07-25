@@ -1,0 +1,3 @@
+export DIR_dir1="/home/jf/repos/python/ansible_shellmarks/tests/files/dir1"
+export DIR_dir2="/home/jf/repos/python/ansible_shellmarks/tests/files/dir2"
+export DIR_dir3="/home/jf/repos/python/ansible_shellmarks/tests/files/dir3"

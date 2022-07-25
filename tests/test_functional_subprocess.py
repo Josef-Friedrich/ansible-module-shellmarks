@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 import os
 import subprocess
-
-from ansible.compat.tests import unittest
+from unittest import TestCase, skip
 
 old_env = os.getenv("ANSIBLE_LIBRARY")
 
@@ -12,13 +10,13 @@ else:
     os.putenv("ANSIBLE_LIBRARY", os.getcwd())
 
 
-class TestFunctionalWithSubprocess(unittest.TestCase):
+class TestFunctionalWithSubprocess(TestCase):
     def test_ansible_doc(self):
         output = subprocess.check_output(["ansible-doc", "shellmarks"])
         output = output.decode("utf-8")
         self.assertIn("commonly used directories", output)
 
-    @unittest.skip("Figure out ansible-playbook in tox environment?")
+    @skip("Figure out ansible-playbook in tox environment?")
     def test_ansible_playbook(self):
         output = subprocess.run(
             [
