@@ -19,7 +19,7 @@
 import os
 import pwd
 import re
-from typing import List, Literal
+from typing import List, Literal, Optional, TypedDict, cast
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -289,7 +289,7 @@ class Entry:
         return 'export DIR_{}="{}"'.format(self.mark, path)
 
 
-class ShellmarkEntries:
+class ShellmarkManager:
     """A class to store, add, get, update and delete shellmark entries.
 
     :param string path: The path of the text file where all shellmark
@@ -431,7 +431,9 @@ class ShellmarkEntries:
             self._store_index_number("path", entry.path, index)
             index += 1
 
-    def _get_indexes(self, mark: str = "", path: str = "") -> list[int]:
+    def _get_indexes(
+        self, mark: Optional[str] = None, path: Optional[str] = None
+    ) -> list[int]:
         """Get the index of an entry in the list of entries. Select this entry
         by the bookmark name or by path or by both.
 
@@ -482,7 +484,7 @@ class ShellmarkEntries:
         """
         return self.entries[index]
 
-    def get_entries(self, mark: str = "", path: str = ""):
+    def get_entries(self, mark: Optional[str] = None, path: Optional[str] = None):
         """Retrieve shellmark entries for the list of entries. The entries are
         selected by the bookmark name (mark) or by the path or by both.
 
@@ -580,7 +582,9 @@ class ShellmarkEntries:
                 entry.path = new_path
         self._update_index()
 
-    def delete_entries(self, mark: str = "", path: str = ""):
+    def delete_entries(
+        self, mark: Optional[str] = None, path: Optional[str] = None
+    ) -> bool:
         """Delete entries which match the specified conditions.
 
         :param mark: The name of the bookmark / shellmark.
@@ -690,6 +694,28 @@ class ShellmarkEntries:
         output_file.close()
 
 
+class ModuleParams(TypedDict):
+    cleanup: bool
+    delete_duplicates: bool
+    mark: Optional[str]
+    path: Optional[str]
+    replace_home: bool
+    sdirs: str
+    sorted: bool
+    state: Literal["present", "absent"]
+
+
+class OptionalModuleParams(TypedDict, total=False):
+    cleanup: bool
+    delete_duplicates: bool
+    mark: Optional[str]
+    path: Optional[str]
+    replace_home: bool
+    sdirs: str
+    sorted: bool
+    state: Literal["present", "absent"]
+
+
 def main() -> None:
     """Main function which gets called by Ansible."""
     module = AnsibleModule(
@@ -706,11 +732,11 @@ def main() -> None:
         supports_check_mode=True,
     )
 
-    params = module.params
+    params: ModuleParams = cast(ModuleParams, module.params)
 
     home_dir = pwd.getpwuid(os.getuid()).pw_dir
     params["sdirs"] = Entry.normalize_path(params["sdirs"], home_dir)
-    entries = ShellmarkEntries(path=params["sdirs"], validate_on_init=False)
+    entries = ShellmarkManager(path=params["sdirs"], validate_on_init=False)
     entries.replace_home = params["replace_home"]
 
     if params["mark"] and params["path"] and params["state"] == "present":

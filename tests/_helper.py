@@ -1,11 +1,12 @@
 import os
 import pwd
 import tempfile
+from dataclasses import dataclass
 from typing import List
 from unittest import mock
 
 import shellmarks
-from shellmarks import ShellmarkEntries
+from shellmarks import ModuleParams, OptionalModuleParams, ShellmarkManager
 
 TEST_PATH = os.path.abspath(os.path.join("tests", "files"))
 DIR1 = os.path.join(TEST_PATH, "dir1")
@@ -44,10 +45,10 @@ def read(sdirs: str) -> List[str]:
     return open(sdirs, "r").readlines()
 
 
-def create_sdirs(config):
+def create_sdirs(config: list[tuple[str, str]]) -> ShellmarkManager:
     sdirs = tmp_file()
 
-    entries = ShellmarkEntries(path=sdirs)
+    entries = ShellmarkManager(path=sdirs)
 
     for entry in config:
         entries.add_entry(mark=entry[0], path=entry[1], validate=False)
@@ -56,7 +57,15 @@ def create_sdirs(config):
     return entries
 
 
-def mock_main(params, check_mode=False):
+@dataclass
+class MockResult:
+    module: mock.MagicMock
+    params: ModuleParams
+    manager: ShellmarkManager
+    AnsibleModule: mock.MagicMock
+
+
+def mock_main(params: OptionalModuleParams, check_mode: bool = False) -> MockResult:
     sdirs = tmp_file()
     defaults = {
         "cleanup": False,
@@ -79,10 +88,8 @@ def mock_main(params, check_mode=False):
         module.check_mode = check_mode
         shellmarks.main()
 
-    entries = ShellmarkEntries(path=module.params["sdirs"])
+    entries = ShellmarkManager(path=module.params["sdirs"])
 
-    return {
-        "module": module,
-        "AnsibleModule": AnsibleModule,
-        "entries": entries,
-    }
+    return MockResult(
+        module=module, params=params, manager=entries, AnsibleModule=AnsibleModule
+    )

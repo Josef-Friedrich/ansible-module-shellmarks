@@ -6,20 +6,18 @@ class TestSortTrue:
     def create_sdirs_file():
         entries = create_sdirs(
             [
-                ["dirB", DIR2],
-                ["dirC", DIR3],
-                ["dirA", DIR1],
+                ("dirB", DIR2),
+                ("dirC", DIR3),
+                ("dirA", DIR1),
             ]
         )
         return entries.path
 
     def test_sorted_true_check_mode_true(self):
         sdirs = self.create_sdirs_file()
-        mock_objects = mock_main(
-            params={"sorted": True, "sdirs": sdirs}, check_mode=True
-        )
-        assert mock_objects["entries"].entries[0].mark == "dirB"
-        mock_objects["module"].exit_json.assert_called_with(
+        result = mock_main(params={"sorted": True, "sdirs": sdirs}, check_mode=True)
+        assert result.manager.entries[0].mark == "dirB"
+        result.module.exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -32,14 +30,12 @@ class TestSortTrue:
 
     def test_sorted_true_check_mode_false(self):
         sdirs = self.create_sdirs_file()
-        mock_objects = mock_main(
-            params={"sorted": True, "sdirs": sdirs}, check_mode=False
-        )
-        assert mock_objects["entries"].entries[0].mark == "dirA"
-        assert mock_objects["entries"].entries[1].mark == "dirB"
-        assert mock_objects["entries"].entries[2].mark == "dirC"
-        assert mock_objects["entries"].entries[2].mark == "dirC"
-        mock_objects["module"].exit_json.assert_called_with(
+        result = mock_main(params={"sorted": True, "sdirs": sdirs}, check_mode=False)
+        assert result.manager.entries[0].mark == "dirA"
+        assert result.manager.entries[1].mark == "dirB"
+        assert result.manager.entries[2].mark == "dirC"
+        assert result.manager.entries[2].mark == "dirC"
+        result.module.exit_json.assert_called_with(
             changed=True,
             changes=[
                 {
@@ -52,20 +48,16 @@ class TestSortTrue:
 
     def test_sorted_false_check_mode_true(self):
         sdirs = self.create_sdirs_file()
-        mock_objects = mock_main(
-            params={"sorted": False, "sdirs": sdirs}, check_mode=True
-        )
-        assert mock_objects["entries"].entries[0].mark == "dirB"
-        assert mock_objects["entries"].entries[1].mark == "dirC"
-        assert mock_objects["entries"].entries[2].mark == "dirA"
-        mock_objects["module"].exit_json.assert_called_with(changed=False)
+        result = mock_main(params={"sorted": False, "sdirs": sdirs}, check_mode=True)
+        assert result.manager.entries[0].mark == "dirB"
+        assert result.manager.entries[1].mark == "dirC"
+        assert result.manager.entries[2].mark == "dirA"
+        result.module.exit_json.assert_called_with(changed=False)
 
     def test_sorted_false_check_mode_false(self):
         sdirs = self.create_sdirs_file()
-        mock_objects = mock_main(
-            params={"sorted": False, "sdirs": sdirs}, check_mode=False
-        )
-        assert mock_objects["entries"].entries[0].mark == "dirB"
-        assert mock_objects["entries"].entries[1].mark == "dirC"
-        assert mock_objects["entries"].entries[2].mark == "dirA"
-        mock_objects["module"].exit_json.assert_called_with(changed=False)
+        result = mock_main(params={"sorted": False, "sdirs": sdirs}, check_mode=False)
+        assert result.manager.entries[0].mark == "dirB"
+        assert result.manager.entries[1].mark == "dirC"
+        assert result.manager.entries[2].mark == "dirA"
+        result.module.exit_json.assert_called_with(changed=False)

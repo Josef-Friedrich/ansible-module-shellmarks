@@ -11,11 +11,11 @@ class TestErrors:
         cls.sdirs = tmp_file()
 
     def mock_add(self, mark: str, path: str):
-        mock_objects = mock_main(
+        result = mock_main(
             params={"mark": mark, "path": path, "sdirs": self.sdirs}, check_mode=False
         )
-        self.module = mock_objects["module"]
-        self.entries = mock_objects["entries"]
+        self.module: mock.MagicMock = result.module
+        self.entries = result.manager
         return mock
 
     def test_error_dash(self):
@@ -50,7 +50,7 @@ class TestErrors:
 class TestParams:
     def test_mock(self):
         sdirs = tmp_file()
-        mock_objects = mock_main(
+        result = mock_main(
             {
                 "cleanup": False,
                 "delete_duplicates": False,
@@ -77,7 +77,7 @@ class TestParams:
 
         assert (
             mock.call(argument_spec=expected, supports_check_mode=True)
-            == mock_objects["AnsibleModule"].call_args
+            == result.AnsibleModule.call_args
         )
 
         lines = read(sdirs)
