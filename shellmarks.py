@@ -180,7 +180,6 @@ class Entry:
     def __init__(
         self, path: str = "", mark: str = "", entry: str = "", validate: bool = True
     ):
-
         self.mark = ""
 
         self.path = ""
@@ -300,12 +299,16 @@ class ShellmarkEntries:
       `path` on object initialisation.
     """
 
+    path: str
+    """The path of the .sdirs file."""
+
+    entries: list[Entry]
+    """A list of shellmark entries. """
+
     def __init__(self, path: str, validate_on_init: bool = True):
         self.path = path
-        """The path of the .sdirs file."""
 
         self.entries = []
-        """A list of shellmark entries. """
 
         self._index = {
             "marks": {},
