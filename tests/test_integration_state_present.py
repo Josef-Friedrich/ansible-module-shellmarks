@@ -1,5 +1,3 @@
-from unittest import TestCase
-
 from ._helper import DIR1, DIR2, create_sdirs, mock_main, tmp_file
 
 

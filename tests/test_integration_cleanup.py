@@ -1,5 +1,3 @@
-from unittest import TestCase
-
 from shellmarks import ShellmarkEntries
 
 from ._helper import (

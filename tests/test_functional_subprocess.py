@@ -1,6 +1,6 @@
 import os
 import subprocess
-from unittest import TestCase, skip
+from unittest import skip
 
 old_env = os.getenv("ANSIBLE_LIBRARY")
 

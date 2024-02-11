@@ -1,4 +1,4 @@
-from unittest import TestCase, main, mock
+from unittest import main, mock
 
 from ._helper import DIR1, HOME_DIR, mock_main, read, tmp_file
 
@@ -10,7 +10,7 @@ class TestErrors:
         cls.entries = False
         cls.sdirs = tmp_file()
 
-    def mock_add(self, mark, path):
+    def mock_add(self, mark: str, path: str):
         mock_objects = mock_main(
             params={"mark": mark, "path": path, "sdirs": self.sdirs}, check_mode=False
         )
