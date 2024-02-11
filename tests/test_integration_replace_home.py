@@ -3,7 +3,7 @@ from unittest import TestCase
 from ._helper import DIR1, HOME_DIR, create_sdirs, mock_main, read
 
 
-class TestReplaceHome(TestCase):
+class TestReplaceHome:
     @staticmethod
     def create_sdirs_file():
         entries = create_sdirs([["home", HOME_DIR]])
@@ -16,7 +16,7 @@ class TestReplaceHome(TestCase):
         )
 
         lines = read(sdirs)
-        self.assertIn("$HOME", lines[0])
+        assert "$HOME" in lines[0]
         mock_objects["module"].exit_json.assert_called_with(changed=True)
 
     def test_replace_home_true_state_present_check_mode_false(self):
@@ -32,7 +32,7 @@ class TestReplaceHome(TestCase):
         )
 
         lines = read(sdirs)
-        self.assertIn("$HOME", lines[0])
+        assert "$HOME" in lines[0]
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -51,7 +51,7 @@ class TestReplaceHome(TestCase):
         )
 
         lines = read(sdirs)
-        self.assertNotIn("$HOME", lines[0])
+        assert "$HOME" not in lines[0]
         mock_objects["module"].exit_json.assert_called_with(changed=True)
 
     def test_replace_home_true_state_present_check_mode_true(self):
@@ -67,7 +67,7 @@ class TestReplaceHome(TestCase):
         )
 
         lines = read(sdirs)
-        self.assertNotIn("$HOME", lines[0])
+        assert "$HOME" not in lines[0]
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -86,7 +86,7 @@ class TestReplaceHome(TestCase):
         )
 
         lines = read(sdirs)
-        self.assertNotIn("$HOME", lines[0])
+        assert "$HOME" not in lines[0]
         mock_objects["module"].exit_json.assert_called_with(changed=False)
 
     def test_replace_home_false_state_present_check_mode_false(self):
@@ -102,7 +102,7 @@ class TestReplaceHome(TestCase):
         )
 
         lines = read(sdirs)
-        self.assertNotIn("$HOME", lines[0])
+        assert "$HOME" not in lines[0]
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[

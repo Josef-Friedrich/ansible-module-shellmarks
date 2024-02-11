@@ -10,11 +10,11 @@ else:
     os.putenv("ANSIBLE_LIBRARY", os.getcwd())
 
 
-class TestFunctionalWithSubprocess(TestCase):
+class TestFunctionalWithSubprocess:
     def test_ansible_doc(self):
         output = subprocess.check_output(["ansible-doc", "shellmarks"])
         output = output.decode("utf-8")
-        self.assertIn("commonly used directories", output)
+        assert "commonly used directories" in output
 
     @skip("Figure out ansible-playbook in tox environment?")
     def test_ansible_playbook(self):
@@ -32,4 +32,4 @@ class TestFunctionalWithSubprocess(TestCase):
             encoding="utf-8",
             shell=True,
         )
-        self.assertIn("Add a shellmark for the home folder", output.stdout)
+        assert "Add a shellmark for the home folder" in output.stdout

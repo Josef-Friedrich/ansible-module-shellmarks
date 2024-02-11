@@ -3,7 +3,7 @@ from unittest import TestCase
 from ._helper import DIR1, DIR2, DIR3, create_sdirs, mock_main
 
 
-class TestSortTrue(TestCase):
+class TestSortTrue:
     @staticmethod
     def create_sdirs_file():
         entries = create_sdirs(
@@ -21,11 +21,11 @@ class TestSortTrue(TestCase):
         mock_objects = mock_main(
             params={"delete_duplicates": True, "sdirs": sdirs}, check_mode=True
         )
-        self.assertEqual(mock_objects["entries"].entries[0].mark, "dir1")
-        self.assertEqual(mock_objects["entries"].entries[0].path, DIR1)
-        self.assertEqual(mock_objects["entries"].entries[1].mark, "dir2")
-        self.assertEqual(mock_objects["entries"].entries[1].path, DIR1)
-        self.assertEqual(len(mock_objects["entries"].entries), 4)
+        assert mock_objects["entries"].entries[0].mark == "dir1"
+        assert mock_objects["entries"].entries[0].path == DIR1
+        assert mock_objects["entries"].entries[1].mark == "dir2"
+        assert mock_objects["entries"].entries[1].path == DIR1
+        assert len(mock_objects["entries"].entries) == 4
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -39,11 +39,11 @@ class TestSortTrue(TestCase):
         mock_objects = mock_main(
             params={"delete_duplicates": True, "sdirs": sdirs}, check_mode=False
         )
-        self.assertEqual(mock_objects["entries"].entries[0].mark, "dir1")
-        self.assertEqual(mock_objects["entries"].entries[0].path, DIR1)
-        self.assertEqual(mock_objects["entries"].entries[1].mark, "dir2")
-        self.assertEqual(mock_objects["entries"].entries[1].path, DIR2)
-        self.assertEqual(len(mock_objects["entries"].entries), 3)
+        assert mock_objects["entries"].entries[0].mark == "dir1"
+        assert mock_objects["entries"].entries[0].path == DIR1
+        assert mock_objects["entries"].entries[1].mark == "dir2"
+        assert mock_objects["entries"].entries[1].path == DIR2
+        assert len(mock_objects["entries"].entries) == 3
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -57,11 +57,11 @@ class TestSortTrue(TestCase):
         mock_objects = mock_main(
             params={"delete_duplicates": False, "sdirs": sdirs}, check_mode=True
         )
-        self.assertEqual(mock_objects["entries"].entries[0].mark, "dir1")
-        self.assertEqual(mock_objects["entries"].entries[0].path, DIR1)
-        self.assertEqual(mock_objects["entries"].entries[1].mark, "dir2")
-        self.assertEqual(mock_objects["entries"].entries[1].path, DIR1)
-        self.assertEqual(len(mock_objects["entries"].entries), 4)
+        assert mock_objects["entries"].entries[0].mark == "dir1"
+        assert mock_objects["entries"].entries[0].path == DIR1
+        assert mock_objects["entries"].entries[1].mark == "dir2"
+        assert mock_objects["entries"].entries[1].path == DIR1
+        assert len(mock_objects["entries"].entries) == 4
         mock_objects["module"].exit_json.assert_called_with(changed=False)
 
     def test_delete_duplicates_false_check_mode_false(self):
@@ -69,9 +69,9 @@ class TestSortTrue(TestCase):
         mock_objects = mock_main(
             params={"delete_duplicates": False, "sdirs": sdirs}, check_mode=False
         )
-        self.assertEqual(mock_objects["entries"].entries[0].mark, "dir1")
-        self.assertEqual(mock_objects["entries"].entries[0].path, DIR1)
-        self.assertEqual(mock_objects["entries"].entries[1].mark, "dir2")
-        self.assertEqual(mock_objects["entries"].entries[1].path, DIR1)
-        self.assertEqual(len(mock_objects["entries"].entries), 4)
+        assert mock_objects["entries"].entries[0].mark == "dir1"
+        assert mock_objects["entries"].entries[0].path == DIR1
+        assert mock_objects["entries"].entries[1].mark == "dir2"
+        assert mock_objects["entries"].entries[1].path == DIR1
+        assert len(mock_objects["entries"].entries) == 4
         mock_objects["module"].exit_json.assert_called_with(changed=False)

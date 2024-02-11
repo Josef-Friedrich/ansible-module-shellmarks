@@ -3,7 +3,7 @@ from unittest import TestCase
 from ._helper import DIR1, DIR2, create_sdirs, mock_main, tmp_file
 
 
-class TestStatePresent(TestCase):
+class TestStatePresent:
     def mock_add(self, mark, path, sdirs=False):
         if not sdirs:
             sdirs = tmp_file()
@@ -15,14 +15,14 @@ class TestStatePresent(TestCase):
         mock_objects = mock_main(
             params={"state": "present", "path": DIR1, "mark": "tmp"}
         )
-        self.assertEqual(len(mock_objects["entries"].entries), 1)
+        assert len(mock_objects["entries"].entries) == 1
         entry = mock_objects["entries"].get_entry_by_index(0)
-        self.assertEqual(entry.mark, "tmp")
-        self.assertEqual(entry.path, DIR1)
+        assert entry.mark == "tmp"
+        assert entry.path == DIR1
 
     def test_add(self):
         mock_objects = self.mock_add("tmp1", DIR1)
-        self.assertEqual(len(mock_objects["entries"].entries), 1)
+        assert len(mock_objects["entries"].entries) == 1
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -33,14 +33,14 @@ class TestStatePresent(TestCase):
     def test_same_entry_not_added(self):
         entries = create_sdirs([["tmp1", DIR1]])
         mock_objects = self.mock_add("tmp1", DIR1, entries.path)
-        self.assertEqual(len(mock_objects["entries"].entries), 1)
+        assert len(mock_objects["entries"].entries) == 1
         mock_objects["module"].exit_json.assert_called_with(changed=False)
 
     def test_duplicate_mark(self):
         """update mark with new dir"""
         entries = create_sdirs([["tmp1", DIR1]])
         mock_objects = self.mock_add("tmp1", DIR2, entries.path)
-        self.assertEqual(len(mock_objects["entries"].entries), 1)
+        assert len(mock_objects["entries"].entries) == 1
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -53,7 +53,7 @@ class TestStatePresent(TestCase):
         """update path with new mark"""
         entries = create_sdirs([["tmp1", DIR1]])
         mock_objects = self.mock_add("tmp2", DIR1, entries.path)
-        self.assertEqual(len(mock_objects["entries"].entries), 1)
+        assert len(mock_objects["entries"].entries) == 1
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -65,7 +65,7 @@ class TestStatePresent(TestCase):
     def test_add_second_entry(self):
         entries = create_sdirs([["tmp1", DIR1]])
         mock_objects = self.mock_add("tmp2", DIR2, entries.path)
-        self.assertEqual(len(mock_objects["entries"].entries), 2)
+        assert len(mock_objects["entries"].entries) == 2
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -82,7 +82,7 @@ class TestStatePresent(TestCase):
     def test_casesensitivity(self):
         entries = create_sdirs([["tmp1", DIR1]])
         mock_objects = self.mock_add("TMP1", DIR2, entries.path)
-        self.assertEqual(len(mock_objects["entries"].entries), 2)
+        assert len(mock_objects["entries"].entries) == 2
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[

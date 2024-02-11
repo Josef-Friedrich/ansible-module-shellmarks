@@ -3,9 +3,9 @@ from unittest import TestCase, main, mock
 from ._helper import DIR1, HOME_DIR, mock_main, read, tmp_file
 
 
-class TestErrors(TestCase):
+class TestErrors:
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.module = False
         cls.entries = False
         cls.sdirs = tmp_file()
@@ -47,7 +47,7 @@ class TestErrors(TestCase):
         )
 
 
-class TestParams(TestCase):
+class TestParams:
     def test_mock(self):
         sdirs = tmp_file()
         mock_objects = mock_main(
@@ -82,7 +82,7 @@ class TestParams(TestCase):
 
         lines = read(sdirs)
         result_path = DIR1.replace(HOME_DIR, "$HOME")
-        self.assertEqual(lines[0], 'export DIR_dir1="{}"\n'.format(result_path))
+        assert lines[0] == 'export DIR_dir1="{}"\n'.format(result_path)
 
 
 if __name__ == "__main__":

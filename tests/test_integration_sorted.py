@@ -3,7 +3,7 @@ from unittest import TestCase
 from ._helper import DIR1, DIR2, DIR3, create_sdirs, mock_main
 
 
-class TestSortTrue(TestCase):
+class TestSortTrue:
     @staticmethod
     def create_sdirs_file():
         entries = create_sdirs(
@@ -20,7 +20,7 @@ class TestSortTrue(TestCase):
         mock_objects = mock_main(
             params={"sorted": True, "sdirs": sdirs}, check_mode=True
         )
-        self.assertEqual(mock_objects["entries"].entries[0].mark, "dirB")
+        assert mock_objects["entries"].entries[0].mark == "dirB"
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -37,10 +37,10 @@ class TestSortTrue(TestCase):
         mock_objects = mock_main(
             params={"sorted": True, "sdirs": sdirs}, check_mode=False
         )
-        self.assertEqual(mock_objects["entries"].entries[0].mark, "dirA")
-        self.assertEqual(mock_objects["entries"].entries[1].mark, "dirB")
-        self.assertEqual(mock_objects["entries"].entries[2].mark, "dirC")
-        self.assertEqual(mock_objects["entries"].entries[2].mark, "dirC")
+        assert mock_objects["entries"].entries[0].mark == "dirA"
+        assert mock_objects["entries"].entries[1].mark == "dirB"
+        assert mock_objects["entries"].entries[2].mark == "dirC"
+        assert mock_objects["entries"].entries[2].mark == "dirC"
         mock_objects["module"].exit_json.assert_called_with(
             changed=True,
             changes=[
@@ -57,9 +57,9 @@ class TestSortTrue(TestCase):
         mock_objects = mock_main(
             params={"sorted": False, "sdirs": sdirs}, check_mode=True
         )
-        self.assertEqual(mock_objects["entries"].entries[0].mark, "dirB")
-        self.assertEqual(mock_objects["entries"].entries[1].mark, "dirC")
-        self.assertEqual(mock_objects["entries"].entries[2].mark, "dirA")
+        assert mock_objects["entries"].entries[0].mark == "dirB"
+        assert mock_objects["entries"].entries[1].mark == "dirC"
+        assert mock_objects["entries"].entries[2].mark == "dirA"
         mock_objects["module"].exit_json.assert_called_with(changed=False)
 
     def test_sorted_false_check_mode_false(self):
@@ -67,7 +67,7 @@ class TestSortTrue(TestCase):
         mock_objects = mock_main(
             params={"sorted": False, "sdirs": sdirs}, check_mode=False
         )
-        self.assertEqual(mock_objects["entries"].entries[0].mark, "dirB")
-        self.assertEqual(mock_objects["entries"].entries[1].mark, "dirC")
-        self.assertEqual(mock_objects["entries"].entries[2].mark, "dirA")
+        assert mock_objects["entries"].entries[0].mark == "dirB"
+        assert mock_objects["entries"].entries[1].mark == "dirC"
+        assert mock_objects["entries"].entries[2].mark == "dirA"
         mock_objects["module"].exit_json.assert_called_with(changed=False)
