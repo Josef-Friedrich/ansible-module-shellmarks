@@ -4,14 +4,14 @@ from ._helper import DIR1, DIR2, DIR3, create_sdirs, mock_main
 class TestSortTrue:
     @staticmethod
     def create_sdirs_file():
-        entries = create_sdirs(
+        manager = create_sdirs(
             [
                 ("dirB", DIR2),
                 ("dirC", DIR3),
                 ("dirA", DIR1),
             ]
         )
-        return entries.path
+        return manager.path
 
     def test_sorted_true_check_mode_true(self):
         sdirs = self.create_sdirs_file()

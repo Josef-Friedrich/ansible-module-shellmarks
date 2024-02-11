@@ -12,7 +12,7 @@ from ._helper import (
 
 
 class TestCleanup:
-    def test_cleanup(self):
+    def test_cleanup(self) -> None:
         path = tmp_dir()
         no = 'export DIR_tmpb="/tmpXDR34723df4WER/d4REd4RE64er64erb"\n'
         content = no + no + no + 'export DIR_exists="' + path + '"\n' + no + no + no
@@ -26,7 +26,7 @@ class TestCleanup:
             changed=True, changes=[{"action": "cleanup", "count": 6}]
         )
 
-    def test_nothing_to_do(self):
+    def test_nothing_to_do(self) -> None:
         entries = ShellmarkManager(path=tmp_file())
         entries.add_entry(mark="dir1", path=DIR1)
         entries.add_entry(mark="dir2", path=DIR2)

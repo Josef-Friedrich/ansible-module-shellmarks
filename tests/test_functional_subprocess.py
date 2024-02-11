@@ -11,13 +11,13 @@ else:
 
 
 class TestFunctionalWithSubprocess:
-    def test_ansible_doc(self):
+    def test_ansible_doc(self) -> None:
         output = subprocess.check_output(["ansible-doc", "shellmarks"])
         output = output.decode("utf-8")
         assert "commonly used directories" in output
 
     @skip("Figure out ansible-playbook in tox environment?")
-    def test_ansible_playbook(self):
+    def test_ansible_playbook(self) -> None:
         output = subprocess.run(
             [
                 "ansible-playbook",

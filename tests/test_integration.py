@@ -5,41 +5,40 @@ from ._helper import DIR1, HOME_DIR, mock_main, read, tmp_file
 
 class TestErrors:
     @classmethod
-    def setup_class(cls):
+    def setup_class(cls) -> None:
         cls.module = False
-        cls.entries = False
+        cls.manager = False
         cls.sdirs = tmp_file()
 
-    def mock_add(self, mark: str, path: str):
+    def mock_add(self, mark: str, path: str) -> None:
         result = mock_main(
             params={"mark": mark, "path": path, "sdirs": self.sdirs}, check_mode=False
         )
         self.module: mock.MagicMock = result.module
-        self.entries = result.manager
-        return mock
+        self.manager = result.manager
 
-    def test_error_dash(self):
+    def test_error_dash(self) -> None:
         self.mock_add(mark="l-l", path=DIR1)
         self.module.fail_json.assert_called_with(
             msg="Invalid mark string: “l-l”. Allowed characters for bookmark "
             "names are: “0-9a-zA-Z_”."
         )
 
-    def test_error_blank_space(self):
+    def test_error_blank_space(self) -> None:
         self.mock_add(mark="l l", path=DIR1)
         self.module.fail_json.assert_called_with(
             msg="Invalid mark string: “l l”. Allowed characters for bookmark "
             "names are: “0-9a-zA-Z_”."
         )
 
-    def test_error_umlaut(self):
+    def test_error_umlaut(self) -> None:
         self.mock_add(mark="löl", path=DIR1)
         self.module.fail_json.assert_called_with(
             msg="Invalid mark string: “löl”. Allowed characters for bookmark "
             "names are: “0-9a-zA-Z_”."
         )
 
-    def test_error_comma(self):
+    def test_error_comma(self) -> None:
         self.mock_add(mark="l,l", path=DIR1)
         self.module.fail_json.assert_called_with(
             msg="Invalid mark string: “l,l”. Allowed characters for bookmark "
@@ -48,7 +47,7 @@ class TestErrors:
 
 
 class TestParams:
-    def test_mock(self):
+    def test_mock(self) -> None:
         sdirs = tmp_file()
         result = mock_main(
             {

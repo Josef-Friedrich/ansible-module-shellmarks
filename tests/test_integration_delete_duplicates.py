@@ -3,7 +3,7 @@ from ._helper import DIR1, DIR2, DIR3, create_sdirs, mock_main
 
 class TestSortTrue:
     @staticmethod
-    def create_sdirs_file():
+    def create_sdirs_file() -> str:
         entries = create_sdirs(
             [
                 ("dir1", DIR1),
@@ -14,7 +14,7 @@ class TestSortTrue:
         )
         return entries.path
 
-    def test_delete_duplicates_true_check_mode_true(self):
+    def test_delete_duplicates_true_check_mode_true(self) -> None:
         sdirs = self.create_sdirs_file()
         result = mock_main(
             params={"delete_duplicates": True, "sdirs": sdirs}, check_mode=True
@@ -32,7 +32,7 @@ class TestSortTrue:
             ],
         )
 
-    def test_delete_duplicates_true_check_mode_false(self):
+    def test_delete_duplicates_true_check_mode_false(self) -> None:
         sdirs = self.create_sdirs_file()
         result = mock_main(
             params={"delete_duplicates": True, "sdirs": sdirs}, check_mode=False
@@ -50,7 +50,7 @@ class TestSortTrue:
             ],
         )
 
-    def test_delete_duplicates_false_check_mode_true(self):
+    def test_delete_duplicates_false_check_mode_true(self) -> None:
         sdirs = self.create_sdirs_file()
         result = mock_main(
             params={"delete_duplicates": False, "sdirs": sdirs}, check_mode=True
@@ -62,7 +62,7 @@ class TestSortTrue:
         assert len(result.manager.entries) == 4
         result.module.exit_json.assert_called_with(changed=False)
 
-    def test_delete_duplicates_false_check_mode_false(self):
+    def test_delete_duplicates_false_check_mode_false(self) -> None:
         sdirs = self.create_sdirs_file()
         result = mock_main(
             params={"delete_duplicates": False, "sdirs": sdirs}, check_mode=False
