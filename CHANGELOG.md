@@ -2,50 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
-## Unreleased
+<!-- insertion marker -->
+## [v3.0.0](https://github.com/Josef-Friedrich/ansible-module-shellmarks/releases/tag/v3.0.0) - 2024-02-12
 
-<small>[Compare with latest](https://github.com/Josef-Friedrich/ansible-module-shellmarks/compare/v2.0.2...HEAD)</small>
+<small>[Compare with latest](https://github.com/Josef-Friedrich/ansible-module-shellmarks/compare/v2.0.2...v3.0.0)</small>
 
 ### Added
 
-- Add pypi github action ([da00ce5](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/da00ce574467e814b525ea6ffa9ff4dd4b9455c1) by Josef Friedrich).
-- Add some type hints ([e5d6615](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/e5d6615dc2832d4c92e9e25f48022cb79c9bf72b) by Josef Friedrich).
-- Add some types ([62c7e72](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/62c7e72a2666ce199d34706b65165b04e58ac3e1) by Josef Friedrich).
-- Add templates for the badges ([3e2602c](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/3e2602c9fa34400789fd9327721404dccb1d37a1) by Josef Friedrich).
-- Add README_template.rst ([8fc4722](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/8fc472205f79e4ffca55d38cf22e9c9abb92df71) by Josef Friedrich).
-- Add license classifiers in pyproject.toml ([3661a31](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/3661a3123c79920d89a1686581f5f50a4b309d0f) by Josef Friedrich).
-- Add pyproject.toml ([38643b9](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/38643b99615eb9df17da519aa27ebcec8d75472c) by Josef Friedrich).
-- Add readthedocs badge ([a235891](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/a235891d4eace16a87aec91c924acdf7ece88baa) by Josef Friedrich).
-- Add more tests ([fb251ee](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/fb251eebceb1047ef490cd1dd50cb4f5e2e86545) by Josef Friedrich).
-- Add return documentation ([aecdfad](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/aecdfad6bb197801f7f0d11ee486d7c4ced54c3a) by Josef Friedrich).
-- Add more state: absent tests ([5e6aac8](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/5e6aac847d353690696b4a1266886507f57f73c4) by Josef Friedrich).
-- Add new method .to_dict() ([302a84d](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/302a84dd51110649a2b8cc4a52b1f82496e5a809) by Josef Friedrich).
-- Add more documentation ([5ab5222](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/5ab5222187ac42d00fbf30c8aa779e2a146ba6d1) by Josef Friedrich).
-- Add .pylintrc ([0919861](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/09198614dc5f25c32363db605f96d27737eae3c9) by Josef Friedrich).
-- Add basic Sphinx support ([6bbaa84](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/6bbaa8454a8233f7c515435822f6f9d694a4b48c) by Josef Friedrich).
-
-### Fixed
-
-- Fix mypy issues ([90a020e](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/90a020e03faf56a376cc7f0f6f800d747825eca1) by Josef Friedrich).
-- Fix docs ([8d0a461](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/8d0a46185dc984b7b78432a4f8b03c26882804a6) by Josef Friedrich).
-- Fix some type issues ([1bc6d88](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/1bc6d885bc0beda8c833dafb0da6d70e8f5cfd91) by Josef Friedrich).
-- Fix all tests ([3cc801d](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/3cc801dfd2c6d03fdbb0d7ecb8641d9b6cf59d73) by Josef Friedrich).
-- Fix tests ([896f015](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/896f015b9f7ef8f84a1ce3da7a7c4698dde3dfc9) by Josef Friedrich).
-- Fix replace home ([9f878bd](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/9f878bde0ae0d88a24ebdf2da8fc0f3fc1a0a10d) by Josef Friedrich).
-- Fix some pylint issues ([bf0cf2f](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/bf0cf2f15ca2cefa8cf943b3925b813683998e93) by Josef Friedrich).
-- Fix tests on travis ([dc2ada9](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/dc2ada9c45fc5244baf9336f7d9c71031059151a) by Josef Friedrich).
-- Fix some coding standard issues ([38fdc9d](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/38fdc9d942f5b74d6367bd9196559e856feb8357) by Josef Friedrich).
+- New parameters: `export` and `export_check`
 
 ### Removed
 
-- Remove the u prefix of same strings ([23161b5](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/23161b550b6b35a4c3b6e5cbd7a75faddca007bf) by Josef Friedrich).
-- Remove versioneer ([f45519c](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/f45519c957955f0510bd9912cb6533327359d943) by Josef Friedrich).
+- Support for Python 3.9 and lower
 
-<!-- insertion marker -->
 ## [v2.0.2](https://github.com/Josef-Friedrich/ansible-module-shellmarks/releases/tag/v2.0.2) - 2019-03-10
 
 <small>[Compare with v2.0.1](https://github.com/Josef-Friedrich/ansible-module-shellmarks/compare/v2.0.1...v2.0.2)</small>
@@ -108,4 +81,3 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fix $HOME handling ([0d5a386](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/0d5a386e9542ac3c335b0decb559facbbf20d60f) by Josef Friedrich).
 - Fix module-validate issues ([c4d26da](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/c4d26daae2d97d8d205780328043093cf7c1ca5f) by Josef Friedrich).
 - Fix test ([d1eed21](https://github.com/Josef-Friedrich/ansible-module-shellmarks/commit/d1eed21ac84784e17b405a13eade0b0777127fee) by Josef Friedrich).
-

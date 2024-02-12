@@ -28,7 +28,7 @@ This module is able to write bookmarks to this file.
    export DIR_shellmarks_module_ansible="$HOME/ansible-module-shellmarks"
    export DIR_skeleton_SHELL_GITHUB="$HOME/skeleton.sh"
 
-.. code-block::
+.. code-block:: 
 
     > SHELLMARKS    (/etc/ansible/library/shellmarks.py)
 
@@ -55,7 +55,7 @@ This module is able to write bookmarks to this file.
             For example 'autojump --add %path' or 'zoxide add %path'.
             default: null
 
-    - export_check
+    - export_query
             Command line string to query if the bookmark is already
             exported. The string %mark is replaced with the mark and %path
             is replaced with the path. For example 'zoxide query %path'.
