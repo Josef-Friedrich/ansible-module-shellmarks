@@ -2,6 +2,10 @@
     :target: https://pypi.org/project/shellmarks
     :alt: This package on the Python Package Index
 
+.. image:: https://github.com/Josef-Friedrich/ansible-module-shellmarks/actions/workflows/tests.yml/badge.svg
+    :target: https://github.com/Josef-Friedrich/ansible-module-shellmarks/actions/workflows/tests.yml
+    :alt: Tests
+
 ansible-module-shellmarks
 =========================
 
