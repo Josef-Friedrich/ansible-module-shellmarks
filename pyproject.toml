@@ -1,14 +1,18 @@
 [tool.poetry]
 name = "shellmarks"
-version = "1.0.0"
+version = "3.0.0"
 description = "shellmarks is a ansible module to set bookmarks to commonly used directories like the tools shellmarks and bashmarks do."
 authors = ["Josef Friedrich <josef@friedrich.rocks>"]
 readme = "README.rst"
 license = "GPL-3.0-only"
 repository = "https://github.com/Josef-Friedrich/ansible-module-shellmarks"
 classifiers = [
-    "Private :: Do not Upload",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3",
 ]
 
 [tool.poetry.dependencies]
@@ -21,5 +25,5 @@ readme-patcher = "^0.6.0"
 tox = "^4"
 
 [build-system]
-requires = ["poetry>=1.2.0b2"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
