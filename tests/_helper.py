@@ -71,7 +71,7 @@ def mock_main(params: OptionalModuleParams, check_mode: bool = False) -> MockRes
         "cleanup": False,
         "delete_duplicates": False,
         "export": None,
-        "export_query": None,
+        "export_check": None,
         "mark": None,
         "path": None,
         "replace_home": False,

@@ -64,7 +64,7 @@ options:
               the path. For example 'autojump --add %path' or 'zoxide add
               %path'.
         required: false
-    export_query:
+    export_check:
         description:
             - Command line string to query if the bookmark is already exported.
               The string %mark is replaced with the mark and %path is replaced
@@ -751,7 +751,7 @@ class ModuleParams(TypedDict):
     cleanup: bool
     delete_duplicates: bool
     export: Optional[str]
-    export_query: Optional[str]
+    export_check: Optional[str]
     mark: Optional[str]
     path: Optional[str]
     replace_home: bool
@@ -764,7 +764,7 @@ class OptionalModuleParams(TypedDict, total=False):
     cleanup: bool
     delete_duplicates: bool
     export: Optional[str]
-    export_query: Optional[str]
+    export_check: Optional[str]
     mark: Optional[str]
     path: Optional[str]
     replace_home: bool
@@ -780,7 +780,7 @@ def main() -> None:
             cleanup=dict(default=False, type="bool"),
             delete_duplicates=dict(default=False, type="bool"),
             export=dict(type="str"),
-            export_query=dict(type="str"),
+            export_check=dict(type="str"),
             mark=dict(aliases=["bookmark"]),
             path=dict(aliases=["src"]),
             replace_home=dict(default=True, type="bool"),
@@ -826,7 +826,7 @@ def main() -> None:
         manager.sort()
 
     if params["export"]:
-        manager.export(params["export"], params["export_query"])
+        manager.export(params["export"], params["export_check"])
 
     if not module.check_mode and manager.changed:
         manager.write()
