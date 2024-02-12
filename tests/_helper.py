@@ -2,7 +2,7 @@ import os
 import pwd
 import tempfile
 from dataclasses import dataclass
-from typing import List
+from typing import List, cast
 from unittest import mock
 
 import shellmarks
@@ -60,9 +60,9 @@ def create_sdirs(config: list[tuple[str, str]]) -> ShellmarkManager:
 @dataclass
 class MockResult:
     module: mock.MagicMock
+    AnsibleModule: mock.MagicMock
     params: ModuleParams
     manager: ShellmarkManager
-    AnsibleModule: mock.MagicMock
 
 
 def mock_main(params: OptionalModuleParams, check_mode: bool = False) -> MockResult:
@@ -82,14 +82,19 @@ def mock_main(params: OptionalModuleParams, check_mode: bool = False) -> MockRes
         if key not in params:
             params[key] = value
 
+    p = cast(ModuleParams, params)
+
     with mock.patch("shellmarks.AnsibleModule") as AnsibleModule:
         module = AnsibleModule.return_value
         module.params = params
         module.check_mode = check_mode
         shellmarks.main()
 
-    entries = ShellmarkManager(path=module.params["sdirs"])
+    entries = ShellmarkManager(path=p["sdirs"])
 
     return MockResult(
-        module=module, params=params, manager=entries, AnsibleModule=AnsibleModule
+        module=module,
+        AnsibleModule=AnsibleModule,
+        params=p,
+        manager=entries,
     )

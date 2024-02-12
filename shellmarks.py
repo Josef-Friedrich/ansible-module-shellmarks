@@ -179,7 +179,7 @@ class Entry:
 
     def __init__(
         self, path: str = "", mark: str = "", entry: str = "", validate: bool = True
-    ):
+    ) -> None:
         self.mark = ""
 
         self.path = ""
@@ -262,7 +262,7 @@ class Entry:
             return path
         return ""
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, str]:
         """Bundle the two public attributes of this class into a dictonary.
         It is not possible to use the magic method __dict__ because this
         method also includes private attributes.
@@ -272,7 +272,7 @@ class Entry:
         """
         return {"mark": self.mark, "path": self.path}
 
-    def to_export_string(self, replace_home: bool = False):
+    def to_export_string(self, replace_home: bool = False) -> str:
         """Assemble the attributes `mark` and `path` to entry line
         (export DIR_mark="path").
 
@@ -418,7 +418,7 @@ class ShellmarkManager:
             self._index[attribute_index_name][value].append(index)
             self._index[attribute_index_name][value].sort()
 
-    def _update_index(self):
+    def _update_index(self) -> None:
         """Update the index numbers. Wipe out the whole index, store and
         generate it again."""
         self._index = {
@@ -484,7 +484,9 @@ class ShellmarkManager:
         """
         return self.entries[index]
 
-    def get_entries(self, mark: Optional[str] = None, path: Optional[str] = None):
+    def get_entries(
+        self, mark: Optional[str] = None, path: Optional[str] = None
+    ) -> list[Entry]:
         """Retrieve shellmark entries for the list of entries. The entries are
         selected by the bookmark name (mark) or by the path or by both.
 
@@ -508,7 +510,7 @@ class ShellmarkManager:
         delete_old_entries: bool = False,
         validate: bool = True,
         silent: bool = True,
-    ):
+    ) -> int | Literal[False]:
         """Add one bookmark / shellmark entry.
 
         :param mark: The name of the bookmark / shellmark.
@@ -527,8 +529,6 @@ class ShellmarkManager:
           number.
         :rtype: mixed
         """
-        add_action = False
-
         if avoid_duplicate_marks and delete_old_entries:
             self.delete_entries(mark=mark)
 
@@ -548,7 +548,7 @@ class ShellmarkManager:
             self.entries.append(entry)
             self._store_index_number("mark", entry.mark, index)
             self._store_index_number("path", entry.path, index)
-            add_action = index
+            add_action: int = index
             if not silent:
                 self.changes.append(
                     {
@@ -557,7 +557,8 @@ class ShellmarkManager:
                         "path": entry.path,
                     }
                 )
-        return add_action
+            return add_action
+        return False
 
     def update_entries(
         self,
@@ -565,7 +566,7 @@ class ShellmarkManager:
         old_path: str = "",
         new_mark: str = "",
         new_path: str = "",
-    ):
+    ) -> None:
         """Update the entries which match the conditions.
 
         :param old_mark: The name of the old bookmark / shellmark.
@@ -612,7 +613,7 @@ class ShellmarkManager:
         self._update_index()
         return delete_action
 
-    def delete_duplicates(self, marks: bool = True, paths: bool = False):
+    def delete_duplicates(self, marks: bool = True, paths: bool = False) -> None:
         """Delete duplicate entries.
 
         :param marks: Delete duplicate entries with the same
@@ -640,7 +641,7 @@ class ShellmarkManager:
                 {"action": "delete_duplicates", "count": duplicate_entries}
             )
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Clean up invalid entries. Readd all entries which are valid."""
         # Create a copy of the entries list.
         old_entries = list(self.entries)
@@ -658,7 +659,7 @@ class ShellmarkManager:
 
     def sort(
         self, attribute_name: Literal["mark", "path"] = "mark", reverse: bool = False
-    ):
+    ) -> None:
         """Sort the bookmark entries by mark or path.
 
         :param attribute_name: 'mark' or 'path'
@@ -676,7 +677,7 @@ class ShellmarkManager:
             }
         )
 
-    def write(self, new_path: str = ""):
+    def write(self, new_path: str = "") -> None:
         """Write the bookmark / shellmarks to the disk.
 
         :param new_path: Path of a different output file then specifed

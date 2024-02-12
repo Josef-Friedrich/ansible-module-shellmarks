@@ -1,13 +1,17 @@
-from unittest import main, mock
+from unittest import mock
+
+from shellmarks import ShellmarkManager
 
 from ._helper import DIR1, HOME_DIR, mock_main, read, tmp_file
 
 
 class TestErrors:
+    module: mock.MagicMock
+    manager: ShellmarkManager
+    sdirs: str
+
     @classmethod
     def setup_class(cls) -> None:
-        cls.module = False
-        cls.manager = False
         cls.sdirs = tmp_file()
 
     def mock_add(self, mark: str, path: str) -> None:
@@ -82,7 +86,3 @@ class TestParams:
         lines = read(sdirs)
         result_path = DIR1.replace(HOME_DIR, "$HOME")
         assert lines[0] == 'export DIR_dir1="{}"\n'.format(result_path)
-
-
-if __name__ == "__main__":
-    main()
