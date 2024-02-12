@@ -3,13 +3,13 @@
 ansible-module-shellmarks
 =========================
 
-``ansible-module-shellmarks`` is a `ansible <https://www.ansible.com>`__
+``ansible-module-shellmarks`` is a `ansible <https://www.ansible.com>`_
 module to set bookmarks to commonly used directories like the tools
-`shellmarks <https://github.com/Bilalh/shellmarks>`__ /
-`bashmarks <https://github.com/huyng/bashmarks>`__ do.
+`shellmarks <https://github.com/Bilalh/shellmarks>`_ /
+`bashmarks <https://github.com/huyng/bashmarks>`_ do.
 
-`shellmarks <https://github.com/Bilalh/shellmarks>`__ and
-`bashmarks <https://github.com/huyng/bashmarks>`__ are shell scripts
+`shellmarks <https://github.com/Bilalh/shellmarks>`_ and
+`bashmarks <https://github.com/huyng/bashmarks>`_ are shell scripts
 that allows you to save and jump to commonly used directories with tab
 completion.
 
@@ -23,7 +23,7 @@ This module is able to write bookmarks to this file.
    export DIR_skeleton_SHELL_GITHUB="$HOME/skeleton.sh"
 
 
-.. code-block:: 
+.. code-block::
 
     > SHELLMARKS    (/etc/ansible/library/shellmarks.py)
 
@@ -122,7 +122,7 @@ This module is able to write bookmarks to this file.
               sort_by: mark
             - action: cleanup
               count: 1
-            
+
             type: list
 
 
