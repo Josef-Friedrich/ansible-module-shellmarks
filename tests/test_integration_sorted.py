@@ -3,7 +3,7 @@ from ._helper import DIR1, DIR2, DIR3, create_sdirs, mock_main
 
 class TestSortTrue:
     @staticmethod
-    def create_sdirs_file():
+    def create_sdirs_file() -> str:
         manager = create_sdirs(
             [
                 ("dirB", DIR2),
@@ -13,7 +13,7 @@ class TestSortTrue:
         )
         return manager.path
 
-    def test_sorted_true_check_mode_true(self):
+    def test_sorted_true_check_mode_true(self) -> None:
         sdirs = self.create_sdirs_file()
         result = mock_main(params={"sorted": True, "sdirs": sdirs}, check_mode=True)
         assert result.manager.entries[0].mark == "dirB"
@@ -28,7 +28,7 @@ class TestSortTrue:
             ],
         )
 
-    def test_sorted_true_check_mode_false(self):
+    def test_sorted_true_check_mode_false(self) -> None:
         sdirs = self.create_sdirs_file()
         result = mock_main(params={"sorted": True, "sdirs": sdirs}, check_mode=False)
         assert result.manager.entries[0].mark == "dirA"
@@ -46,7 +46,7 @@ class TestSortTrue:
             ],
         )
 
-    def test_sorted_false_check_mode_true(self):
+    def test_sorted_false_check_mode_true(self) -> None:
         sdirs = self.create_sdirs_file()
         result = mock_main(params={"sorted": False, "sdirs": sdirs}, check_mode=True)
         assert result.manager.entries[0].mark == "dirB"
@@ -54,7 +54,7 @@ class TestSortTrue:
         assert result.manager.entries[2].mark == "dirA"
         result.module.exit_json.assert_called_with(changed=False)
 
-    def test_sorted_false_check_mode_false(self):
+    def test_sorted_false_check_mode_false(self) -> None:
         sdirs = self.create_sdirs_file()
         result = mock_main(params={"sorted": False, "sdirs": sdirs}, check_mode=False)
         assert result.manager.entries[0].mark == "dirB"

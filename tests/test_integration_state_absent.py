@@ -1,4 +1,4 @@
-from ._helper import DIR1, DIR2, DIR3, mock_main, tmp_file
+from ._helper import DIR1, DIR2, DIR3, mock_main, tmp_file, MockResult
 
 
 class TestStateAbsent:
@@ -8,7 +8,7 @@ class TestStateAbsent:
         self.mock_add("tmp2", DIR2)
         self.mock_add("tmp3", DIR3)
 
-    def mock_add(self, mark: str, path: str):
+    def mock_add(self, mark: str, path: str) -> MockResult:
         return mock_main(
             params={"mark": mark, "path": path, "sdirs": self.sdirs}, check_mode=False
         )
