@@ -57,6 +57,7 @@ class TestParams:
             {
                 "cleanup": False,
                 "delete_duplicates": False,
+                "export": None,
                 "mark": "dir1",
                 "path": DIR1,
                 "replace_home": True,
@@ -70,6 +71,7 @@ class TestParams:
         expected = dict(
             cleanup=dict(default=False, type="bool"),
             delete_duplicates=dict(default=False, type="bool"),
+            export=dict(type="str"),
             mark=dict(aliases=["bookmark"]),
             path=dict(aliases=["src"]),
             replace_home=dict(default=True, type="bool"),

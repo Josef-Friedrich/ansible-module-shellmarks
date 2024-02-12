@@ -45,6 +45,12 @@ This module is able to write bookmarks to this file.
             beginning are deleted, entries at the end are perserved.
             default: false
 
+    - export
+            Command line string to export the bookmarks. The string %mark
+            is replaced with the mark and %path is replaced with the path.
+            For example 'autojump --add %path' or 'zoxide add %path'.
+            default: null
+
     - mark
             Name of the bookmark.
             aliases: [bookmark]

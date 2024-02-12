@@ -70,8 +70,9 @@ def mock_main(params: OptionalModuleParams, check_mode: bool = False) -> MockRes
     defaults = {
         "cleanup": False,
         "delete_duplicates": False,
-        "mark": False,
-        "path": False,
+        "export": None,
+        "mark": None,
+        "path": None,
         "replace_home": False,
         "sdirs": sdirs,
         "sorted": False,

@@ -7,6 +7,12 @@ install: update
 install_editable:
 	pip install -e .
 
+install_library:
+	cp shellmarks.py /etc/ansible/library/shellmarks.py
+
+debug: install_library
+	ansible -m shellmarks -a "export='zoxide add %path'" localhost -v
+
 update:
 	poetry lock
 	poetry install
@@ -31,4 +37,4 @@ lint:
 pin_docs_requirements:
 	pip-compile --output-file=docs/requirements.txt docs/requirements.in pyproject.toml
 
-.PHONY: test install install_editable update build publish format docs lint pin_docs_requirements
+.PHONY: test install install_editable install_library update build publish format docs lint pin_docs_requirements

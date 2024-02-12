@@ -19,6 +19,8 @@
 import os
 import pwd
 import re
+import shlex
+import subprocess
 from typing import List, Literal, Optional, TypedDict, cast
 
 from ansible.module_utils.basic import AnsibleModule
@@ -55,6 +57,12 @@ options:
               beginning are deleted, entries at the end are perserved.
         required: false
         default: false
+    export:
+        description:
+            - Command line string to export the bookmarks. The string
+              %mark is replaced with the mark and %path is replaced with
+              the path. For example 'autojump --add %path' or 'zoxide add %path'.
+        required: false
     mark:
         description:
             - Name of the bookmark.
@@ -320,7 +328,7 @@ class ShellmarkManager:
     the corresponding index numbers
     """
 
-    changes: list[dict[str, str | int]]
+    changes: list[dict[str, str | int | list[str]]]
     """A list of changes. Each change is a dictonary with the keys
     action, mark, path"""
 
@@ -694,10 +702,23 @@ class ShellmarkManager:
             )
         output_file.close()
 
+    def export(self, command: str) -> None:
+        args = shlex.split(command)
+        commands: list[str] = []
+        for entry in self.entries:
+            for i in range(len(args)):
+                args[i] = (
+                    args[i].replace("%path", entry.path).replace("%mark", entry.mark)
+                )
+            subprocess.check_output(args)
+            commands.append(" ".join(args))
+        self.changes.append({"action": "export", "export_commands": commands})
+
 
 class ModuleParams(TypedDict):
     cleanup: bool
     delete_duplicates: bool
+    export: Optional[str]
     mark: Optional[str]
     path: Optional[str]
     replace_home: bool
@@ -709,6 +730,7 @@ class ModuleParams(TypedDict):
 class OptionalModuleParams(TypedDict, total=False):
     cleanup: bool
     delete_duplicates: bool
+    export: Optional[str]
     mark: Optional[str]
     path: Optional[str]
     replace_home: bool
@@ -723,6 +745,7 @@ def main() -> None:
         argument_spec=dict(
             cleanup=dict(default=False, type="bool"),
             delete_duplicates=dict(default=False, type="bool"),
+            export=dict(type="str"),
             mark=dict(aliases=["bookmark"]),
             path=dict(aliases=["src"]),
             replace_home=dict(default=True, type="bool"),
@@ -737,12 +760,12 @@ def main() -> None:
 
     home_dir = pwd.getpwuid(os.getuid()).pw_dir
     params["sdirs"] = Entry.normalize_path(params["sdirs"], home_dir)
-    entries = ShellmarkManager(path=params["sdirs"], validate_on_init=False)
-    entries.replace_home = params["replace_home"]
+    manager = ShellmarkManager(path=params["sdirs"], validate_on_init=False)
+    manager.replace_home = params["replace_home"]
 
     if params["mark"] and params["path"] and params["state"] == "present":
         try:
-            entries.add_entry(
+            manager.add_entry(
                 mark=params["mark"],
                 path=params["path"],
                 avoid_duplicate_marks=True,
@@ -756,24 +779,27 @@ def main() -> None:
             module.fail_json(msg=str(exception))
 
     if (params["mark"] or params["path"]) and params["state"] == "absent":
-        entries.delete_entries(mark=params["mark"], path=params["path"])
+        manager.delete_entries(mark=params["mark"], path=params["path"])
 
     if params["cleanup"]:
-        entries.cleanup()
+        manager.cleanup()
 
     if params["delete_duplicates"]:
-        entries.delete_duplicates()
+        manager.delete_duplicates()
 
     if params["sorted"]:
-        entries.sort()
+        manager.sort()
 
-    if not module.check_mode and entries.changed:
-        entries.write()
+    if params["export"]:
+        manager.export(params["export"])
 
-    if entries.changed and entries.changes:
-        module.exit_json(changed=entries.changed, changes=entries.changes)
+    if not module.check_mode and manager.changed:
+        manager.write()
+
+    if manager.changed and manager.changes:
+        module.exit_json(changed=manager.changed, changes=manager.changes)
     else:
-        module.exit_json(changed=entries.changed)
+        module.exit_json(changed=manager.changed)
 
 
 if __name__ == "__main__":
