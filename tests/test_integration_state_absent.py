@@ -1,4 +1,4 @@
-from ._helper import DIR1, DIR2, DIR3, mock_main, tmp_file, MockResult
+from ._helper import DIR1, DIR2, DIR3, MockResult, mock_main, tmp_file
 
 
 class TestStateAbsent:
