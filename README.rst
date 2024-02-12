@@ -51,6 +51,12 @@ This module is able to write bookmarks to this file.
             For example 'autojump --add %path' or 'zoxide add %path'.
             default: null
 
+    - export_query
+            Command line string to query if the bookmark is already
+            exported. The string %mark is replaced with the mark and %path
+            is replaced with the path. For example 'zoxide query %path'.
+            default: null
+
     - mark
             Name of the bookmark.
             aliases: [bookmark]

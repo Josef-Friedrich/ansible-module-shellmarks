@@ -71,6 +71,7 @@ def mock_main(params: OptionalModuleParams, check_mode: bool = False) -> MockRes
         "cleanup": False,
         "delete_duplicates": False,
         "export": None,
+        "export_query": None,
         "mark": None,
         "path": None,
         "replace_home": False,
@@ -81,7 +82,7 @@ def mock_main(params: OptionalModuleParams, check_mode: bool = False) -> MockRes
 
     for key, value in list(defaults.items()):
         if key not in params:
-            params[key] = value
+            params[key] = value  # type: ignore
 
     p = cast(ModuleParams, params)
 
