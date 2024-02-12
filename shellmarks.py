@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# (c) 2017, Josef Friedrich <josef@friedrich.rocks>
+# (c) 2017-2024, Josef Friedrich <josef@friedrich.rocks>
 #
 # This module is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -1,4 +1,6 @@
-|Build Status| |Documentation Status|
+.. image:: http://img.shields.io/pypi/v/shellmarks.svg
+    :target: https://pypi.org/project/shellmarks
+    :alt: This package on the Python Package Index
 
 ansible-module-shellmarks
 =========================
@@ -22,8 +24,7 @@ This module is able to write bookmarks to this file.
    export DIR_shellmarks_module_ansible="$HOME/ansible-module-shellmarks"
    export DIR_skeleton_SHELL_GITHUB="$HOME/skeleton.sh"
 
-
-.. code-block::
+.. code-block:: 
 
     > SHELLMARKS    (/etc/ansible/library/shellmarks.py)
 
@@ -36,38 +37,41 @@ This module is able to write bookmarks to this file.
 
     - cleanup
             Delete bookmarks of nonexistent directories.
-            [Default: False]
+            default: false
 
     - delete_duplicates
             Delete duplicate bookmark entries. This option deletes both
             duplicate mark and duplicate path entries. Entries at the
             beginning are deleted, entries at the end are perserved.
-            [Default: False]
+            default: false
 
     - mark
             Name of the bookmark.
-            (Aliases: bookmark)[Default: (null)]
+            aliases: [bookmark]
+            default: null
 
     - path
             Full path to the directory.
-            (Aliases: src)[Default: (null)]
+            aliases: [src]
+            default: null
 
     - replace_home
             Replace home directory with $HOME variable.
-            [Default: True]
+            default: true
 
     - sdirs
             The path to the file where the bookmarks are stored.
-            [Default: ~/.sdirs]
+            default: ~/.sdirs
 
     - sorted
             Sort entries in the bookmark file.
-            [Default: True]
+            default: true
 
     - state
             State of the mark.
-            (Aliases: src)(Choices: present, absent)[Default: present]
-
+            aliases: [src]
+            choices: [present, absent]
+            default: present
 
     AUTHOR: Josef Friedrich (@Josef-Friedrich)
 
@@ -76,7 +80,6 @@ This module is able to write bookmarks to this file.
       status:
       - preview
       supported_by: community
-
 
     EXAMPLES:
 
@@ -104,28 +107,13 @@ This module is able to write bookmarks to this file.
     - shellmarks:
         cleanup: true
 
-
     RETURN VALUES:
     - changes
             A list of actions
-
             returned: On changed
-            sample:
-            - action: add
-              mark: dir1
-              path: /dir1
-            - action: delete
-              mark: dir1
-              path: /dir1
-            - action: sort
-              reverse: false
-              sort_by: mark
-            - action: cleanup
-              count: 1
-
+            sample: [{action: add, mark: dir1, path: /dir1}, {action: delete, mark: dir1, path: /dir1},
+              {action: sort, reverse: false, sort_by: mark}, {action: cleanup, count: 1}]
             type: list
-
-
 
 Development
 ===========
@@ -151,8 +139,3 @@ Generate documentation
 ::
 
    ansible-doc -M . shellmarks
-
-.. |Build Status| image:: https://travis-ci.org/Josef-Friedrich/ansible-module-shellmarks.svg?branch=master
-   :target: https://travis-ci.org/Josef-Friedrich/ansible-module-shellmarks
-.. |Documentation Status| image:: https://readthedocs.org/projects/ansible-module-shellmarks/badge/?version=latest
-   :target: https://ansible-module-shellmarks.readthedocs.io/en/latest/?badge=latest

@@ -1,4 +1,4 @@
-{{ badge.readthedocs }}
+{{ badge.pypi }}
 
 ansible-module-shellmarks
 =========================
@@ -48,8 +48,3 @@ Generate documentation
 ::
 
    ansible-doc -M . shellmarks
-
-.. |Build Status| image:: https://travis-ci.org/Josef-Friedrich/ansible-module-shellmarks.svg?branch=master
-   :target: https://travis-ci.org/Josef-Friedrich/ansible-module-shellmarks
-.. |Documentation Status| image:: https://readthedocs.org/projects/ansible-module-shellmarks/badge/?version=latest
-   :target: https://ansible-module-shellmarks.readthedocs.io/en/latest/?badge=latest
