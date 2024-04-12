@@ -21,7 +21,7 @@ ansible = "^9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8"
-readme-patcher = "^0.6.0"
+readme-patcher = "^0"
 tox = "^4"
 
 [build-system]
