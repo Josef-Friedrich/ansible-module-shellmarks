@@ -30,75 +30,65 @@ This module is able to write bookmarks to this file.
 
 .. code-block:: 
 
-    > SHELLMARKS    (/etc/ansible/library/shellmarks.py)
+    > MODULE shellmarks (/etc/ansible/library/shellmarks.py)
 
-            shellmarks https://github.com/Bilalh/shellmarks bashmarks
-            https://github.com/huyng/bashmarks are shell scripts that
-            allows you to save and jump to commonly used directories with
-            tab completion.
+      shellmarks https://github.com/Bilalh/shellmarks bashmarks
+      https://github.com/huyng/bashmarks are shell scripts that allows you
+      to save and jump to commonly used directories with tab completion.
 
-    OPTIONS (= is mandatory):
+    OPTIONS (red indicates it is required):
 
-    - cleanup
-            Delete bookmarks of nonexistent directories.
+       cleanup  Delete bookmarks of nonexistent directories.
             default: false
 
-    - delete_duplicates
-            Delete duplicate bookmark entries. This option deletes both
-            duplicate mark and duplicate path entries. Entries at the
-            beginning are deleted, entries at the end are perserved.
+       delete_duplicates  Delete duplicate bookmark entries. This option
+                          deletes both duplicate mark and duplicate path
+                          entries. Entries at the beginning are deleted,
+                          entries at the end are perserved.
             default: false
 
-    - export
-            Command line string to export the bookmarks. The string %mark
-            is replaced with the mark and %path is replaced with the path.
-            For example 'autojump --add %path' or 'zoxide add %path'.
+       export  Command line string to export the bookmarks. The string
+               %mark is replaced with the mark and %path is replaced with
+               the path. For example 'autojump --add %path' or 'zoxide add
+               %path'.
             default: null
 
-    - export_check
-            Command line string to query if the bookmark is already
-            exported. The string %mark is replaced with the mark and %path
-            is replaced with the path. For example 'zoxide query %path'.
+       export_check  Command line string to query if the bookmark is
+                     already exported. The string %mark is replaced with
+                     the mark and %path is replaced with the path. For
+                     example 'zoxide query %path'.
             default: null
 
-    - mark
-            Name of the bookmark.
+       mark    Name of the bookmark.
             aliases: [bookmark]
             default: null
 
-    - path
-            Full path to the directory.
+       path    Full path to the directory.
             aliases: [src]
             default: null
 
-    - replace_home
-            Replace home directory with $HOME variable.
+       replace_home  Replace home directory with $HOME variable.
             default: true
 
-    - sdirs
-            The path to the file where the bookmarks are stored.
+       sdirs   The path to the file where the bookmarks are stored.
             default: ~/.sdirs
 
-    - sorted
-            Sort entries in the bookmark file.
+       sorted  Sort entries in the bookmark file.
             default: true
 
-    - state
-            State of the mark.
+       state   State of the mark.
             aliases: [src]
             choices: [present, absent]
             default: present
 
     AUTHOR: Josef Friedrich (@Josef-Friedrich)
 
-    METADATA:
-      metadata_version: '1.0'
-      status:
-      - preview
-      supported_by: community
+    METADATA:           metadata_version: '1.0'
+              status:
+              - preview
+              supported_by: community
 
     EXAMPLES:
-
     # Bookmark the ansible configuration directory
     - shellmarks:
         mark: ansible
@@ -124,8 +114,8 @@ This module is able to write bookmarks to this file.
         cleanup: true
 
     RETURN VALUES:
-    - changes
-            A list of actions
+
+       changes  A list of actions
             returned: On changed
             sample: [{action: add, mark: dir1, path: /dir1}, {action: delete, mark: dir1, path: /dir1},
               {action: sort, reverse: false, sort_by: mark}, {action: cleanup, count: 1}]
